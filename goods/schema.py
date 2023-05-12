@@ -1,6 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
 
+from app.errors import UnauthorizedError
 from category.models import Category
 from category.schema import CategoryType
 from users.schema import UserType
@@ -35,7 +36,8 @@ class CreateGood(graphene.Mutation):
 
     def mutate(self, info, title, description, address, category_id):
         seller = info.context.user or None
-
+        if seller is None:
+            raise UnauthorizedError("Unauthorized access!")
         good = Good(title=title,
                     description=description,
                     address=address,
@@ -46,6 +48,7 @@ class CreateGood(graphene.Mutation):
 
         return CreateGood(
             id=good.id,
+            title=good.title,
             description=good.description,
             address=good.address,
             category=good.category,

@@ -61,3 +61,36 @@ mutation{
     }
   }
 }
+
+### Categories
+mutation{
+  createCategory(title:"new category. test"){
+		title
+  }
+}
+
+### Goods
+mutation{
+  createGood(
+    title:"new category. test",
+    description:"some uninterestin description",
+    address:"nowhere 1, 12345",
+    categoryId:1
+    
+  ){
+		title
+  }
+}
+
+### Goods List
+
+mutation{
+  createGoodsList(
+    title:"new goods list. test",
+  ){
+    id
+		title
+  }
+}
+
+### Orders

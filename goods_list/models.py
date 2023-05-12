@@ -6,5 +6,5 @@ from goods.models import Good
 
 class GoodsList(models.Model):
     title = models.CharField(max_length=256, blank=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=False)
     goods = models.ManyToManyField(Good)
