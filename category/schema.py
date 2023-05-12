@@ -16,6 +16,7 @@ class Query(graphene.ObjectType):
         return Category.objects.all()
 
 
+# TODO add good to category
 class CreateCategory(graphene.Mutation):
     id = graphene.Int()
     title = graphene.String()

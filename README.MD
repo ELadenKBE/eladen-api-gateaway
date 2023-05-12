@@ -75,7 +75,8 @@ mutation{
     title:"new category. test",
     description:"some uninterestin description",
     address:"nowhere 1, 12345",
-    categoryId:1
+    categoryId:1,
+    price: 123.12
     
   ){
 		title

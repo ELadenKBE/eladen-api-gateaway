@@ -26,6 +26,7 @@ class CreateGood(graphene.Mutation):
     description = graphene.String()
     seller = graphene.Field(UserType)
     address = graphene.String()
+    price = graphene.Float()
     category = graphene.Field(CategoryType)
 
     class Arguments:
