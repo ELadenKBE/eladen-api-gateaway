@@ -14,4 +14,3 @@ class Query(graphene.ObjectType):
 
     def resolve_categories(self, info, **kwargs):
         return Category.objects.all()
-

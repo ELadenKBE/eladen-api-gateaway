@@ -11,3 +11,53 @@ Optional variables:
 ## Frequent Queries
 
 ### Users
+query{
+users{
+      id
+    	username
+  		email
+    }
+  }
+
+### Categories
+query{
+categories{
+      id
+    	title
+  }
+}
+
+### Goods
+
+query{
+goods{
+      id
+    	title
+  description
+  address
+  url
+  price
+  category{
+    id
+    title
+  }
+  seller{
+    id
+    username
+    email
+  }
+  }
+}
+
+## Frequent Mutations
+
+### Users
+mutation{
+  createUser(username: "tim", email: "testemail@gmail.com", password: "12345"){
+    user{
+      id
+    	username
+  		email
+    }
+  }
+}

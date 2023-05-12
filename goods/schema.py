@@ -1,6 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
 
+from category.models import Category
 from category.schema import CategoryType
 from users.schema import UserType
 from .models import Good
@@ -30,15 +31,15 @@ class CreateGood(graphene.Mutation):
         title = graphene.String()
         description = graphene.String()
         address = graphene.String()
-        category = graphene.Argument(CategoryType)
+        category_id = graphene.Int()
 
-    def mutate(self, info, title, description, address, category):
+    def mutate(self, info, title, description, address, category_id):
         seller = info.context.user or None
 
         good = Good(title=title,
                     description=description,
                     address=address,
-                    category=category,
+                    category=Category.objects.get(id=category_id),
                     seller=seller
                     )
         good.save()
