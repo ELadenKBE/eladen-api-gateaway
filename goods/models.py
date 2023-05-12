@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 from category.models import Category
 
@@ -10,7 +11,7 @@ class Good(models.Model):
     url = models.URLField()
     description = models.TextField(blank=True)
     title = models.CharField(max_length=256)
-    #TODO seller_id
+    seller = models.ForeignKey(User, on_delete=models.CASCADE)
     address = models.CharField(max_length=256)
     category = models.ForeignKey(Category,
                                  on_delete=models.CASCADE,

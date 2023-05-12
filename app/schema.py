@@ -2,9 +2,14 @@ import graphene
 
 import goods.schema
 import category.schema
+import users.schema
 
 
-class Query(goods.schema.Query, category.schema.Query, graphene.ObjectType):
+class Query(users.schema.Query, goods.schema.Query, category.schema.Query, graphene.ObjectType):
+    pass
+
+
+class Mutation(users.schema.Mutation, graphene.ObjectType,):
     pass
 
 
