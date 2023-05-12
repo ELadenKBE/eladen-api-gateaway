@@ -30,7 +30,7 @@ class CreateGood(graphene.Mutation):
         title = graphene.String()
         description = graphene.String()
         address = graphene.String()
-        category = graphene.Field(CategoryType)
+        category = graphene.Argument(CategoryType)
 
     def mutate(self, info, title, description, address, category):
         seller = info.context.user or None
@@ -52,6 +52,5 @@ class CreateGood(graphene.Mutation):
         )
 
 
-#4
 class Mutation(graphene.ObjectType):
     create_good = CreateGood.Field()

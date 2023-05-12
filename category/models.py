@@ -4,4 +4,4 @@ from django.db import models
 
 
 class Category(models.Model):
-    title = models.CharField( max_length=256, blank=False)
+    title = models.CharField(max_length=256, blank=False)
