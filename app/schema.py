@@ -5,11 +5,16 @@ import category.schema
 import users.schema
 
 
-class Query(users.schema.Query, goods.schema.Query, category.schema.Query, graphene.ObjectType):
+class Query(users.schema.Query,
+            goods.schema.Query,
+            category.schema.Query,
+            graphene.ObjectType):
     pass
 
 
-class Mutation(users.schema.Mutation, graphene.ObjectType,):
+class Mutation(goods.schema.Mutation,
+               users.schema.Mutation,
+               graphene.ObjectType,):
     pass
 
 

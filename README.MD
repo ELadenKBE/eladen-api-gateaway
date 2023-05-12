@@ -6,3 +6,8 @@ SECRET_KEY=
 
 Optional variables:
 <br>DEBUG=
+
+
+## Frequent Queries
+
+### Users
