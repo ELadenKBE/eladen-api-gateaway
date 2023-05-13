@@ -7,6 +7,21 @@ SECRET_KEY=
 Optional variables:
 <br>DEBUG=
 
+### Authorisation
+
+mutation { tokenAuth(username:"tim",password:"12345"){ token } }
+
+{
+  "AUTHORIZATION": "JWT <token>"
+}
+
+query{
+  me{
+    id
+    username
+  }
+}
+
 
 ## Frequent Queries
 

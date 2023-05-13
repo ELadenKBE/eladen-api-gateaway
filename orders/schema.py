@@ -1,7 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
 
-from app.errors import UnauthorizedError
+from app.errors import UnauthorizedError, ResourceError
 from .models import Order
 
 
@@ -55,6 +55,50 @@ class CreateOrder(graphene.Mutation):
             title=order.title,
             user=user
         )
+
+
+class ChangeDeliveryStatus(graphene.Mutation):
+    id = graphene.Int()
+    delivery_status = graphene.String()
+
+    class Arguments:
+        id = graphene.Int()
+        delivery_status = graphene.String()
+
+    def mutate(self, info, id_arg, delivery_status):
+        user = info.context.user or None
+        if user is None:
+            raise UnauthorizedError("Unauthorized access!")
+        order = Order.objects.get(id=id_arg)
+        if order is None:
+            raise ResourceError("Order is not accessible")
+        order.delivery_status = delivery_status
+        order.save()
+
+        return ChangeDeliveryStatus(id=order.id,
+                                    delivery_status=order.delivery_status)
+
+
+class ChangePaymentStatus(graphene.Mutation):
+    id = graphene.Int()
+    payment_status = graphene.String()
+
+    class Arguments :
+        id = graphene.Int()
+        payment_status = graphene.String()
+
+    def mutate(self, info, id_arg, payment_status):
+        user = info.context.user or None
+        if user is None:
+            raise UnauthorizedError("Unauthorized access!")
+        order = Order.objects.get(id=id_arg)
+        if order is None:
+            raise ResourceError("Order is not accessible")
+        order.payment_status = payment_status
+        order.save()
+
+        return ChangeDeliveryStatus(id=order.id,
+                                    payment_status=order.payment_status)
 
 
 class Mutation(graphene.ObjectType):
