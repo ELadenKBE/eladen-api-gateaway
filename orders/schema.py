@@ -103,3 +103,5 @@ class ChangePaymentStatus(graphene.Mutation):
 
 class Mutation(graphene.ObjectType):
     create_order = CreateOrder.Field()
+    change_delivery_status = ChangeDeliveryStatus.Field()
+    change_payment_status = ChangePaymentStatus.Field()

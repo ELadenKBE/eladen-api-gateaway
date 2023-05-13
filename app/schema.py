@@ -20,6 +20,7 @@ class Mutation(goods.schema.Mutation,
                users.schema.Mutation,
                category.schema.Mutation,
                goods_list.schema.Mutation,
+               orders.schema.Mutation,
                graphene.ObjectType,):
     pass
 
