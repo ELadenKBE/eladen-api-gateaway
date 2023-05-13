@@ -6,3 +6,108 @@ SECRET_KEY=
 
 Optional variables:
 <br>DEBUG=
+
+### Authorisation
+
+mutation { tokenAuth(username:"tim",password:"12345"){ token } }
+
+{
+  "AUTHORIZATION": "JWT <token>"
+}
+
+query{
+  me{
+    id
+    username
+  }
+}
+
+
+## Frequent Queries
+
+### Users
+query{
+users{
+      id
+    	username
+  		email
+    }
+  }
+
+### Categories
+query{
+categories{
+      id
+    	title
+  }
+}
+
+### Goods
+
+query{
+goods{
+      id
+    	title
+  description
+  address
+  url
+  price
+  category{
+    id
+    title
+  }
+  seller{
+    id
+    username
+    email
+  }
+  }
+}
+
+## Frequent Mutations
+
+### Users
+mutation{
+  createUser(username: "tim", email: "testemail@gmail.com", password: "12345"){
+    user{
+      id
+    	username
+  		email
+    }
+  }
+}
+
+### Categories
+mutation{
+  createCategory(title:"new category. test"){
+		title
+  }
+}
+
+### Goods
+mutation{
+  createGood(
+    title:"new category. test",
+    description:"some uninterestin description",
+    address:"nowhere 1, 12345",
+    categoryId:1,
+    price: 123.12
+    
+  ){
+		title
+  }
+}
+
+### Goods List
+
+mutation{
+  createGoodsList(
+    title:"new goods list. test",
+  ){
+    id
+		title
+  }
+}
+
+### Orders
+master
