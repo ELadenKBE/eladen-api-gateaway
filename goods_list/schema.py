@@ -37,6 +37,9 @@ class CreateGoodsList(graphene.Mutation):
             user=user
         )
 
+# TODO add item to cart
+# TODO add item to liked
+
 
 class Mutation(graphene.ObjectType):
     create_goods_list = CreateGoodsList.Field()
