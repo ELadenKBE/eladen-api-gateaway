@@ -3,17 +3,19 @@ from django.contrib.auth import get_user_model
 import graphene
 from graphene_django import DjangoObjectType
 
+from users.models import ExtendedUser
+
 
 class UserType(DjangoObjectType):
     class Meta:
-        model = get_user_model()
+        model = ExtendedUser
 
 
 class Query(graphene.ObjectType):
     users = graphene.List(UserType)
 
     def resolve_users(self, info):
-        return get_user_model().objects.all()
+        return ExtendedUser.objects.all()
 
 
 class CreateUser(graphene.Mutation):
@@ -23,11 +25,13 @@ class CreateUser(graphene.Mutation):
         username = graphene.String(required=True)
         password = graphene.String(required=True)
         email = graphene.String(required=True)
+        role = graphene.Int(required=True)
 
-    def mutate(self, info, username, password, email):
-        user = get_user_model()(
+    def mutate(self, info, username, password, email, role):
+        user = ExtendedUser(
             username=username,
             email=email,
+            role=role
         )
         user.set_password(password)
         user.save()
