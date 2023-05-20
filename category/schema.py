@@ -1,7 +1,10 @@
 import graphene
+import jwt
 from graphene_django import DjangoObjectType
 
+from app.errors import UnauthorizedError
 from category.models import Category
+from users.models import ExtendedUser
 
 
 class CategoryType(DjangoObjectType):
@@ -13,6 +16,11 @@ class Query(graphene.ObjectType):
     categories = graphene.List(CategoryType)
 
     def resolve_categories(self, info, **kwargs):
+        user: ExtendedUser = info.context.user or None
+        # encoded_jwt = info.context.META.get('HTTP_AUTHORIZATION')
+        # print(jwt.decode(encoded_jwt, algorithms=["HS256"]))
+        if user.is_user():
+            raise UnauthorizedError("Unauthorised")
         return Category.objects.all()
 
 
@@ -24,9 +32,8 @@ class CreateCategory(graphene.Mutation):
     class Arguments:
         title = graphene.String()
 
-    def mutate(self, info, title,):
-        seller = info.context.user or None
-        #TODO check if user is seller or admin
+    def mutate(self, info, title):
+        user: ExtendedUser = info.context.user or None
         category = Category(title=title)
         category.save()
 

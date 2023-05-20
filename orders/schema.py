@@ -83,7 +83,7 @@ class ChangePaymentStatus(graphene.Mutation):
     id = graphene.Int()
     payment_status = graphene.String()
 
-    class Arguments :
+    class Arguments:
         id = graphene.Int()
         payment_status = graphene.String()
 
