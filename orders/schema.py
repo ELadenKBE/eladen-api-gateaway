@@ -17,8 +17,6 @@ class Query(graphene.ObjectType):
         return Order.objects.all()
 
 
-# TODO change delivery status
-# TODO change payment status
 class CreateOrder(graphene.Mutation):
     id = graphene.Int()
     time_of_order = graphene.String()

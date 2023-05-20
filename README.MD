@@ -111,3 +111,27 @@ mutation{
 
 ### Orders
 master
+
+### Introspections
+## Show all mutations
+
+query IntrospectionQuery {
+  __type(name: "Mutation") {
+    name
+    kind
+    fields {
+      name
+      args {
+        name
+        type {
+          name
+          kind
+        }
+      }
+      type {
+        name
+        kind
+      }
+    }
+  }
+}

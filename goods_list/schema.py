@@ -2,6 +2,9 @@ import graphene
 from graphene_django import DjangoObjectType
 
 from app.errors import UnauthorizedError
+from category.schema import CategoryType
+from goods.models import Good
+from users.schema import UserType
 from .models import GoodsList
 
 
@@ -37,9 +40,74 @@ class CreateGoodsList(graphene.Mutation):
             user=user
         )
 
-# TODO add item to cart
-# TODO add item to liked
+
+class AddGoodToLiked(graphene.Mutation):
+    id = graphene.Int()
+    title = graphene.String()
+    description = graphene.String()
+    seller = graphene.Field(UserType)
+    address = graphene.String()
+    price = graphene.Float()
+    category = graphene.Field(CategoryType)
+
+    class Arguments:
+        good_id = graphene.Int()
+
+    def mutate(self, info, good_id):
+        user = info.context.user or None
+        if user is None:
+            raise UnauthorizedError("Unauthorized access!")
+        good = Good.objects.get(id=good_id)
+        liked_list: GoodsList = GoodsList.objects.filter(user=user,
+                                                         title="liked")
+        liked_list.goods.add(good)
+        liked_list.save()
+
+        return AddGoodToLiked(
+            id=good.id,
+            title=good.title,
+            description=good.description,
+            seller=good.seller,
+            address=good.address,
+            price=good.price,
+            category=good.category,
+        )
+
+
+class AddGoodToCart(graphene.Mutation):
+    id = graphene.Int()
+    title = graphene.String()
+    description = graphene.String()
+    seller = graphene.Field(UserType)
+    address = graphene.String()
+    price = graphene.Float()
+    category = graphene.Field(CategoryType)
+
+    class Arguments:
+        good_id = graphene.Int()
+
+    def mutate(self, info, good_id):
+        user = info.context.user or None
+        if user is None:
+            raise UnauthorizedError("Unauthorized access!")
+        good = Good.objects.get(id=good_id)
+        liked_list: GoodsList = GoodsList.objects.filter(user=user,
+                                                         title="cart")
+        liked_list.goods.add(good)
+        liked_list.save()
+
+        return AddGoodToLiked(
+            id=good.id,
+            title=good.title,
+            description=good.description,
+            seller=good.seller,
+            address=good.address,
+            price=good.price,
+            category=good.category,
+        )
 
 
 class Mutation(graphene.ObjectType):
     create_goods_list = CreateGoodsList.Field()
+    add_good_to_liked = AddGoodToLiked.Field()
+    add_good_to_cart = AddGoodToCart.Field()

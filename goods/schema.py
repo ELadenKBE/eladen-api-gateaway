@@ -34,8 +34,9 @@ class CreateGood(graphene.Mutation):
         description = graphene.String()
         address = graphene.String()
         category_id = graphene.Int()
+        price = graphene.Float()
 
-    def mutate(self, info, title, description, address, category_id):
+    def mutate(self, info, title, description, address, category_id, price):
         seller = info.context.user or None
         if seller is None:
             raise UnauthorizedError("Unauthorized access!")
@@ -43,7 +44,8 @@ class CreateGood(graphene.Mutation):
                     description=description,
                     address=address,
                     category=Category.objects.get(id=category_id),
-                    seller=seller
+                    seller=seller,
+                    price=price
                     )
         good.save()
 
@@ -53,9 +55,41 @@ class CreateGood(graphene.Mutation):
             description=good.description,
             address=good.address,
             category=good.category,
-            seller=good.seller
+            seller=good.seller,
+            price=good.price
+        )
+
+
+class ChangeCategory(graphene.Mutation):
+    id = graphene.Int()
+    title = graphene.String()
+    description = graphene.String()
+    seller = graphene.Field(UserType)
+    address = graphene.String()
+    price = graphene.Float()
+    category = graphene.Field(CategoryType)
+
+    class Arguments:
+        category_id = graphene.Int()
+        good_id = graphene.Int()
+
+    def mutate(self, category_id, good_id):
+        category = Category.objects.get(id=category_id)
+        good = Good.objects.get(id=good_id)
+        good.category=category
+        good.save()
+
+        return ChangeCategory(
+            id=good.id,
+            title=good.title,
+            description=good.description,
+            address=good.address,
+            category=good.category,
+            seller=good.seller,
+            price=good.price
         )
 
 
 class Mutation(graphene.ObjectType):
     create_good = CreateGood.Field()
+    change_category = ChangeCategory.Field()

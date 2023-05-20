@@ -57,7 +57,7 @@ class CreateUser(graphene.Mutation):
             )
             liked_list.save()
             cart_list = GoodsList(
-                title="liked",
+                title="cart",
                 user=user
             )
             cart_list.save()
@@ -71,7 +71,7 @@ class CreateUser(graphene.Mutation):
 
     def validate_role(self, role):
         if role < 1 or role > 2:
-            raise ValueError("role ")
+            raise ValueError("role is not defined")
 
 
 class Mutation(graphene.ObjectType):
