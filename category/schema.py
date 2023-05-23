@@ -3,8 +3,12 @@ import jwt
 from graphene_django import DjangoObjectType
 
 from app.errors import UnauthorizedError
+from app.permissions import permission, Admin, Seller, All
 from category.models import Category
 from users.models import ExtendedUser
+
+
+from django.db.models import Q
 
 
 class CategoryType(DjangoObjectType):
@@ -13,18 +17,20 @@ class CategoryType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    categories = graphene.List(CategoryType)
+    categories = graphene.List(CategoryType, search=graphene.String())
 
-    def resolve_categories(self, info, **kwargs):
-        user: ExtendedUser = info.context.user or None
-        # encoded_jwt = info.context.META.get('HTTP_AUTHORIZATION')
-        # print(jwt.decode(encoded_jwt, algorithms=["HS256"]))
-        if user.is_user():
-            raise UnauthorizedError("Unauthorised")
+    @permission(roles=[All])
+    def resolve_categories(self, info, search=None, **kwargs):
+        if search:
+            filter = (
+                    Q(title__icontains=search)
+            )
+            return Category.objects.filter(filter)
         return Category.objects.all()
 
 
-# TODO add good to category
+#@permission(roles=[admin, seller])
+
 class CreateCategory(graphene.Mutation):
     id = graphene.Int()
     title = graphene.String()
@@ -32,6 +38,7 @@ class CreateCategory(graphene.Mutation):
     class Arguments:
         title = graphene.String()
 
+    @permission(roles=[Admin, Seller])
     def mutate(self, info, title):
         user: ExtendedUser = info.context.user or None
         category = Category(title=title)
