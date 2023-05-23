@@ -17,15 +17,20 @@ class CategoryType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    categories = graphene.List(CategoryType, search=graphene.String())
+    categories = graphene.List(CategoryType,
+                               search=graphene.String(),
+                               searched_id=graphene.String(),
+                               )
 
     @permission(roles=[All])
-    def resolve_categories(self, info, search=None, **kwargs):
+    def resolve_categories(self, info, search=None, searched_id=None, **kwargs):
         if search:
             filter = (
                     Q(title__icontains=search)
             )
             return Category.objects.filter(filter)
+        if searched_id:
+            Category.objects.get(id=searched_id)
         return Category.objects.all()
 
 
