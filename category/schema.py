@@ -29,8 +29,6 @@ class Query(graphene.ObjectType):
         return Category.objects.all()
 
 
-#@permission(roles=[admin, seller])
-
 class CreateCategory(graphene.Mutation):
     id = graphene.Int()
     title = graphene.String()
@@ -40,7 +38,6 @@ class CreateCategory(graphene.Mutation):
 
     @permission(roles=[Admin, Seller])
     def mutate(self, info, title):
-        user: ExtendedUser = info.context.user or None
         category = Category(title=title)
         category.save()
 

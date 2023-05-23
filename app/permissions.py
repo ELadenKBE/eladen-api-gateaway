@@ -4,9 +4,13 @@ from typing import Type
 from django.contrib.auth.models import AnonymousUser
 
 from app.errors import UnauthorizedError
+from users.models import ExtendedUser
+
+"""This is an implementation of permissions and roles"""
 
 
 class IUser(abc.ABCMeta):
+    """Interface for roles"""
 
     @staticmethod
     @abc.abstractmethod
@@ -16,20 +20,20 @@ class IUser(abc.ABCMeta):
 
 class Admin(IUser):
     @staticmethod
-    def is_equal(role):
-        pass
+    def is_equal(role: ExtendedUser):
+        return role.is_admin()
 
 
 class User(IUser):
     @staticmethod
-    def is_equal(role):
-        pass
+    def is_equal(role: ExtendedUser):
+        return role.is_user()
 
 
 class Seller(IUser):
     @staticmethod
-    def is_equal(role):
-        pass
+    def is_equal(role: ExtendedUser):
+        return role.is_seller()
 
 
 class All(IUser):
@@ -41,6 +45,11 @@ class All(IUser):
 
 
 def permission(roles: list[Type[IUser]] = None):
+    """We use this decorator for queries and mutations
+
+
+    :param roles: allowed roles. Passed at mutation/query implementation.
+    :return: result of executed mutation"""
     def inner_permission(func):
         def validate_permission_scope(*arg, **kwargs):
             user = arg[1].context.user
