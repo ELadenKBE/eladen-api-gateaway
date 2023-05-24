@@ -135,3 +135,7 @@ query IntrospectionQuery {
     }
   }
 }
+
+
+python manage.py test category.category_test
+python manage.py test --keepdb category.category_test

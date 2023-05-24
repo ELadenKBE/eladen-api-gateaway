@@ -1,14 +1,9 @@
 import graphene
-import jwt
+from django.db.models import Q
 from graphene_django import DjangoObjectType
 
-from app.errors import UnauthorizedError
 from app.permissions import permission, Admin, Seller, All
 from category.models import Category
-from users.models import ExtendedUser
-
-
-from django.db.models import Q
 
 
 class CategoryType(DjangoObjectType):
