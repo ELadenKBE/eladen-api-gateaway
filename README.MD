@@ -112,8 +112,8 @@ mutation{
 ### Orders
 master
 
-### Introspections
-## Show all mutations
+## Introspections
+### Show all mutations
 
 query IntrospectionQuery {
   __type(name: "Mutation") {
@@ -136,6 +136,6 @@ query IntrospectionQuery {
   }
 }
 
-
-python manage.py test category.category_test
-python manage.py test --keepdb category.category_test
+## Test commands
+### Execute a particular test
+python manage.py test tests.api_tests.category_test
