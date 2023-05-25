@@ -30,12 +30,12 @@ class Query(graphene.ObjectType):
 
 class CreateCategory(graphene.Mutation):
     id = graphene.Int()
-    title = graphene.String()
+    title = graphene.String(required=True)
 
     class Arguments:
         title = graphene.String()
 
-    @permission(roles=[Admin, Seller])
+    @permission(roles=[Admin])
     def mutate(self, info, title):
         category = Category(title=title)
         category.save()
@@ -46,5 +46,26 @@ class CreateCategory(graphene.Mutation):
         )
 
 
+class UpdateCategory(graphene.Mutation):
+    id = graphene.Int(required=True)
+    title = graphene.String()
+
+    class Arguments:
+        id = graphene.Int()
+        title = graphene.String()
+
+    @permission(roles=[Admin])
+    def mutate(self, info, id, title):
+        category = Category.objects.get(id=id)
+        category.title = title
+        category.save()
+
+        return UpdateCategory(
+            id=category.id,
+            title=category.title
+        )
+
+
 class Mutation(graphene.ObjectType):
     create_category = CreateCategory.Field()
+    update_category = UpdateCategory.Field()

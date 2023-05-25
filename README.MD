@@ -84,6 +84,13 @@ mutation{
   }
 }
 
+mutation{
+  updateCategory(id:1, title:"updated"){
+    id
+    title
+  }
+}
+
 ### Goods
 mutation{
   createGood(
@@ -111,6 +118,9 @@ mutation{
 
 ### Orders
 master
+
+
+
 
 ## Introspections
 ### Show all mutations
