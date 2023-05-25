@@ -51,7 +51,7 @@ class UpdateCategory(graphene.Mutation):
     title = graphene.String()
 
     class Arguments:
-        id = graphene.Int()
+        id = graphene.Int(required=True)
         title = graphene.String()
 
     @permission(roles=[Admin])
@@ -66,6 +66,25 @@ class UpdateCategory(graphene.Mutation):
         )
 
 
+class DeleteCategory(graphene.Mutation):
+    id = graphene.Int(required=True)
+    title = graphene.String()
+
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    @permission(roles=[Admin])
+    def mutate(self, info, id):
+        category = Category.objects.get(id=id)
+        category.delete()
+
+        return CreateCategory(
+            id=id,
+            title=category.title
+        )
+
+
 class Mutation(graphene.ObjectType):
     create_category = CreateCategory.Field()
     update_category = UpdateCategory.Field()
+    delete_category = DeleteCategory.Field()

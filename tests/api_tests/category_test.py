@@ -43,6 +43,12 @@ class QuestionModelTests(GraphQLTestCase):
         cls.test_users_data = [admin, seller, user]
         ExtendedUser.objects.bulk_create(cls.test_users_data)
 
+    @staticmethod
+    def create_item():
+        item = Category(title="title")
+        item.save()
+        return item
+
     def request_graphql(self, role, formatted_query):
         if role:
             user = ExtendedUser.objects.get(username=role)
@@ -173,23 +179,68 @@ class QuestionModelTests(GraphQLTestCase):
                          "the object was not updated")
 
     def test_update_by_id_as_admin(self):
-        """Test admin should be allowed to update any entity"""
+        """Test. admin should be allowed to update any entity"""
         self.update_by_id_as("admin")
 
     def test_update_by_id_as_seller(self):
-        """Test seller should not be allowed to update category entity"""
+        """Test. seller should not be allowed to update category entity"""
         with self.assertRaises(UnauthorizedError):
             self.update_by_id_as("seller")
 
     def test_update_by_id_as_user(self):
-        """Test user should not be allowed to update category entity"""
+        """Test. user should not be allowed to update category entity"""
         with self.assertRaises(UnauthorizedError):
             self.update_by_id_as("user")
 
     def test_update_by_id_as_anon(self):
-        """Test anon should not be allowed to update category entity"""
+        """Test. anon should not be allowed to update category entity"""
         with self.assertRaises(UnauthorizedError):
             self.update_by_id_as()
+
+    def delete_by_id_as(self, role=None):
+        """
+        Helper function to delete object with specified role
+
+        :param role: str definition of role
+        """
+        object_to_delete = self.create_item()
+        id_to_delete = object_to_delete.id
+        query = '''mutation{{
+                      deleteCategory(id:{0}){{
+                        id
+                        title
+                      }}
+                    }}
+                '''
+        formatted_query = query.format(id_to_delete)
+        response = self.request_graphql(role=role,
+                                        formatted_query=formatted_query)
+        self.check_for_permission_errors(response)
+
+        self.assertIsNone(Category.objects.filter(id=id_to_delete).first(),
+                          "object has to be deleted")
+        self.assertResponseNoErrors(response, "response has errors")
+
+    def test_delete_by_id_as_admin(self):
+        """Test. Admin should be able to delete a category"""
+        self.delete_by_id_as("admin")
+
+    def test_delete_by_id_as_seller(self):
+        """Test. Seller should not be able to delete a category"""
+        with self.assertRaises(UnauthorizedError):
+            self.delete_by_id_as("seller")
+
+    def test_delete_by_id_as_user(self):
+        """Test. User should not be able to delete a category"""
+        with self.assertRaises(UnauthorizedError):
+            self.delete_by_id_as("user")
+
+    def test_delete_by_id_as_anon(self):
+        """Test. Anonymous user should not be able to delete a category"""
+        with self.assertRaises(UnauthorizedError):
+            self.delete_by_id_as()
+
+
 
 
 @skip("")
