@@ -39,9 +39,7 @@ class Seller(IUser):
 class All(IUser):
     @staticmethod
     def is_equal(role):
-        if isinstance(role, AnonymousUser):
-            return True
-        return False
+        return True
 
 
 def permission(roles: list[Type[IUser]] = None):
