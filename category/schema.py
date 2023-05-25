@@ -20,12 +20,11 @@ class Query(graphene.ObjectType):
     @permission(roles=[All])
     def resolve_categories(self, info, search=None, searched_id=None, **kwargs):
         if search:
-            filter = (
-                    Q(title__icontains=search)
-            )
-            return Category.objects.filter(filter)
+            search_filter = (Q(title__icontains=search))
+            return Category.objects.filter(search_filter)
         if searched_id:
-            Category.objects.get(id=searched_id)
+            data_to_return = Category.objects.get(id=searched_id)
+            return [data_to_return]
         return Category.objects.all()
 
 

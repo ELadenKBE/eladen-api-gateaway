@@ -21,19 +21,28 @@ class IUser(abc.ABCMeta):
 class Admin(IUser):
     @staticmethod
     def is_equal(role: ExtendedUser):
-        return role.is_admin()
+        if isinstance(role, AnonymousUser):
+            return False
+        else:
+            return role.is_admin()
 
 
 class User(IUser):
     @staticmethod
     def is_equal(role: ExtendedUser):
-        return role.is_user()
+        if isinstance(role, AnonymousUser):
+            return False
+        else:
+            return role.is_user()
 
 
 class Seller(IUser):
     @staticmethod
     def is_equal(role: ExtendedUser):
-        return role.is_seller()
+        if isinstance(role, AnonymousUser):
+            return False
+        else:
+            return role.is_seller()
 
 
 class All(IUser):
