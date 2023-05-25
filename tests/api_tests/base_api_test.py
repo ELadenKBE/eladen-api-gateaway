@@ -1,0 +1,345 @@
+import abc
+import json
+import re
+from unittest import skip
+
+from graphene_django.utils.testing import GraphQLTestCase
+from graphql_jwt.shortcuts import get_token
+from django.test import TestCase
+
+from app.errors import UnauthorizedError
+from category.models import Category
+from users.models import ExtendedUser
+from django.db import models
+
+
+class IEndpointTest:
+
+    @property
+    @abc.abstractmethod
+    def model(self) -> models.Model:
+        """
+        Every class has to define a reference to data model.
+
+        :return: models.Model django model
+        """
+        pass
+
+    @property
+    @abc.abstractmethod
+    def mutation_delete(self) -> str:
+        """
+        Every class has to define a delete-mutation.
+
+        :return: str name
+        """
+        pass
+
+    @property
+    @abc.abstractmethod
+    def mutation_create_name(self) -> str:
+        """
+        Every class has to define a  name of the create-mutation.
+        For example "createCategories"
+
+        :return: str name
+        """
+        pass
+
+    @property
+    @abc.abstractmethod
+    def mutation_update_name(self) -> str:
+        """
+        Every class has to define a name of the update-mutation.
+        For example "updateCategories"
+
+        :return: str name
+        """
+        pass
+
+    @property
+    @abc.abstractmethod
+    def plural_name(self) -> str:
+        """
+        Every class has to define a plural name of the entity.
+        For example "categories"
+
+        :return: str name
+        """
+        pass
+
+    @property
+    @abc.abstractmethod
+    def mutation_update(self) -> str:
+        """
+        Every class has to define an update-mutation of the entity.
+
+        :return: str name
+        """
+        pass
+
+    @property
+    @abc.abstractmethod
+    def mutation_create(self) -> str:
+        """
+        Every class has to define a create-mutation
+        :return: str mutation
+        """
+        pass
+
+    @property
+    @abc.abstractmethod
+    def all_query(self) -> str:
+        """
+        Every class has to define a query for all elements
+        :return: str query
+        """
+        pass
+
+    @property
+    @abc.abstractmethod
+    def by_id_query(self) -> str:
+        """
+        Every class has to define a query to get one first element by id
+        :return: str query
+        """
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def create_item() -> models.Model:
+        """
+        Every test class must implement create object method.
+
+        :return: models.Model
+        """
+        pass
+
+    @abc.abstractmethod
+    def test_create_item_as_admin(self):
+        """
+        Implement test creation by admin
+        """
+        pass
+
+    @abc.abstractmethod
+    def test_create_item_as_seller(self):
+        """
+                Implement test creation by Seller
+                """
+        pass
+
+    @abc.abstractmethod
+    def test_create_item_as_user(self):
+        """
+                Implement test creation by User
+                """
+        pass
+
+    @abc.abstractmethod
+    def test_create_item_as_anon(self):
+        """
+                Implement test creation by Anonymous User
+                """
+        pass
+
+    @abc.abstractmethod
+    def test_update_by_id_as_admin(self):
+        """
+        Implement test update by Admin
+        """
+        pass
+
+    @abc.abstractmethod
+    def test_update_by_id_as_seller(self):
+        """
+        Implement test update by Seller
+        """
+        pass
+
+    @abc.abstractmethod
+    def test_update_by_id_as_user(self):
+        """
+        Implement test update by User
+        """
+        pass
+
+    @abc.abstractmethod
+    def test_update_by_id_as_anon(self):
+        """
+        Implement test update by Anonymous User
+        """
+        pass
+
+
+class WrapperForBaseTestClass:
+    """Wrapper class prevents execution when tests are discovered"""
+
+    class BaseEndpointsTests(GraphQLTestCase, IEndpointTest):
+        """Base class for api tests
+        """
+        GRAPHQL_URL = '/graphql/'
+        test_category_data = []
+        test_users_data = []
+        mutation_create = None
+
+        @classmethod
+        def setUpClass(cls):
+            """Create test data
+            """
+            cls.test_category_data = [
+                Category(title='Example'),
+                Category(title='Example2'),
+                Category(title='Example3'),
+                Category(title='Example4')
+            ]
+            Category.objects.bulk_create(cls.test_category_data)
+            admin = ExtendedUser(email="sometest@gmail.com",
+                                 username="admin",
+                                 role=3)
+            admin.set_password("12345")
+            seller = ExtendedUser(email="sometest@gmail.com",
+                                  username="seller",
+                                  role=2)
+            seller.set_password("12345")
+            user = ExtendedUser(email="sometest@gmail.com",
+                                username="user",
+                                role=1)
+            user.set_password("12345")
+            cls.test_users_data = [admin, seller, user]
+            ExtendedUser.objects.bulk_create(cls.test_users_data)
+
+        @classmethod
+        def tearDownClass(cls):
+            pass
+
+        def request_graphql(self, role, formatted_query):
+            if role:
+                user = ExtendedUser.objects.get(username=role)
+                token = get_token(user)
+                headers = {"HTTP_AUTHORIZATION": f"JWT {token}"}
+                return self.query(
+                    query=formatted_query,
+                    headers=headers
+                )
+            else:
+                return self.query(
+                    query=formatted_query,
+                )
+
+        @staticmethod
+        def check_for_permission_errors(response):
+            try:
+                errors = json.loads(response.content).get('errors')
+                if errors[0].get('message') == 'Not enough permissions to call' \
+                                               ' this endpoint':
+                    raise UnauthorizedError("not enough permissions")
+            except TypeError:
+                return
+            except AttributeError as e:
+                raise e
+
+        @staticmethod
+        def count_occurrences_of_variables(string):
+            pattern = r"{\d+}"
+            occurrences = re.findall(pattern, string)
+            return len(occurrences)
+
+        def create_item_as(self, role=None):
+            """Test if the item can be created with admin role"""
+            some_test_attr = 'some_special_attr'
+            # TODO: count occurrences of passed arguments
+            formatted_mutation = self.mutation_create.format(some_test_attr)
+
+            response = self.request_graphql(role, formatted_mutation)
+            self.check_for_permission_errors(response)
+
+            tested_id = json.loads(response.content) \
+                .get('data') \
+                .get(self.mutation_create_name) \
+                .get('id')
+            expected_id = self.model.objects.get(id=tested_id).id
+
+            self.assertResponseNoErrors(response, "response has errors")
+            self.assertEqual(expected_id, tested_id,
+                             "the object's id are not match")
+
+        def update_by_id_as(self, role: str = None):
+            """Perform update on specified role
+
+            :param role: string definition of role
+            """
+            # TODO: count occurrences of passed arguments
+            mutation = self.mutation_update
+            attr_to_update = 'updated'
+            formatted_mutation = mutation.format(attr_to_update)
+            response = self.request_graphql(role=role,
+                                            formatted_query=formatted_mutation)
+            self.check_for_permission_errors(response)
+
+            tested_update = json.loads(response.content) \
+                .get('data') \
+                .get(self.mutation_update_name) \
+                .get('title')
+            expected_title = "updated"
+
+            self.assertResponseNoErrors(response, "response has errors")
+            self.assertEqual(expected_title, tested_update,
+                             "the object was not updated")
+
+        def delete_by_id_as(self, role=None):
+            """
+            Helper function to delete object with specified role
+
+            :param role: str definition of role
+            """
+            object_to_delete = self.create_item()
+            id_to_delete = object_to_delete.id
+            query = self.mutation_delete
+            formatted_query = query.format(id_to_delete)
+            response = self.request_graphql(role=role,
+                                            formatted_query=formatted_query)
+            self.check_for_permission_errors(response)
+
+            self.assertIsNone(self.model.objects.filter(id=id_to_delete).first(),
+                              "object has to be deleted")
+            self.assertResponseNoErrors(response, "response has errors")
+
+        def test_get_all_items(self):
+            """Test get all items"""
+            query = self.all_query
+            response = self.query(query)
+            response_data = json.loads(response.content).get("data") \
+                .get(self.plural_name)
+
+            self.assertResponseNoErrors(response, "response has errors")
+            self.assertEqual(len(self.test_category_data), len(response_data),
+                             "query does not return right amount of data")
+
+        def test_get_by_id(self):
+            """Test get by id. Should be implemented by every entity"""
+            query = self.by_id_query
+            response = self.query(query)
+            response_data = json.loads(response.content).get("data") \
+                .get(self.plural_name)
+
+            self.assertResponseNoErrors(response, "response has errors")
+            self.assertEqual("1", response_data[0].get('id'), "id should match")
+
+        @skip("")
+        class YourTestCase(TestCase):
+            def test_post_request(self):
+                query = """query{
+                                      categories{
+                                        id
+                                        title
+                                      }
+                                    }
+                                """
+
+                response = self.client.post('/graphql/', data={'query': query})
+
+                self.assertEqual(response.status_code, 200)
+                print(response.content)
+
+
