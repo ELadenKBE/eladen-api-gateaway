@@ -2,6 +2,7 @@ import graphene
 from graphene_django import DjangoObjectType
 
 from app.errors import UnauthorizedError
+from app.permissions import permission, All, Seller, Admin
 from category.models import Category
 from category.schema import CategoryType
 from users.schema import UserType
@@ -16,6 +17,7 @@ class GoodType(DjangoObjectType):
 class Query(graphene.ObjectType):
     goods = graphene.List(GoodType)
 
+    @permission(roles=[All])
     def resolve_goods(self, info, **kwargs):
         return Good.objects.all()
 
@@ -36,6 +38,7 @@ class CreateGood(graphene.Mutation):
         category_id = graphene.Int()
         price = graphene.Float()
 
+    @permission(roles=[Admin, Seller])
     def mutate(self, info, title, description, address, category_id, price):
         seller = info.context.user or None
         if seller is None:
@@ -73,6 +76,7 @@ class ChangeCategory(graphene.Mutation):
         category_id = graphene.Int()
         good_id = graphene.Int()
 
+    @permission(roles=[Admin, Seller])
     def mutate(self, category_id, good_id):
         category = Category.objects.get(id=category_id)
         good = Good.objects.get(id=good_id)

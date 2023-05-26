@@ -1,16 +1,15 @@
 import abc
 import json
 import re
-from unittest import skip
 
+from django.db import models
 from graphene_django.utils.testing import GraphQLTestCase
 from graphql_jwt.shortcuts import get_token
-from django.test import TestCase
 
 from app.errors import UnauthorizedError
 from category.models import Category
+from goods.models import Good
 from users.models import ExtendedUser
-from django.db import models
 
 
 class IEndpointTest:
@@ -171,6 +170,34 @@ class IEndpointTest:
         """
         pass
 
+    @abc.abstractmethod
+    def test_delete_by_id_as_admin(self):
+        """
+          Implement test delete by Admin
+        """
+        pass
+
+    @abc.abstractmethod
+    def test_delete_by_id_as_seller(self):
+        """
+            Implement test delete by Seller
+        """
+        pass
+
+    @abc.abstractmethod
+    def test_delete_by_id_as_user(self):
+        """
+           Implement test update by User
+        """
+        pass
+
+    @abc.abstractmethod
+    def test_delete_by_id_as_anon(self):
+        """
+          Implement test update by Anonymous User
+        """
+        pass
+
 
 class WrapperForBaseTestClass:
     """Wrapper class prevents execution when tests are discovered"""
@@ -179,35 +206,15 @@ class WrapperForBaseTestClass:
         """Base class for api tests
         """
         GRAPHQL_URL = '/graphql/'
-        test_category_data = []
-        test_users_data = []
         mutation_create = None
 
         @classmethod
         def setUpClass(cls):
             """Create test data
             """
-            cls.test_category_data = [
-                Category(title='Example'),
-                Category(title='Example2'),
-                Category(title='Example3'),
-                Category(title='Example4')
-            ]
-            Category.objects.bulk_create(cls.test_category_data)
-            admin = ExtendedUser(email="sometest@gmail.com",
-                                 username="admin",
-                                 role=3)
-            admin.set_password("12345")
-            seller = ExtendedUser(email="sometest@gmail.com",
-                                  username="seller",
-                                  role=2)
-            seller.set_password("12345")
-            user = ExtendedUser(email="sometest@gmail.com",
-                                username="user",
-                                role=1)
-            user.set_password("12345")
-            cls.test_users_data = [admin, seller, user]
-            ExtendedUser.objects.bulk_create(cls.test_users_data)
+            cls.create_users()
+            cls.create_categories()
+            cls.create_goods()
 
         @classmethod
         def tearDownClass(cls):
@@ -268,7 +275,6 @@ class WrapperForBaseTestClass:
 
             :param role: string definition of role
             """
-            # TODO: count occurrences of passed arguments
             formatted_mutation = self.format_mutation(self.mutation_update,
                                                       'updated')
             response = self.request_graphql(role=role,
@@ -312,7 +318,8 @@ class WrapperForBaseTestClass:
                 .get(self.plural_name)
 
             self.assertResponseNoErrors(response, "response has errors")
-            self.assertEqual(len(self.test_category_data), len(response_data),
+            self.assertEqual(self.model.objects.all().count(),
+                             len(response_data),
                              "query does not return right amount of data")
 
         def test_get_by_id(self):
@@ -333,6 +340,43 @@ class WrapperForBaseTestClass:
                 string_var = filler
                 string_list.append(string_var)
             return mutation.format(*string_list)
+
+        @classmethod
+        def create_users(cls):
+            admin = ExtendedUser(email="sometest@gmail.com",
+                                 username="admin",
+                                 role=3)
+            admin.set_password("12345")
+            seller = ExtendedUser(email="sometest@gmail.com",
+                                  username="seller",
+                                  role=2)
+            seller.set_password("12345")
+            user = ExtendedUser(email="sometest@gmail.com",
+                                username="user",
+                                role=1)
+            user.set_password("12345")
+            test_users_data = [admin, seller, user]
+            ExtendedUser.objects.bulk_create(test_users_data)
+
+        @classmethod
+        def create_categories(cls):
+            test_category_data = [
+                                     Category(title='Example')] * 4
+            Category.objects.bulk_create(test_category_data)
+
+        @classmethod
+        def create_goods(cls):
+            test_goods_data = [
+                                  Good(url="https://moodle.htw-berlin.de/my/",
+                                       description="test_description",
+                                       title="some_test_title",
+                                       seller_id=2,
+                                       address="some_test_address",
+                                       category_id=1,
+                                       price=123
+                                       ),
+                              ] * 4
+            Good.objects.bulk_create(test_goods_data)
 
 # @skip("")
 #             class YourTestCase(TestCase):
