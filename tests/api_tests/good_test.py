@@ -12,13 +12,13 @@ class GoodEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
     model = Good
     mutation_create = '''mutation{{
                              createGood(
-                                title:{0},
-                                description:{1},
-                                address:{2},
+                                title:"{0}",
+                                description:"{1}",
+                                address:"{2}",
                                 categoryId:1,
                                 price: 123.12
                         
-                        ){{ title }} }}
+                        ){{ title id }} }}
                       '''
     mutation_create_name = "createGood"
     all_query = """query{ goods{ id title description address url price category

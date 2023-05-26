@@ -203,7 +203,11 @@ class WrapperForBaseTestClass:
     """Wrapper class prevents execution when tests are discovered"""
 
     class BaseEndpointsTests(GraphQLTestCase, IEndpointTest):
-        """Base class for api tests
+        """Base class for api tests.
+
+        1.Use double brackets for non parameter brackets.
+
+        2.String parameters should be with quotes:  title: "{0}"
         """
         GRAPHQL_URL = '/graphql/'
         mutation_create = None
@@ -259,7 +263,8 @@ class WrapperForBaseTestClass:
 
             response = self.request_graphql(role, formatted_mutation)
             self.check_for_permission_errors(response)
-
+            print("!!!!!!!!!!!!!!!!!!")
+            print(json.loads(response.content))
             tested_id = json.loads(response.content) \
                 .get('data') \
                 .get(self.mutation_create_name) \
