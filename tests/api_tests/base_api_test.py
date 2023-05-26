@@ -247,9 +247,8 @@ class WrapperForBaseTestClass:
 
         def create_item_as(self, role=None):
             """Test if the item can be created with admin role"""
-            some_test_attr = 'some_special_attr'
-            # TODO: count occurrences of passed arguments
-            formatted_mutation = self.mutation_create.format(some_test_attr)
+            formatted_mutation = self.format_mutation(self.mutation_create,
+                                                      "test_mock")
 
             response = self.request_graphql(role, formatted_mutation)
             self.check_for_permission_errors(response)
@@ -270,9 +269,8 @@ class WrapperForBaseTestClass:
             :param role: string definition of role
             """
             # TODO: count occurrences of passed arguments
-            mutation = self.mutation_update
-            attr_to_update = 'updated'
-            formatted_mutation = mutation.format(attr_to_update)
+            formatted_mutation = self.format_mutation(self.mutation_update,
+                                                      'updated')
             response = self.request_graphql(role=role,
                                             formatted_query=formatted_mutation)
             self.check_for_permission_errors(response)
@@ -296,9 +294,10 @@ class WrapperForBaseTestClass:
             object_to_delete = self.create_item()
             id_to_delete = object_to_delete.id
             query = self.mutation_delete
-            formatted_query = query.format(id_to_delete)
+            formatted_mutation = self.format_mutation(self.mutation_delete,
+                                                      str(id_to_delete))
             response = self.request_graphql(role=role,
-                                            formatted_query=formatted_query)
+                                            formatted_query=formatted_mutation)
             self.check_for_permission_errors(response)
 
             self.assertIsNone(self.model.objects.filter(id=id_to_delete).first(),
@@ -326,20 +325,32 @@ class WrapperForBaseTestClass:
             self.assertResponseNoErrors(response, "response has errors")
             self.assertEqual("1", response_data[0].get('id'), "id should match")
 
-        @skip("")
-        class YourTestCase(TestCase):
-            def test_post_request(self):
-                query = """query{
-                                      categories{
-                                        id
-                                        title
-                                      }
-                                    }
-                                """
+        def format_mutation(self, mutation:str,  filler: str) -> str:
+            number_of_params = self.count_occurrences_of_variables(
+                self.mutation_create)
+            string_list = []
+            for i in range(number_of_params):
+                string_var = filler
+                string_list.append(string_var)
+            return mutation.format(*string_list)
 
-                response = self.client.post('/graphql/', data={'query': query})
+# @skip("")
+#             class YourTestCase(TestCase):
+#                 def test_post_request(self):
+#                     query = """query{
+#                                                             categories{
+#                                                                      id
+#                                                                        title
+#                                                                          }
+#                                                                        }
+#                                                                    """
+#
+#                     response = self.client.post('/graphql/',
+#                                                 data={'query': query})
+#
+#                     self.assertEqual(response.status_code, 200)
+#                     print(response.content)
 
-                self.assertEqual(response.status_code, 200)
-                print(response.content)
+
 
 
