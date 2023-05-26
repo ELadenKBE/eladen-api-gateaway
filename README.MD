@@ -149,7 +149,10 @@ query IntrospectionQuery {
 ## Test commands
 ### Execute a particular test
 python manage.py test tests.api_tests.category_test
+### Execute all tests
+python manage.py test tests --pattern="*_test.py" 
 
+### Generate test report
 run with coverage:<br>
 coverage run manage.py test tests.api_tests.category_test<br>
 generate report: coverage report<br>

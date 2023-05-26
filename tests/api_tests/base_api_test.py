@@ -263,8 +263,6 @@ class WrapperForBaseTestClass:
 
             response = self.request_graphql(role, formatted_mutation)
             self.check_for_permission_errors(response)
-            print("!!!!!!!!!!!!!!!!!!")
-            print(json.loads(response.content))
             tested_id = json.loads(response.content) \
                 .get('data') \
                 .get(self.mutation_create_name) \
@@ -348,6 +346,8 @@ class WrapperForBaseTestClass:
 
         @classmethod
         def create_users(cls):
+            if ExtendedUser.objects.all().count()>0:
+                return
             admin = ExtendedUser(email="sometest@gmail.com",
                                  username="admin",
                                  role=3)
@@ -365,12 +365,16 @@ class WrapperForBaseTestClass:
 
         @classmethod
         def create_categories(cls):
+            if Category.objects.all().count()>0:
+                return
             test_category_data = [
                                      Category(title='Example')] * 4
             Category.objects.bulk_create(test_category_data)
 
         @classmethod
         def create_goods(cls):
+            if Good.objects.all().count()>0:
+                return
             test_goods_data = [
                                   Good(url="https://moodle.htw-berlin.de/my/",
                                        description="test_description",
