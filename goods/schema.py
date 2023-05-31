@@ -63,6 +63,44 @@ class CreateGood(graphene.Mutation):
         )
 
 
+class UpdateGood(graphene.Mutation):
+    id = graphene.Int(required=True)
+    title = graphene.String()
+    description = graphene.String()
+    seller = graphene.Field(UserType)
+    address = graphene.String()
+    price = graphene.Float()
+    category = graphene.Field(CategoryType)
+
+    class Arguments:
+        good_id = graphene.Int(required=True)
+        title = graphene.String()
+        description = graphene.String()
+        address = graphene.String()
+        price = graphene.Float()
+
+    @permission(roles=[Admin, Seller])
+    # TODO: seller allowed to update only his goods
+    def mutate(self, info, good_id, title, description, address, price):
+        # TODO should implement not found?
+        good = Good.objects.filter(id=good_id).first()
+        good.title = title
+        good.description = description
+        good.address = address
+        good.price = price
+        good.save()
+
+        return UpdateGood(
+            id=good.id,
+            title=good.title,
+            description=good.description,
+            seller=good.seller,
+            address=good.address,
+            price=good.price,
+            category=good.category
+        )
+
+
 class ChangeCategory(graphene.Mutation):
     id = graphene.Int()
     title = graphene.String()
@@ -80,7 +118,7 @@ class ChangeCategory(graphene.Mutation):
     def mutate(self, category_id, good_id):
         category = Category.objects.get(id=category_id)
         good = Good.objects.get(id=good_id)
-        good.category=category
+        good.category = category
         good.save()
 
         return ChangeCategory(
@@ -97,3 +135,4 @@ class ChangeCategory(graphene.Mutation):
 class Mutation(graphene.ObjectType):
     create_good = CreateGood.Field()
     change_category = ChangeCategory.Field()
+    update_good = UpdateGood.Field()

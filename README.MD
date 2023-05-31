@@ -105,6 +105,28 @@ mutation{
   }
 }
 
+mutation {
+  updateGood(
+    goodId: 1
+    title: "updated"
+    description: "updated"
+    address: "updated"
+    price: 0
+  ) {
+    id
+    title
+    description
+    address
+    price
+		seller{
+      id
+    }
+    category{
+      id
+    }
+  }
+}
+
 ### Goods List
 
 mutation{

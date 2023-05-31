@@ -25,8 +25,30 @@ class GoodEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
                         { id title } seller{ id username email } } }
                         """
     by_id_query = """"""
-    mutation_update = ''''''
-    mutation_update_name = ''
+    mutation_update = '''
+                        mutation {{
+                          updateGood(
+                            goodId: 1
+                            title: "{0}"
+                            description: "{1}"
+                            address: "{2}"
+                            price: 0
+                          ) {{
+                            id
+                            title
+                            description
+                            address
+                            price
+                            seller{{
+                              id
+                            }}
+                            category{{
+                              id
+                            }}
+                          }}
+                        }}
+    '''
+    mutation_update_name = 'updateGood'
 
     mutation_delete = ''''''
     plural_name = "goods"
@@ -50,16 +72,24 @@ class GoodEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
             self.create_item_as()
 
     def test_update_by_id_as_admin(self):
-        self.fail()
+        self.update_by_id_as(role="admin", fields=["title",
+                                                   "description",
+                                                   "address"])
 
     def test_update_by_id_as_seller(self):
-        self.fail()
+        self.update_by_id_as(role="seller", fields=["title",
+                                                   "description",
+                                                   "address"])
 
     def test_update_by_id_as_user(self):
-        self.fail()
+        with self.assertRaises(UnauthorizedError):
+            self.update_by_id_as(role="user", fields=["title",
+                                                        "description",
+                                                        "address"])
 
     def test_update_by_id_as_anon(self):
-        self.fail()
+        with self.assertRaises(UnauthorizedError):
+            self.update_by_id_as(fields=["title", "description", "address"])
 
     def test_delete_by_id_as_admin(self):
         self.fail()

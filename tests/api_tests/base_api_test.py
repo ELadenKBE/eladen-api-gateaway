@@ -273,26 +273,32 @@ class WrapperForBaseTestClass:
             self.assertEqual(expected_id, tested_id,
                              "the object's id are not match")
 
-        def update_by_id_as(self, role: str = None):
+        def update_by_id_as(self, fields: list, role: str = None):
             """Perform update on specified role
 
+            :param fields: fields to update
             :param role: string definition of role
             """
+            if self.mutation_update_name == "":
+                self.fail("self.mutation_update_name is not defined!")
+            update_title = 'updated'
+            update_titles_list = [update_title] * len(fields)
             formatted_mutation = self.format_mutation(self.mutation_update,
-                                                      'updated')
+                                                      update_title)
             response = self.request_graphql(role=role,
                                             formatted_query=formatted_mutation)
             self.check_for_permission_errors(response)
-
-            tested_update = json.loads(response.content) \
-                .get('data') \
-                .get(self.mutation_update_name) \
-                .get('title')
-            expected_title = "updated"
-
-            self.assertResponseNoErrors(response, "response has errors")
-            self.assertEqual(expected_title, tested_update,
-                             "the object was not updated")
+            try:
+                received_updates = list(
+                    map(lambda field: json.loads(response.content) \
+                        .get('data') \
+                        .get(self.mutation_update_name) \
+                        .get(field), fields))
+                self.assertResponseNoErrors(response, "response has errors")
+                self.assertEqual(update_titles_list, received_updates,
+                                 "the object was not updated")
+            except Exception:
+                print(json.loads(response.content))
 
         def delete_by_id_as(self, role=None):
             """
@@ -309,8 +315,9 @@ class WrapperForBaseTestClass:
                                             formatted_query=formatted_mutation)
             self.check_for_permission_errors(response)
 
-            self.assertIsNone(self.model.objects.filter(id=id_to_delete).first(),
-                              "object has to be deleted")
+            self.assertIsNone(
+                self.model.objects.filter(id=id_to_delete).first(),
+                "object has to be deleted")
             self.assertResponseNoErrors(response, "response has errors")
 
         def test_get_all_items(self):
@@ -335,7 +342,7 @@ class WrapperForBaseTestClass:
             self.assertResponseNoErrors(response, "response has errors")
             self.assertEqual("1", response_data[0].get('id'), "id should match")
 
-        def format_mutation(self, mutation:str,  filler: str) -> str:
+        def format_mutation(self, mutation: str, filler: str) -> str:
             number_of_params = self.count_occurrences_of_variables(
                 self.mutation_create)
             string_list = []
@@ -346,7 +353,7 @@ class WrapperForBaseTestClass:
 
         @classmethod
         def create_users(cls):
-            if ExtendedUser.objects.all().count()>0:
+            if ExtendedUser.objects.all().count() > 0:
                 return
             admin = ExtendedUser(email="sometest@gmail.com",
                                  username="admin",
@@ -365,7 +372,7 @@ class WrapperForBaseTestClass:
 
         @classmethod
         def create_categories(cls):
-            if Category.objects.all().count()>0:
+            if Category.objects.all().count() > 0:
                 return
             test_category_data = [
                                      Category(title='Example')] * 4
@@ -373,7 +380,7 @@ class WrapperForBaseTestClass:
 
         @classmethod
         def create_goods(cls):
-            if Good.objects.all().count()>0:
+            if Good.objects.all().count() > 0:
                 return
             test_goods_data = [
                                   Good(url="https://moodle.htw-berlin.de/my/",
@@ -403,7 +410,3 @@ class WrapperForBaseTestClass:
 #
 #                     self.assertEqual(response.status_code, 200)
 #                     print(response.content)
-
-
-
-
