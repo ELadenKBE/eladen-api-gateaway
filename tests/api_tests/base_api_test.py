@@ -299,6 +299,7 @@ class WrapperForBaseTestClass:
                                  "the object was not updated")
             except Exception:
                 print(json.loads(response.content))
+                self.fail()
 
         def delete_by_id_as(self, role=None):
             """

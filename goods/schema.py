@@ -102,7 +102,7 @@ class UpdateGood(graphene.Mutation):
     def mutate(self, info, good_id, title, description, address, price):
         # TODO should implement not found?
         good = Good.objects.filter(id=good_id).first()
-        good.update_with_permission(title, description, address, price)
+        good.update_with_permission(info, title, description, address, price)
 
         return UpdateGood(
             id=good.id,
