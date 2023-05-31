@@ -61,8 +61,6 @@ class CreateGood(graphene.Mutation):
     @permission(roles=[Admin, Seller])
     def mutate(self, info, title, description, address, category_id, price):
         seller = info.context.user or None
-        if seller is None:
-            raise UnauthorizedError("Unauthorized access!")
         good = Good(title=title,
                     description=description,
                     address=address,
@@ -104,11 +102,7 @@ class UpdateGood(graphene.Mutation):
     def mutate(self, info, good_id, title, description, address, price):
         # TODO should implement not found?
         good = Good.objects.filter(id=good_id).first()
-        good.title = title
-        good.description = description
-        good.address = address
-        good.price = price
-        good.save()
+        good.update_with_permission(title, description, address, price)
 
         return UpdateGood(
             id=good.id,
@@ -161,10 +155,9 @@ class DeleteGood(graphene.Mutation):
     @permission(roles=[Admin, Seller])
     def mutate(self, info, id):
         good = Good.objects.filter(id=id).first()
-        good.delete()
-
+        good.delete_with_permission(info)
         return DeleteGood(
-            id=id,
+            id=id
         )
 
 

@@ -308,13 +308,11 @@ class WrapperForBaseTestClass:
             """
             object_to_delete = self.create_item()
             id_to_delete = object_to_delete.id
-            query = self.mutation_delete
             formatted_mutation = self.format_mutation(self.mutation_delete,
                                                       str(id_to_delete))
             response = self.request_graphql(role=role,
                                             formatted_query=formatted_mutation)
             self.check_for_permission_errors(response)
-
             self.assertIsNone(
                 self.model.objects.filter(id=id_to_delete).first(),
                 "object has to be deleted")

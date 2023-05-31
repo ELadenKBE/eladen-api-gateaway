@@ -1,5 +1,7 @@
 from django.db import models
+from graphql import GraphQLResolveInfo
 
+from app.errors import UnauthorizedError
 from category.models import Category
 from users.models import ExtendedUser
 
@@ -17,3 +19,25 @@ class Good(models.Model):
                                  on_delete=models.CASCADE,
                                  blank=True)
     price = models.DecimalField(max_digits=6, decimal_places=2)
+
+    def delete_with_permission(self, info: GraphQLResolveInfo):
+        user: ExtendedUser = info.context.user
+        if user.is_admin():
+            self.delete()
+        elif user.is_seller() and self.seller == user:
+            self.delete()
+        else:
+            raise UnauthorizedError(
+                "Not enough permissions to call this endpoint")
+
+    def update_with_permission(self, info, title, description, address, price):
+        user: ExtendedUser = info.context.user
+        if user.is_admin() or user == self.seller:
+            self.title = title
+            self.description = description
+            self.address = address
+            self.price = price
+            self.save()
+        else:
+            raise UnauthorizedError(
+                "Not enough permissions to call this endpoint")

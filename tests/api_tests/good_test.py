@@ -117,12 +117,12 @@ class GoodEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
     @staticmethod
     def create_item() -> models.Model:
         item = Good(url="https://moodle.htw-berlin.de/my/",
-             description="test_description",
-             title="some_test_title",
-             seller_id=2,
-             address="some_test_address",
-             category_id=1,
-             price=123
-             )
+                    description="test_description",
+                    title="some_test_title",
+                    seller_id=2,
+                    address="some_test_address",
+                    category_id=1,
+                    price=123
+                    )
         item.save()
         return item
