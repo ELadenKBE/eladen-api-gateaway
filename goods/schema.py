@@ -152,7 +152,24 @@ class ChangeCategory(graphene.Mutation):
         )
 
 
+class DeleteGood(graphene.Mutation):
+    id = graphene.Int(required=True)
+
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    @permission(roles=[Admin, Seller])
+    def mutate(self, info, id):
+        good = Good.objects.filter(id=id).first()
+        good.delete()
+
+        return DeleteGood(
+            id=id,
+        )
+
+
 class Mutation(graphene.ObjectType):
     create_good = CreateGood.Field()
     change_category = ChangeCategory.Field()
     update_good = UpdateGood.Field()
+    delete_good = DeleteGood.Field()
