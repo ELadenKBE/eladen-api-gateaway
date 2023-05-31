@@ -2,6 +2,7 @@ import graphene
 from graphene_django import DjangoObjectType
 
 from app.errors import UnauthorizedError
+from app.permissions import permission, Admin, Seller, User
 from category.schema import CategoryType
 from goods.models import Good
 from users.schema import UserType
@@ -16,6 +17,7 @@ class GoodsListType(DjangoObjectType):
 class Query(graphene.ObjectType):
     goods_lists = graphene.List(GoodsListType)
 
+    @permission(roles=[Admin, Seller, User])
     def resolve_goods_lists(self, info, **kwargs):
         return GoodsList.objects.all()
 
@@ -23,10 +25,12 @@ class Query(graphene.ObjectType):
 class CreateGoodsList(graphene.Mutation):
     id = graphene.Int()
     title = graphene.String()
+    user = graphene.Field(UserType)
 
     class Arguments:
         title = graphene.String()
 
+    @permission(roles=[Admin, Seller, User])
     def mutate(self, info, title):
         user = info.context.user or None
         if user is None:
@@ -38,39 +42,6 @@ class CreateGoodsList(graphene.Mutation):
             id=good_list.id,
             title=good_list.title,
             user=user
-        )
-
-
-class AddGoodToLiked(graphene.Mutation):
-    id = graphene.Int()
-    title = graphene.String()
-    description = graphene.String()
-    seller = graphene.Field(UserType)
-    address = graphene.String()
-    price = graphene.Float()
-    category = graphene.Field(CategoryType)
-
-    class Arguments:
-        good_id = graphene.Int()
-
-    def mutate(self, info, good_id):
-        user = info.context.user or None
-        if user is None:
-            raise UnauthorizedError("Unauthorized access!")
-        good = Good.objects.get(id=good_id)
-        liked_list: GoodsList = GoodsList.objects.filter(user=user,
-                                                         title="liked")
-        liked_list.goods.add(good)
-        liked_list.save()
-
-        return AddGoodToLiked(
-            id=good.id,
-            title=good.title,
-            description=good.description,
-            seller=good.seller,
-            address=good.address,
-            price=good.price,
-            category=good.category,
         )
 
 
@@ -86,6 +57,7 @@ class AddGoodToCart(graphene.Mutation):
     class Arguments:
         good_id = graphene.Int()
 
+    @permission(roles=[Admin, User])
     def mutate(self, info, good_id):
         user = info.context.user or None
         if user is None:
@@ -96,7 +68,7 @@ class AddGoodToCart(graphene.Mutation):
         liked_list.goods.add(good)
         liked_list.save()
 
-        return AddGoodToLiked(
+        return AddGoodToCart(
             id=good.id,
             title=good.title,
             description=good.description,
@@ -109,5 +81,4 @@ class AddGoodToCart(graphene.Mutation):
 
 class Mutation(graphene.ObjectType):
     create_goods_list = CreateGoodsList.Field()
-    add_good_to_liked = AddGoodToLiked.Field()
     add_good_to_cart = AddGoodToCart.Field()

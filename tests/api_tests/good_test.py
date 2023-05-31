@@ -56,10 +56,10 @@ class GoodEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
     mutation_update_name = 'updateGood'
 
     mutation_delete = '''mutation{{
-                      deleteGood(id:{0}){{
-                        id
-                      }}
-                    }}'''
+                          deleteGood(id:{0}){{
+                            id
+                          }}
+                        }}'''
     plural_name = "goods"
 
     def test_create_item_as_admin(self):

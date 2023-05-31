@@ -1,16 +1,24 @@
 from django.db import models
 
 from app.errors import UnauthorizedError
-from goods.models import Good
+from goods_list.models import GoodsList
 from .base_api_test import WrapperForBaseTestClass
 
 
 class GoodsListEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
     """Test goods list endpoint.
         """
-    model = Good
-    mutation_create = ''''''
-    mutation_create_name = ""
+
+    model = GoodsList
+    mutation_create = '''mutation{{
+                      createGoodsList(
+                        title:"{0}",
+                      ){{
+                        id
+                            title
+                      }}
+                    }}'''
+    mutation_create_name = "createGoodsList"
     all_query = """"""
     by_id_query = """"""
     mutation_update = ''''''
@@ -24,16 +32,17 @@ class GoodsListEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
         pass
 
     def test_create_item_as_admin(self):
-        self.fail()
+        self.create_item_as("admin")
 
     def test_create_item_as_seller(self):
-        self.fail()
+        self.create_item_as("seller")
 
     def test_create_item_as_user(self):
-        self.fail()
+        self.create_item_as("user")
 
     def test_create_item_as_anon(self):
-        self.fail()
+        with self.assertRaises(UnauthorizedError):
+            self.create_item_as()
 
     def test_update_by_id_as_admin(self):
         self.fail()

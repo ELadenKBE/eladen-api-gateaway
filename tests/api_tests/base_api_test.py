@@ -350,7 +350,10 @@ class WrapperForBaseTestClass:
             for i in range(number_of_params):
                 string_var = filler
                 string_list.append(string_var)
-            return mutation.format(*string_list)
+                try:
+                    return mutation.format(*string_list)
+                except KeyError:
+                    self.fail("check double brackets in mutation")
 
         @classmethod
         def create_users(cls):
