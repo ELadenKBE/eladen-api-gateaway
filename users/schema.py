@@ -51,11 +51,6 @@ class CreateUser(graphene.Mutation):
         user.set_password(password)
         user.save()
         if user.is_user():
-            liked_list = GoodsList(
-                title="liked",
-                user=user
-            )
-            liked_list.save()
             cart_list = GoodsList(
                 title="cart",
                 user=user
