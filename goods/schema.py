@@ -1,4 +1,5 @@
 import graphene
+from django.db.models import Q
 from graphene_django import DjangoObjectType
 
 from app.errors import UnauthorizedError
@@ -15,10 +16,29 @@ class GoodType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    goods = graphene.List(GoodType)
+    goods = graphene.List(GoodType,
+                          searched_id=graphene.String(),
+                          search=graphene.String(),
+                          )
 
     @permission(roles=[All])
-    def resolve_goods(self, info, **kwargs):
+    def resolve_goods(self, info, search=None,  searched_id=None, **kwargs):
+        """
+        Return all elements if search arguments are not given.
+
+        :param info: request context information
+        :param search: searches in title and description
+        :param searched_id: id of searched item
+        :return: collection of items
+        """
+        if search:
+            search_filter = (Q(title__icontains=search)|
+                             Q(description__icontains=search)
+                             )
+            return Category.objects.filter(search_filter)
+        if searched_id:
+            data_to_return = Good.objects.get(id=searched_id)
+            return [data_to_return]
         return Good.objects.all()
 
 

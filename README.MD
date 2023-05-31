@@ -42,6 +42,20 @@ categories{
   }
 }
 
+{
+  categories(searchedId: "1") {
+    id
+    title
+  }
+}
+
+{
+  categories(search: "updated") {
+    id
+    title
+  }
+}
+
 ### Goods
 
 query{
@@ -61,6 +75,13 @@ goods{
     username
     email
   }
+  }
+}
+
+{
+  goods(searchedId: "1") {
+    id
+    title
   }
 }
 

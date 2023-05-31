@@ -24,11 +24,11 @@ class CategoryEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
                         }
                     """
     by_id_query = """query{
-                  categories(searchedId: "1"){
-                    id
-                    title
-                  }
-                }"""
+                      categories(searchedId: "1"){
+                        id
+                        title
+                      }
+                    }"""
     mutation_update = '''mutation{{
                       updateCategory(id:1, title:"{0}"){{
                         id

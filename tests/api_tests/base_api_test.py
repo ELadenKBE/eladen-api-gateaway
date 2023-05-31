@@ -334,6 +334,8 @@ class WrapperForBaseTestClass:
 
         def test_get_by_id(self):
             """Test get by id. Should be implemented by every entity"""
+            if self.by_id_query == "":
+                self.fail("self.by_id_query is not defined!")
             query = self.by_id_query
             response = self.query(query)
             response_data = json.loads(response.content).get("data") \

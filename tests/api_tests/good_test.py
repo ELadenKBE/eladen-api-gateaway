@@ -24,7 +24,12 @@ class GoodEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
     all_query = """query{ goods{ id title description address url price category
                         { id title } seller{ id username email } } }
                         """
-    by_id_query = """"""
+    by_id_query = """{
+                      goods(searchedId: "1") {
+                        id
+                        title
+                      }
+                    }"""
     mutation_update = '''
                         mutation {{
                           updateGood(
@@ -78,14 +83,14 @@ class GoodEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
 
     def test_update_by_id_as_seller(self):
         self.update_by_id_as(role="seller", fields=["title",
-                                                   "description",
-                                                   "address"])
+                                                    "description",
+                                                    "address"])
 
     def test_update_by_id_as_user(self):
         with self.assertRaises(UnauthorizedError):
             self.update_by_id_as(role="user", fields=["title",
-                                                        "description",
-                                                        "address"])
+                                                      "description",
+                                                      "address"])
 
     def test_update_by_id_as_anon(self):
         with self.assertRaises(UnauthorizedError):

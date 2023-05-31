@@ -19,6 +19,14 @@ class Query(graphene.ObjectType):
 
     @permission(roles=[All])
     def resolve_categories(self, info, search=None, searched_id=None, **kwargs):
+        """
+        Return all elements if search arguments are not given.
+
+        :param info: request context information
+        :param search: searches in title
+        :param searched_id: id of searched item
+        :return:
+        """
         if search:
             search_filter = (Q(title__icontains=search))
             return Category.objects.filter(search_filter)
