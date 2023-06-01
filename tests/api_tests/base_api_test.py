@@ -285,8 +285,10 @@ class WrapperForBaseTestClass:
                 self.fail("self.mutation_update_name is not defined!")
             update_title = 'updated'
             update_titles_list = [update_title] * len(fields)
-            formatted_mutation = self.format_mutation(self.mutation_update,
-                                                      update_title)
+            formatted_mutation = self.format_update_mutation(
+                                    self.mutation_update,
+                                    update_title,
+                                    role)
             response = self.request_graphql(role=role,
                                             formatted_query=formatted_mutation)
             self.check_for_permission_errors(response)
@@ -345,7 +347,6 @@ class WrapperForBaseTestClass:
             response_data = json.loads(response.content).get("data") \
                 .get(self.plural_name)
 
-
             if self.model.objects.all().count() == 0:
                 self.fail("No test data found in database")
             self.check_for_permission_errors(response)
@@ -361,6 +362,36 @@ class WrapperForBaseTestClass:
                 string_list.append(string_var)
             try:
                 return mutation.format(*string_list)
+            except KeyError:
+                self.fail("check double brackets in mutation")
+
+        def format_update_mutation(self, mutation: str,
+                                   filler: str,
+                                   role: str) -> str:
+            """
+            Fill mutation with proper item id, so the user modifies its own object
+
+            :param mutation:
+            :param filler:
+            :param role:
+            :return:
+            """
+            if role == "admin":
+                item_id = ExtendedUser.objects.filter(username="admin").first().id
+            elif role == "seller":
+                item_id = ExtendedUser.objects.filter(username="seller").first().id
+            elif role == "user":
+                item_id = ExtendedUser.objects.filter(username="user").first().id
+            else:
+                item_id = 1
+            number_of_params = self.count_occurrences_of_variables(
+                self.mutation_create)
+            string_list = []
+            for i in range(number_of_params):
+                string_var = filler
+                string_list.append(string_var)
+            try:
+                return mutation.format(item_id, *string_list)
             except KeyError:
                 self.fail("check double brackets in mutation")
 
@@ -412,9 +443,11 @@ class WrapperForBaseTestClass:
             if GoodsList.objects.all().count() > 0:
                 return
             test_goods_lists_data = [
-                                  GoodsList(title="test title",
-                                            user_id=1),
-                              ] * 4
+                GoodsList(title="admin", user_id=1),
+                GoodsList(title="seller", user_id=2),
+                GoodsList(title="user", user_id=3),
+                GoodsList(title="user", user_id=3),
+                              ]
             GoodsList.objects.bulk_create(test_goods_lists_data)
 
 # @skip("")

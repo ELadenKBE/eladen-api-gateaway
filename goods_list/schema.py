@@ -139,7 +139,7 @@ class CleanGoodsList(graphene.Mutation):
         )
 
 
-class UpdateList(graphene.Mutation):
+class UpdateGoodsList(graphene.Mutation):
     id = graphene.Int()
     title = graphene.String()
 
@@ -152,7 +152,7 @@ class UpdateList(graphene.Mutation):
         goods_list: GoodsList = GoodsList.objects.filter(id=list_id).first()
         goods_list.update_with_permission(info, title)
 
-        return UpdateList(
+        return UpdateGoodsList(
             id=goods_list.id,
             title=goods_list.title
         )
@@ -162,4 +162,4 @@ class Mutation(graphene.ObjectType):
     create_goods_list = CreateGoodsList.Field()
     add_good_to_cart = AddGoodToCart.Field()
     clean_goods_list = CleanGoodsList.Field()
-    update_goods_list = UpdateList.Field()
+    update_goods_list = UpdateGoodsList.Field()

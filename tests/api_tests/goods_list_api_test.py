@@ -38,8 +38,13 @@ class GoodsListEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
                     }
                   }
                 }"""
-    mutation_update = ''''''
-    mutation_update_name = ''
+    mutation_update = '''mutation{{
+                      updateGoodsList(listId:{0}, title:"{1}"){{
+                        id
+                        title
+                      }}
+                    }}'''
+    mutation_update_name = 'updateGoodsList'
 
     mutation_delete = ''''''
     plural_name = ""
@@ -62,16 +67,17 @@ class GoodsListEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
             self.create_item_as()
 
     def test_update_by_id_as_admin(self):
-        self.fail()
+        self.update_by_id_as(role="admin", fields=["title"])
 
     def test_update_by_id_as_seller(self):
-        self.fail()
+        self.update_by_id_as(role="seller", fields=["title"])
 
     def test_update_by_id_as_user(self):
-        self.fail()
+        self.update_by_id_as(role="user", fields=["title"])
 
     def test_update_by_id_as_anon(self):
-        self.fail()
+        with self.assertRaises(UnauthorizedError):
+            self.update_by_id_as(fields=["title"])
 
     def test_delete_by_id_as_admin(self):
         self.fail()
