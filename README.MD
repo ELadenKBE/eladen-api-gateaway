@@ -186,6 +186,16 @@ mutation{
   }
 }
 
+mutation{
+  cleanGoodsList(listId:1){
+    id
+    title
+    goods{
+      id
+    }
+  }
+}
+
 ### Orders
 master
 

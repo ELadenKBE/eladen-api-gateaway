@@ -5,6 +5,7 @@ from app.errors import UnauthorizedError
 from app.permissions import permission, Admin, Seller, User
 from category.schema import CategoryType
 from goods.models import Good
+from goods.schema import GoodType
 from users.schema import UserType
 from .models import GoodsList
 
@@ -17,7 +18,7 @@ class GoodsListType(DjangoObjectType):
 class Query(graphene.ObjectType):
     goods_lists = graphene.List(GoodsListType,
                                 search=graphene.String(),
-                                searched_id=graphene.Int(),)
+                                searched_id=graphene.Int(), )
 
     @permission(roles=[Admin, Seller, User])
     def resolve_goods_lists(self, info,
@@ -82,10 +83,10 @@ class AddGoodToCart(graphene.Mutation):
         if user is None:
             raise UnauthorizedError("Unauthorized access!")
         good = Good.objects.get(id=good_id)
-        liked_list: GoodsList = GoodsList.objects.filter(user=user,
-                                                         title="cart").first()
-        liked_list.goods.add(good)
-        liked_list.save()
+        cart_list: GoodsList = GoodsList.objects.filter(user=user,
+                                                        title="cart").first()
+        cart_list.goods.add(good)
+        cart_list.save()
 
         return AddGoodToCart(
             id=good.id,
@@ -98,6 +99,27 @@ class AddGoodToCart(graphene.Mutation):
         )
 
 
+class CleanGoodsList(graphene.Mutation):
+    id = graphene.Int()
+    title = graphene.String()
+    goods = graphene.List(GoodType)
+
+    class Arguments:
+        list_id = graphene.Int()
+
+    @permission(roles=[Admin, User, Seller])
+    def mutate(self, info, list_id):
+        goods_list = GoodsList.objects.filter(id=list_id).first()
+        goods_list.clean_goods_with_permission(info)
+
+        return CleanGoodsList(
+            id=goods_list.id,
+            title=goods_list.title,
+            goods=goods_list.goods.all()
+        )
+
+
 class Mutation(graphene.ObjectType):
     create_goods_list = CreateGoodsList.Field()
     add_good_to_cart = AddGoodToCart.Field()
+    clean_goods_list = CleanGoodsList.Field()
