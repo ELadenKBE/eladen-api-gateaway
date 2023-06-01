@@ -196,6 +196,12 @@ mutation{
   }
 }
 
+mutation{
+  updateGoodsList(listId:1, title:"newwww"){
+    title
+  }
+}
+
 ### Orders
 master
 

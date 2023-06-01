@@ -78,4 +78,21 @@ class GoodsList(models.Model):
                 raise UnauthorizedError(
                     "Not enough permissions to call this endpoint")
 
+    def update_with_permission(self, info, title):
+        """
+        TODO add docstr
 
+        :param info:
+        :param title:
+        :return:
+        """
+        user: ExtendedUser = info.context.user
+        if user.is_admin():
+            self.title = title
+        elif user.is_user() or user.is_seller():
+            if self.user == user:
+                self.title = title
+            else:
+                raise UnauthorizedError(
+                    "Not enough permissions to call this endpoint")
+        self.save()

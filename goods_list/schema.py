@@ -52,6 +52,12 @@ class CreateGoodsList(graphene.Mutation):
 
     @permission(roles=[Admin, Seller, User])
     def mutate(self, info, title):
+        """
+        TODO add doctrings
+        :param info:
+        :param title:
+        :return:
+        """
         user = info.context.user or None
         if user is None:
             raise UnauthorizedError("Unauthorized access!")
@@ -79,6 +85,13 @@ class AddGoodToCart(graphene.Mutation):
 
     @permission(roles=[Admin, User])
     def mutate(self, info, good_id):
+        """
+        TODO add doctrings
+
+        :param info:
+        :param good_id:
+        :return:
+        """
         user = info.context.user or None
         if user is None:
             raise UnauthorizedError("Unauthorized access!")
@@ -109,6 +122,13 @@ class CleanGoodsList(graphene.Mutation):
 
     @permission(roles=[Admin, User, Seller])
     def mutate(self, info, list_id):
+        """
+        TODO add doctrings
+
+        :param info:
+        :param list_id:
+        :return:
+        """
         goods_list = GoodsList.objects.filter(id=list_id).first()
         goods_list.clean_goods_with_permission(info)
 
@@ -119,7 +139,27 @@ class CleanGoodsList(graphene.Mutation):
         )
 
 
+class UpdateList(graphene.Mutation):
+    id = graphene.Int()
+    title = graphene.String()
+
+    class Arguments:
+        list_id = graphene.Int()
+        title = graphene.String()
+
+    @permission(roles=[Admin, Seller])
+    def mutate(self, info, list_id, title):
+        goods_list: GoodsList = GoodsList.objects.filter(id=list_id).first()
+        goods_list.update_with_permission(info, title)
+
+        return UpdateList(
+            id=goods_list.id,
+            title=goods_list.title
+        )
+
+
 class Mutation(graphene.ObjectType):
     create_goods_list = CreateGoodsList.Field()
     add_good_to_cart = AddGoodToCart.Field()
     clean_goods_list = CleanGoodsList.Field()
+    update_goods_list = UpdateList.Field()

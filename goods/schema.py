@@ -98,7 +98,6 @@ class UpdateGood(graphene.Mutation):
         price = graphene.Float()
 
     @permission(roles=[Admin, Seller])
-    # TODO: seller allowed to update only his goods
     def mutate(self, info, good_id, title, description, address, price):
         # TODO should implement not found?
         good = Good.objects.filter(id=good_id).first()
