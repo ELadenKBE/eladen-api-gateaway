@@ -17,7 +17,7 @@ class GoodsListType(DjangoObjectType):
 class Query(graphene.ObjectType):
     goods_lists = graphene.List(GoodsListType,
                                 search=graphene.String(),
-                                searched_id=graphene.String(),)
+                                searched_id=graphene.Int(),)
 
     @permission(roles=[Admin, Seller, User])
     def resolve_goods_lists(self, info,
@@ -34,7 +34,10 @@ class Query(graphene.ObjectType):
         :return:
         """
         if search:
-            GoodsList.get_all_filtered_with_permission(info, search)
+            return GoodsList.get_all_filtered_with_permission(info, search)
+        if searched_id:
+            return [GoodsList.get_by_id_with_permission(info,
+                                                        search_id=searched_id)]
         return GoodsList.get_all_with_permission(info)
 
 

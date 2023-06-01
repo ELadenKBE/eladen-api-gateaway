@@ -30,3 +30,10 @@ class GoodsList(models.Model):
         else:
             return GoodsList.objects.filter(search_filter).all()
 
+    @staticmethod
+    def get_by_id_with_permission(info, search_id) -> QuerySet:
+        user: ExtendedUser = info.context.user
+        if user.is_admin():
+            return GoodsList.objects.filter(id=search_id).first()
+        if user.is_user() or user.is_seller():
+            return GoodsList.objects.filter(id=search_id, user=user).first()

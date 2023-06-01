@@ -28,7 +28,16 @@ class GoodsListEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
                     }
                   }
                 }"""
-    by_id_query = """"""
+    by_id_query = """query{
+                  goodsLists(searchedId:1){
+                    id
+                    title
+                    goods{
+                      id
+                      title
+                    }
+                  }
+                }"""
     mutation_update = ''''''
     mutation_update_name = ''
 
@@ -79,3 +88,7 @@ class GoodsListEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
     def test_get_all_items_as_anon(self):
         with self.assertRaises(UnauthorizedError):
             super().test_get_all_items_as_anon()
+
+    def test_get_by_id_as_anon(self):
+        with self.assertRaises(UnauthorizedError):
+            super().test_get_by_id_as_anon()

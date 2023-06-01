@@ -9,6 +9,7 @@ from graphql_jwt.shortcuts import get_token
 from app.errors import UnauthorizedError
 from category.models import Category
 from goods.models import Good
+from goods_list.models import GoodsList
 from users.models import ExtendedUser
 
 
@@ -219,6 +220,7 @@ class WrapperForBaseTestClass:
             cls.create_users()
             cls.create_categories()
             cls.create_goods()
+            cls.create_goods_lists()
 
         @classmethod
         def tearDownClass(cls):
@@ -325,13 +327,16 @@ class WrapperForBaseTestClass:
             response = self.query(query)
             response_data = json.loads(response.content).get("data") \
                 .get(self.plural_name)
+            if self.model.objects.all().count() == 0:
+                self.fail("No test data found in database")
+
             self.check_for_permission_errors(response)
             self.assertResponseNoErrors(response, "response has errors")
             self.assertEqual(self.model.objects.all().count(),
                              len(response_data),
                              "query does not return right amount of data")
 
-        def test_get_by_id(self):
+        def test_get_by_id_as_anon(self):
             """Test get by id. Should be implemented by every entity"""
             if self.by_id_query == "":
                 self.fail("self.by_id_query is not defined!")
@@ -340,6 +345,10 @@ class WrapperForBaseTestClass:
             response_data = json.loads(response.content).get("data") \
                 .get(self.plural_name)
 
+
+            if self.model.objects.all().count() == 0:
+                self.fail("No test data found in database")
+            self.check_for_permission_errors(response)
             self.assertResponseNoErrors(response, "response has errors")
             self.assertEqual("1", response_data[0].get('id'), "id should match")
 
@@ -350,10 +359,10 @@ class WrapperForBaseTestClass:
             for i in range(number_of_params):
                 string_var = filler
                 string_list.append(string_var)
-                try:
-                    return mutation.format(*string_list)
-                except KeyError:
-                    self.fail("check double brackets in mutation")
+            try:
+                return mutation.format(*string_list)
+            except KeyError:
+                self.fail("check double brackets in mutation")
 
         @classmethod
         def create_users(cls):
@@ -397,6 +406,16 @@ class WrapperForBaseTestClass:
                                        ),
                               ] * 4
             Good.objects.bulk_create(test_goods_data)
+
+        @classmethod
+        def create_goods_lists(cls):
+            if GoodsList.objects.all().count() > 0:
+                return
+            test_goods_lists_data = [
+                                  GoodsList(title="test title",
+                                            user_id=1),
+                              ] * 4
+            GoodsList.objects.bulk_create(test_goods_lists_data)
 
 # @skip("")
 #             class YourTestCase(TestCase):

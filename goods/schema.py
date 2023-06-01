@@ -17,7 +17,7 @@ class GoodType(DjangoObjectType):
 
 class Query(graphene.ObjectType):
     goods = graphene.List(GoodType,
-                          searched_id=graphene.String(),
+                          searched_id=graphene.Int(),
                           search=graphene.String(),
                           )
 
@@ -35,7 +35,7 @@ class Query(graphene.ObjectType):
             search_filter = (Q(title__icontains=search)|
                              Q(description__icontains=search)
                              )
-            return Category.objects.filter(search_filter)
+            return Category.objects.filter(search_filter).all()
         if searched_id:
             data_to_return = Good.objects.get(id=searched_id)
             return [data_to_return]
