@@ -37,9 +37,16 @@ class CreateUser(graphene.Mutation):
         firstname = graphene.String()
         lastname = graphene.String()
 
-    def mutate(self, info, username, password, email, role, address, firstname,
-               lastname):
-        self.validate_role(role)
+    def mutate(self,
+               info,
+               username,
+               password,
+               email,
+               role,
+               address=None,
+               firstname=None,
+               lastname=None):
+        validate_role(role)
         user = ExtendedUser(
             username=username,
             email=email,
@@ -64,9 +71,10 @@ class CreateUser(graphene.Mutation):
             goods_to_sell.save()
         return CreateUser(user=user)
 
-    def validate_role(self, role):
-        if role < 1 or role > 2:
-            raise ValueError("role is not defined")
+
+def validate_role(role):
+    if role < 1 or role > 2:
+        raise ValueError("role is not defined")
 
 
 class Mutation(graphene.ObjectType):

@@ -15,11 +15,27 @@ class GoodsListType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    goods_lists = graphene.List(GoodsListType)
+    goods_lists = graphene.List(GoodsListType,
+                                search=graphene.String(),
+                                searched_id=graphene.String(),)
 
     @permission(roles=[Admin, Seller, User])
-    def resolve_goods_lists(self, info, **kwargs):
-        return GoodsList.objects.all()
+    def resolve_goods_lists(self, info,
+                            searched_id=None,
+                            search=None,
+                            **kwargs):
+        """
+        TODO write docstring
+
+        :param info: request context
+        :param searched_id:
+        :param search:
+        :param kwargs:
+        :return:
+        """
+        if search:
+            GoodsList.get_all_filtered_with_permission(info, search)
+        return GoodsList.get_all_with_permission(info)
 
 
 class CreateGoodsList(graphene.Mutation):
@@ -64,7 +80,7 @@ class AddGoodToCart(graphene.Mutation):
             raise UnauthorizedError("Unauthorized access!")
         good = Good.objects.get(id=good_id)
         liked_list: GoodsList = GoodsList.objects.filter(user=user,
-                                                         title="cart")
+                                                         title="cart").first()
         liked_list.goods.add(good)
         liked_list.save()
 

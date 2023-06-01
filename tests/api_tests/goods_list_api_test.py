@@ -19,7 +19,15 @@ class GoodsListEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
                       }}
                     }}'''
     mutation_create_name = "createGoodsList"
-    all_query = """"""
+    all_query = """query{
+                  goodsLists{
+                    id
+                    title
+                    user {
+                      id
+                    }
+                  }
+                }"""
     by_id_query = """"""
     mutation_update = ''''''
     mutation_update_name = ''
@@ -68,3 +76,6 @@ class GoodsListEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
     def test_delete_by_id_as_anon(self):
         self.fail()
 
+    def test_get_all_items_as_anon(self):
+        with self.assertRaises(UnauthorizedError):
+            super().test_get_all_items_as_anon()

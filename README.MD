@@ -85,6 +85,33 @@ goods{
   }
 }
 
+### Goods List
+
+query{
+  goodsLists{
+    id
+    title
+    user {
+      id
+    }
+    goods{
+      id
+    }
+  }
+}
+#### Get all items of a cart
+
+query{
+  goodsLists(search:"cart"){
+    id
+    title
+    goods{
+      id
+      title
+    }
+  }
+}
+
 ## Frequent Mutations
 
 ### Users
@@ -115,7 +142,7 @@ mutation{
 ### Goods
 mutation{
   createGood(
-    title:"new category. test",
+    title:"new good. test",
     description:"some uninterestin description",
     address:"nowhere 1, 12345",
     categoryId:1,

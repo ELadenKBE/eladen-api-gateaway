@@ -9,7 +9,7 @@ class ExtendedUser(AbstractUser):
     # roles are: 1-user. 2-seller. 3-admin
     role = models.IntegerField(blank=False, default=1, validators=[
         MinValueValidator(1), MaxValueValidator(3)])
-    address = models.CharField(max_length=256)
+    address = models.CharField(max_length=256, blank=True)
 
     def is_user(self):
         return self.role == 1

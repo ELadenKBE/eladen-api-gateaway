@@ -319,13 +319,13 @@ class WrapperForBaseTestClass:
                 "object has to be deleted")
             self.assertResponseNoErrors(response, "response has errors")
 
-        def test_get_all_items(self):
+        def test_get_all_items_as_anon(self):
             """Test get all items"""
             query = self.all_query
             response = self.query(query)
             response_data = json.loads(response.content).get("data") \
                 .get(self.plural_name)
-
+            self.check_for_permission_errors(response)
             self.assertResponseNoErrors(response, "response has errors")
             self.assertEqual(self.model.objects.all().count(),
                              len(response_data),
