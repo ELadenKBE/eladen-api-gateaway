@@ -2,13 +2,14 @@ from django.db import models
 
 from app.errors import UnauthorizedError
 from goods.models import Good
+from users.models import ExtendedUser
 from .base_api_test import WrapperForBaseTestClass
 
 
 class UserEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
     """Test goods list endpoint.
         """
-    model = Good
+    model = ExtendedUser
     mutation_create = ''''''
     mutation_create_name = ""
     all_query = """"""

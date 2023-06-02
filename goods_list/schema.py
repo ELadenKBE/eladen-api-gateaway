@@ -147,7 +147,7 @@ class UpdateGoodsList(graphene.Mutation):
         list_id = graphene.Int()
         title = graphene.String()
 
-    @permission(roles=[Admin, Seller])
+    @permission(roles=[Admin, Seller, User])
     def mutate(self, info, list_id, title):
         goods_list: GoodsList = GoodsList.objects.filter(id=list_id).first()
         goods_list.update_with_permission(info, title)

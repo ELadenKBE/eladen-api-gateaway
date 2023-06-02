@@ -115,13 +115,12 @@ query{
 ## Frequent Mutations
 
 ### Users
+
 mutation{
-  createUser(username: "tim", email: "testemail@gmail.com", password: "12345"){
-    user{
+  createUser(username: "tim_user", email: "testemail@gmail.com", password: "12345", role:1){
       id
     	username
   		email
-    }
   }
 }
 

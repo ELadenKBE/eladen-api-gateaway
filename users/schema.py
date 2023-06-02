@@ -69,11 +69,19 @@ class CreateUser(graphene.Mutation):
                 user=user
             )
             goods_to_sell.save()
-        return CreateUser(user=user)
+        return CreateUser(
+            id=user.id,
+            username=user.username,
+            email=user.email,
+            role=user.role,
+            address=user.address,
+            lastname=user.lastname,
+            firstname=user.firstname
+        )
 
 
 def validate_role(role):
-    if role < 1 or role > 2:
+    if role < 1 or role > 3:
         raise ValueError("role is not defined")
 
 
