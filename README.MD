@@ -130,6 +130,23 @@ query{
   }
 }
 
+query{
+  orders(searchedId:1){
+    id
+    timeOfOrder
+    deliveryAddress
+    itemsPrice
+    deliveryPrice
+    deliveryStatus
+    paymentStatus
+    user{
+      id
+      username
+    }
+    
+  }
+}
+
 ## Frequent Mutations
 
 ### Users

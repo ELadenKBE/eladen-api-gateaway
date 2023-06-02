@@ -42,7 +42,22 @@ class OrderEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
                     
                   }
                 }"""
-    by_id_query = """"""
+    by_id_query = """query{
+                  orders(searchedId:2){
+                    id
+                    timeOfOrder
+                    deliveryAddress
+                    itemsPrice
+                    deliveryPrice
+                    deliveryStatus
+                    paymentStatus
+                    user{
+                      id
+                      username
+                    }
+                    
+                  }
+                }"""
     mutation_update = ''''''
     mutation_update_name = ''
 

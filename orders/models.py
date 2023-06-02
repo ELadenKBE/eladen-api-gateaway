@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import QuerySet
 
 from users.models import ExtendedUser
 
@@ -13,7 +14,7 @@ class Order(models.Model):
     payment_status = models.CharField(max_length=256)
 
     @staticmethod
-    def get_all_orders_with_permission(info):
+    def get_all_orders_with_permission(info) -> QuerySet:
         """
         TODO add docstr
 
@@ -25,3 +26,19 @@ class Order(models.Model):
             return Order.objects.filter(user=user).all()
         if user.is_admin():
             return Order.objects.all()
+
+    @staticmethod
+    def get_by_id_with_permission(info, searched_id) -> QuerySet:
+        """
+        TODO add strings
+
+        :param info:
+        :param searched_id:
+        :return:
+        """
+        user: ExtendedUser = info.context.user
+        if user.is_user():
+            return Order.objects.filter(user=user, id=searched_id).first()
+        if user.is_admin():
+            return Order.objects.filter(id=searched_id).first()
+

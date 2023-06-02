@@ -13,10 +13,21 @@ class OrderType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    orders = graphene.List(OrderType)
+    orders = graphene.List(OrderType, searched_id=graphene.Int())
 
     @permission(roles=[Admin, User])
-    def resolve_orders(self, info, **kwargs):
+    def resolve_orders(self, info, searched_id=None, **kwargs):
+        """
+        TODO add docstring
+
+        :param searched_id:
+        :param info:
+        :param kwargs:
+        :return:
+        """
+        if searched_id:
+            return [Order.get_by_id_with_permission(info,
+                                                    searched_id=searched_id)]
         return Order.get_all_orders_with_permission(info)
 
 
