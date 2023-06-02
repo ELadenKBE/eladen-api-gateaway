@@ -112,6 +112,24 @@ query{
   }
 }
 
+### Orders 
+query{
+  orders{
+    id
+    timeOfOrder
+    deliveryAddress
+    itemsPrice
+    deliveryPrice
+    deliveryStatus
+    paymentStatus
+    user{
+      id
+      username
+    }
+    
+  }
+}
+
 ## Frequent Mutations
 
 ### Users

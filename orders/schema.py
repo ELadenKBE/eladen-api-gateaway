@@ -2,7 +2,7 @@ import graphene
 from graphene_django import DjangoObjectType
 
 from app.errors import UnauthorizedError, ResourceError
-from app.permissions import permission, Admin, User
+from app.permissions import permission, Admin, User, Seller
 from users.schema import UserType
 from .models import Order
 
@@ -15,8 +15,9 @@ class OrderType(DjangoObjectType):
 class Query(graphene.ObjectType):
     orders = graphene.List(OrderType)
 
+    @permission(roles=[Admin, User])
     def resolve_orders(self, info, **kwargs):
-        return Order.objects.all()
+        return Order.get_all_orders_with_permission(info)
 
 
 class CreateOrder(graphene.Mutation):
@@ -39,6 +40,7 @@ class CreateOrder(graphene.Mutation):
                delivery_address,
                items_price,
                delivery_price):
+        # TODO notify sellers
         user = info.context.user or None
         if user is None:
             raise UnauthorizedError("Unauthorized access!")
@@ -46,6 +48,8 @@ class CreateOrder(graphene.Mutation):
                       delivery_address=delivery_address,
                       items_price=items_price,
                       delivery_price=delivery_price,
+                      delivery_status="order created",
+                      payment_status="not paid",
                       user=user)
         order.save()
 

@@ -10,6 +10,7 @@ from app.errors import UnauthorizedError
 from category.models import Category
 from goods.models import Good
 from goods_list.models import GoodsList
+from orders.models import Order
 from users.models import ExtendedUser
 
 
@@ -221,6 +222,7 @@ class WrapperForBaseTestClass:
             cls.create_categories()
             cls.create_goods()
             cls.create_goods_lists()
+            cls.create_orders()
 
         @classmethod
         def tearDownClass(cls):
@@ -460,6 +462,20 @@ class WrapperForBaseTestClass:
                               ]
             GoodsList.objects.bulk_create(test_goods_lists_data)
 
+        @classmethod
+        def create_orders(cls):
+            if Order.objects.all().count() > 0:
+                return
+            test_orders_data = [
+                Order(time_of_order="1999-05-23 11:12",
+                      user=ExtendedUser.objects.filter(username="user").first(),
+                      delivery_address="asdasd",
+                      delivery_status="created",
+                      delivery_price=123,
+                      items_price=145,
+                      payment_status="not paid"),
+                              ] * 4
+            Order.objects.bulk_create(test_orders_data)
 # @skip("")
 #             class YourTestCase(TestCase):
 #                 def test_post_request(self):
