@@ -38,6 +38,8 @@ class CreateOrder(graphene.Mutation):
     items_price = graphene.Float()
     delivery_price = graphene.Float()
     user = graphene.Field(UserType)
+    delivery_status = graphene.String()
+    payment_status = graphene.String()
 
     class Arguments:
         time_of_order = graphene.String()
@@ -65,6 +67,45 @@ class CreateOrder(graphene.Mutation):
         order.save()
 
         return CreateOrder(
+            id=order.id,
+            delivery_address=order.delivery_address,
+            items_price=order.items_price,
+            delivery_price=order.delivery_price,
+            time_of_order=order.time_of_order,
+            user=user
+        )
+
+
+class UpdateOrder(graphene.Mutation):
+    id = graphene.Int()
+    time_of_order = graphene.String()
+    delivery_address = graphene.String()
+    items_price = graphene.Float()
+    delivery_price = graphene.Float()
+    user = graphene.Field(UserType)
+    delivery_status = graphene.String()
+    payment_status = graphene.String()
+
+    class Arguments:
+        order_id = graphene.Int()
+        delivery_address = graphene.String()
+        items_price = graphene.Float()
+        delivery_price = graphene.Float()
+
+    @permission(roles=[Admin])
+    def mutate(self, info,
+               order_id,
+               delivery_address,
+               items_price,
+               delivery_price):
+        # TODO return error if None?
+        order: Order = Order.objects.filter(id=order_id).first()
+        user = info.context.user or None
+        order.update_with_permission(info,
+                                     delivery_address,
+                                     items_price,
+                                     delivery_price)
+        return UpdateOrder(
             id=order.id,
             delivery_address=order.delivery_address,
             items_price=order.items_price,
@@ -122,3 +163,4 @@ class Mutation(graphene.ObjectType):
     create_order = CreateOrder.Field()
     change_delivery_status = ChangeDeliveryStatus.Field()
     change_payment_status = ChangePaymentStatus.Field()
+    update_order = UpdateOrder.Field()

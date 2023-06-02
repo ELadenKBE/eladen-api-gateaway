@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import QuerySet
 
+from app.errors import UnauthorizedError
 from users.models import ExtendedUser
 
 
@@ -42,3 +43,22 @@ class Order(models.Model):
         if user.is_admin():
             return Order.objects.filter(id=searched_id).first()
 
+    def update_with_permission(self, info, delivery_address, items_price,
+                               delivery_price):
+        """
+
+        :param info:
+        :param delivery_address:
+        :param items_price:
+        :param delivery_price:
+        :return:
+        """
+        user: ExtendedUser = info.context.user
+        if user.is_user() and self.user == user or user.is_admin():
+            self.delivery_address = delivery_address
+            self.items_price = items_price
+            self.delivery_price = delivery_price
+            self.save()
+        else:
+            raise UnauthorizedError(
+                "Not enough permissions to call this endpoint")

@@ -1,7 +1,6 @@
 from django.db import models
 
 from app.errors import UnauthorizedError
-from goods.models import Good
 from orders.models import Order
 from .base_api_test import WrapperForBaseTestClass
 
@@ -58,8 +57,27 @@ class OrderEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
                     
                   }
                 }"""
-    mutation_update = ''''''
-    mutation_update_name = ''
+    mutation_update = '''mutation{{
+                          updateOrder(
+                            orderId:{0},
+                            deliveryAddress:"{1}",
+                            itemsPrice:1,
+                            deliveryPrice:2
+                          ){{
+                            id
+                            timeOfOrder
+                            deliveryAddress
+                            itemsPrice
+                            deliveryPrice
+                            deliveryStatus
+                            paymentStatus
+                            user{{
+                              id
+                              username
+                            }}
+                          }}
+                        }}'''
+    mutation_update_name = 'updateOrder'
 
     mutation_delete = ''''''
     plural_name = "orders"
@@ -83,16 +101,19 @@ class OrderEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
             self.create_item_as()
 
     def test_update_by_id_as_admin(self):
-        self.fail()
+        self.update_by_id_as(role="admin", fields=["deliveryAddress"])
 
     def test_update_by_id_as_seller(self):
-        self.fail()
+        with self.assertRaises(UnauthorizedError):
+            self.update_by_id_as(role="seller", fields=["deliveryAddress"])
 
     def test_update_by_id_as_user(self):
-        self.fail()
+        with self.assertRaises(UnauthorizedError):
+            self.update_by_id_as(role="user", fields=["deliveryAddress"])
 
     def test_update_by_id_as_anon(self):
-        self.fail()
+        with self.assertRaises(UnauthorizedError):
+            self.update_by_id_as(fields=["deliveryAddress"])
 
     def test_delete_by_id_as_admin(self):
         self.fail()
@@ -109,3 +130,7 @@ class OrderEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
     def test_get_all_items_as_anon(self):
         with self.assertRaises(UnauthorizedError):
             super().test_get_all_items_as_anon()
+
+    def test_get_by_id_as_anon(self):
+        with self.assertRaises(UnauthorizedError):
+            super().test_get_by_id_as_anon()
