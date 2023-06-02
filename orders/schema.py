@@ -2,6 +2,8 @@ import graphene
 from graphene_django import DjangoObjectType
 
 from app.errors import UnauthorizedError, ResourceError
+from app.permissions import permission, Admin, User
+from users.schema import UserType
 from .models import Order
 
 
@@ -23,6 +25,7 @@ class CreateOrder(graphene.Mutation):
     delivery_address = graphene.String()
     items_price = graphene.Float()
     delivery_price = graphene.Float()
+    user = graphene.Field(UserType)
 
     class Arguments:
         time_of_order = graphene.String()
@@ -30,6 +33,7 @@ class CreateOrder(graphene.Mutation):
         items_price = graphene.Float()
         delivery_price = graphene.Float()
 
+    @permission(roles=[Admin, User])
     def mutate(self, info,
                time_of_order,
                delivery_address,
@@ -50,7 +54,7 @@ class CreateOrder(graphene.Mutation):
             delivery_address=order.delivery_address,
             items_price=order.items_price,
             delivery_price=order.delivery_price,
-            title=order.title,
+            time_of_order=order.time_of_order,
             user=user
         )
 

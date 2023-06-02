@@ -202,10 +202,19 @@ mutation{
 }
 
 ### Orders
-master
 
-
-
+mutation{
+  createOrder(timeOfOrder:"1999-05-23 11:12", deliveryAddress:"dsd", itemsPrice:123, deliveryPrice:123){
+    id
+    timeOfOrder
+    deliveryAddress
+    itemsPrice
+    deliveryPrice
+    user{
+      id
+    }
+  }
+}
 
 ## Introspections
 ### Show all mutations
