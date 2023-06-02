@@ -159,8 +159,24 @@ class ChangePaymentStatus(graphene.Mutation):
                                     payment_status=order.payment_status)
 
 
+class DeleteOrder(graphene.Mutation):
+    id = graphene.Int(required=True)
+
+    class Arguments:
+        order_id = graphene.Int(required=True)
+
+    @permission(roles=[Admin])
+    def mutate(self, info, order_id):
+        order = Order.objects.filter(id=order_id).first()
+        order.delete()
+        return DeleteOrder(
+            id=order_id
+        )
+
+
 class Mutation(graphene.ObjectType):
     create_order = CreateOrder.Field()
     change_delivery_status = ChangeDeliveryStatus.Field()
     change_payment_status = ChangePaymentStatus.Field()
     update_order = UpdateOrder.Field()
+    delete_order = DeleteOrder.Field()
