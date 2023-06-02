@@ -107,7 +107,7 @@ class IEndpointTest:
 
     @staticmethod
     @abc.abstractmethod
-    def create_item() -> models.Model:
+    def create_item_with(user: ExtendedUser) -> models.Model:
         """
         Every test class must implement create object method.
 
@@ -289,6 +289,7 @@ class WrapperForBaseTestClass:
                                     self.mutation_update,
                                     update_title,
                                     role)
+
             response = self.request_graphql(role=role,
                                             formatted_query=formatted_mutation)
             self.check_for_permission_errors(response)
@@ -311,7 +312,16 @@ class WrapperForBaseTestClass:
 
             :param role: str definition of role
             """
-            object_to_delete = self.create_item()
+            if role == "admin":
+                user = ExtendedUser.objects.filter(
+                    username="admin").first()
+            elif role == "seller":
+                user = ExtendedUser.objects.filter(
+                    username="seller").first()
+            else:
+                user = ExtendedUser.objects.filter(
+                    username="user").first()
+            object_to_delete = self.create_item_with(user)
             id_to_delete = object_to_delete.id
             formatted_mutation = self.format_mutation(self.mutation_delete,
                                                       str(id_to_delete))

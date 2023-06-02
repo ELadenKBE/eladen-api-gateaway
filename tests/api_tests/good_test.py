@@ -33,10 +33,10 @@ class GoodEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
     mutation_update = '''
                         mutation {{
                           updateGood(
-                            goodId: 1
-                            title: "{0}"
-                            description: "{1}"
-                            address: "{2}"
+                            goodId: {0}
+                            title: "{1}"
+                            description: "{2}"
+                            address: "{3}"
                             price: 0
                           ) {{
                             id
@@ -115,7 +115,7 @@ class GoodEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
             self.delete_by_id_as()
 
     @staticmethod
-    def create_item() -> models.Model:
+    def create_item_with(user) -> models.Model:
         item = Good(url="https://moodle.htw-berlin.de/my/",
                     description="test_description",
                     title="some_test_title",

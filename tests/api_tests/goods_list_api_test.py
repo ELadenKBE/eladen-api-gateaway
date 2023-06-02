@@ -46,12 +46,18 @@ class GoodsListEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
                     }}'''
     mutation_update_name = 'updateGoodsList'
 
-    mutation_delete = ''''''
-    plural_name = ""
+    mutation_delete = '''mutation{{
+                          deleteGoodsList(listId:{0}){{
+                            id
+                          }}
+                        }}'''
+    plural_name = "goodsLists"
 
     @staticmethod
-    def create_item() -> models.Model:
-        pass
+    def create_item_with(user) -> models.Model:
+        item = GoodsList(title="admin", user=user)
+        item.save()
+        return item
 
     def test_create_item_as_admin(self):
         self.create_item_as("admin")
@@ -80,16 +86,17 @@ class GoodsListEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
             self.update_by_id_as(fields=["title"])
 
     def test_delete_by_id_as_admin(self):
-        self.fail()
+        self.delete_by_id_as("admin")
 
     def test_delete_by_id_as_seller(self):
-        self.fail()
+        self.delete_by_id_as("seller")
 
     def test_delete_by_id_as_user(self):
-        self.fail()
+        self.delete_by_id_as("user")
 
     def test_delete_by_id_as_anon(self):
-        self.fail()
+        with self.assertRaises(UnauthorizedError):
+            self.delete_by_id_as()
 
     def test_get_all_items_as_anon(self):
         with self.assertRaises(UnauthorizedError):

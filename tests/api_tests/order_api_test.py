@@ -20,7 +20,7 @@ class OrderEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
     plural_name = ""
 
     @staticmethod
-    def create_item() -> models.Model:
+    def create_item_with(user) -> models.Model:
         pass
 
     def test_create_item_as_admin(self):

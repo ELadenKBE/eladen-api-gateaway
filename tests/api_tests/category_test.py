@@ -30,7 +30,7 @@ class CategoryEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
                       }
                     }"""
     mutation_update = '''mutation{{
-                      updateCategory(id:1, title:"{0}"){{
+                      updateCategory(id:{0}, title:"{1}"){{
                         id
                         title
                       }}
@@ -47,7 +47,7 @@ class CategoryEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
     plural_name = "categories"
 
     @staticmethod
-    def create_item():
+    def create_item_with(user):
         item = Category(title="title")
         item.save()
         return item

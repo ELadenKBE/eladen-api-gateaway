@@ -96,3 +96,19 @@ class GoodsList(models.Model):
                 raise UnauthorizedError(
                     "Not enough permissions to call this endpoint")
         self.save()
+
+    def delete_with_permission(self, info):
+        """
+        TODO add string
+
+        :param info:
+        :return:
+        """
+        user: ExtendedUser = info.context.user
+        if user.is_admin():
+            self.delete()
+        elif (user.is_seller() or user.is_user()) and self.user == user:
+            self.delete()
+        else:
+            raise UnauthorizedError(
+                "Not enough permissions to call this endpoint")

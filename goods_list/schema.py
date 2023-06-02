@@ -158,8 +158,24 @@ class UpdateGoodsList(graphene.Mutation):
         )
 
 
+class DeleteGoodsList(graphene.Mutation):
+    id = graphene.Int(required=True)
+
+    class Arguments:
+        list_id = graphene.Int(required=True)
+
+    @permission(roles=[Admin, Seller, User])
+    def mutate(self, info, list_id):
+        goods_list = GoodsList.objects.filter(id=list_id).first()
+        goods_list.delete_with_permission(info)
+        return DeleteGoodsList(
+            id=list_id
+        )
+
+
 class Mutation(graphene.ObjectType):
     create_goods_list = CreateGoodsList.Field()
     add_good_to_cart = AddGoodToCart.Field()
     clean_goods_list = CleanGoodsList.Field()
     update_goods_list = UpdateGoodsList.Field()
+    delete_goods_list = DeleteGoodsList.Field()
