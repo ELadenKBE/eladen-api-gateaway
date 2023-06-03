@@ -46,3 +46,19 @@ class ExtendedUser(AbstractUser):
         else:
             raise UnauthorizedError(
                 "Not enough permissions to call this endpoint")
+
+    def delete_with_permission(self, info):
+        """
+        TODO add docstring
+
+        :param info:
+        :return:
+        """
+        user: ExtendedUser = info.context.user
+        if user.is_admin():
+            self.delete()
+        elif (user.is_seller() or user.is_user()) and self == user:
+            self.delete()
+        else:
+            raise UnauthorizedError(
+                "Not enough permissions to call this endpoint")

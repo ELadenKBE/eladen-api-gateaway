@@ -131,6 +131,21 @@ class UpdateUser(graphene.Mutation):
         )
 
 
+class DeleteUser(graphene.Mutation):
+    id = graphene.Int(required=True)
+
+    class Arguments:
+        user_id = graphene.Int(required=True)
+
+    @permission(roles=[Admin, Seller, User])
+    def mutate(self, info, user_id):
+        user: ExtendedUser = ExtendedUser.objects.filter(id=user_id).first()
+        user.delete_with_permission(info)
+        return DeleteUser(
+            id=user_id
+        )
+
+
 def validate_role(role):
     if role < 1 or role > 3:
         raise ValueError("role is not defined")
@@ -139,3 +154,4 @@ def validate_role(role):
 class Mutation(graphene.ObjectType):
     create_user = CreateUser.Field()
     update_user = UpdateUser.Field()
+    delete_user = DeleteUser.Field()

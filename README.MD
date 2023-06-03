@@ -196,6 +196,12 @@ mutation{
       }
 }
 
+mutation{
+  deleteUser(userId:1){
+    id
+  }
+}
+
 ### Categories
 mutation{
   createCategory(title:"new category. test"){

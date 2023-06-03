@@ -51,12 +51,20 @@ class UserEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
                     }}'''
     mutation_update_name = 'updateUser'
 
-    mutation_delete = ''''''
+    mutation_delete = '''mutation{{
+                          deleteUser(userId:{0}){{
+                            id
+                          }}
+                        }}'''
     plural_name = "users"
 
     @staticmethod
     def create_item_with(user) -> models.Model:
-        pass
+        item = ExtendedUser(email=user.username+"_sometest@gmail.com",
+                            username="admin_"+user.username,
+                            role=user.role)
+        item.save()
+        return item
 
     def test_create_item_as_admin(self):
         self.create_item_as("admin")
@@ -92,13 +100,16 @@ class UserEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
             self.update_by_id_as(fields=["address", "firstname", "lastname"])
 
     def test_delete_by_id_as_admin(self):
-        self.fail()
+        self.delete_by_id_as("admin")
 
     def test_delete_by_id_as_seller(self):
-        self.fail()
+        with self.assertRaises(UnauthorizedError):
+            self.delete_by_id_as("seller")
 
     def test_delete_by_id_as_user(self):
-        self.fail()
+        with self.assertRaises(UnauthorizedError):
+            self.delete_by_id_as("user")
 
     def test_delete_by_id_as_anon(self):
-        self.fail()
+        with self.assertRaises(UnauthorizedError):
+            self.delete_by_id_as()
