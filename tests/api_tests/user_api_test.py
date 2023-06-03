@@ -21,13 +21,25 @@ class UserEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
                                                   }}
                                                 }}'''
     mutation_create_name = "createUser"
-    all_query = """"""
-    by_id_query = """"""
+    all_query = """query{
+                    users{
+                          id
+                            username
+                            email
+                        }
+                      }"""
+    by_id_query = """query{
+                    users(searchedId:1){
+                          id
+                            username
+                            email
+                        }
+                      }"""
     mutation_update = ''''''
     mutation_update_name = ''
 
     mutation_delete = ''''''
-    plural_name = ""
+    plural_name = "users"
 
     @staticmethod
     def create_item_with(user) -> models.Model:

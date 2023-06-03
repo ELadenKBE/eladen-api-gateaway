@@ -337,8 +337,7 @@ class WrapperForBaseTestClass:
 
         def test_get_all_items_as_anon(self):
             """Test get all items"""
-            query = self.all_query
-            response = self.query(query)
+            response = self.query(self.all_query)
             response_data = json.loads(response.content).get("data") \
                 .get(self.plural_name)
             if self.model.objects.all().count() == 0:
@@ -348,7 +347,7 @@ class WrapperForBaseTestClass:
             self.assertResponseNoErrors(response, "response has errors")
             self.assertEqual(self.model.objects.all().count(),
                              len(response_data),
-                             "query does not return right amount of data")
+                             "query does not return correct amount of data")
 
         def test_get_by_id_as_anon(self):
             """Test get by id. Should be implemented by every entity"""

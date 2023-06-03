@@ -14,9 +14,11 @@ class UserType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    users = graphene.List(UserType)
+    users = graphene.List(UserType, searched_id=graphene.Int())
 
-    def resolve_users(self, info):
+    def resolve_users(self, info, searched_id=None, **kwargs):
+        if searched_id:
+            return [ExtendedUser.objects.filter(id=searched_id).first()]
         return ExtendedUser.objects.all()
 
 
