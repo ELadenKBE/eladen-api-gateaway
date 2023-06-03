@@ -15,24 +15,45 @@ mutation { tokenAuth(username:"tim",password:"12345"){ token } }
   "AUTHORIZATION": "JWT <token>"
 }
 
-query{
-  me{
-    id
-    username
-  }
-}
-
 
 ## Frequent Queries
 
 ### Users
 query{
-users{
-      id
-    	username
-  		email
-    }
-  }
+  users{
+            id
+            username
+            email
+    		role
+    		address
+    		firstName
+    		lastName
+      }
+}
+
+query{
+  users(search: "tim_user"){
+            id
+            username
+            email
+    		role
+    		address
+    		firstName
+    		lastName
+      }
+}
+
+query{
+  users(searchedId: 1){
+            id
+            username
+            email
+    		role
+    		address
+    		firstName
+    		lastName
+      }
+}
 
 ### Categories
 query{
@@ -157,6 +178,22 @@ mutation{
     	username
   		email
   }
+}
+
+mutation{
+  updateUser(userId:1,
+  	email:"updated@gmail.com",
+  	address:"updated",
+  	firstname:"updated",
+  	lastname:"updated"){
+        id
+        username
+        email
+    		role
+    		address
+    		firstname
+    		lastname
+      }
 }
 
 ### Categories

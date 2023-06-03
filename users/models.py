@@ -3,6 +3,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 from django.contrib.auth.models import AbstractUser
 
+from app.errors import UnauthorizedError
+
 
 class ExtendedUser(AbstractUser):
     # roles are: 1-user. 2-seller. 3-admin
@@ -20,3 +22,27 @@ class ExtendedUser(AbstractUser):
 
     def is_admin(self):
         return self.role == 3
+
+    def update_with_permissions(self, info, email, address,
+                                firstname, lastname):
+        """
+        TODO write docs
+
+        :param info:
+        :param email:
+        :param address:
+        :param firstname:
+        :param lastname:
+        :return:
+        """
+        user: ExtendedUser = info.context.user
+        if ((user.is_user() or user.is_seller()) and self == user)\
+                or user.is_admin():
+            self.email = email
+            self.address = address
+            self.firstname = firstname
+            self.lastname = lastname
+            self.save()
+        else:
+            raise UnauthorizedError(
+                "Not enough permissions to call this endpoint")

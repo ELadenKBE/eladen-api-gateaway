@@ -396,7 +396,7 @@ class WrapperForBaseTestClass:
             else:
                 item_id = 1
             number_of_params = self.count_occurrences_of_variables(
-                self.mutation_create)
+                self.mutation_update)
             string_list = []
             for i in range(number_of_params):
                 string_var = filler
