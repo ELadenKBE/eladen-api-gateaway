@@ -3,7 +3,7 @@ from django.db.models import Q
 from graphene_django import DjangoObjectType
 
 from app.errors import UnauthorizedError
-from app.permissions import permission, All, Seller, Admin
+from app.permissions import permission, Anon, Seller, Admin
 from category.models import Category
 from category.schema import CategoryType
 from users.schema import UserType
@@ -21,7 +21,7 @@ class Query(graphene.ObjectType):
                           search=graphene.String(),
                           )
 
-    @permission(roles=[All])
+    @permission(roles=[Anon])
     def resolve_goods(self, info, search=None,  searched_id=None, **kwargs):
         """
         Return all elements if search arguments are not given.

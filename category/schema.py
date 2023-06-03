@@ -2,7 +2,7 @@ import graphene
 from django.db.models import Q
 from graphene_django import DjangoObjectType
 
-from app.permissions import permission, Admin, Seller, All
+from app.permissions import permission, Admin, Seller, Anon
 from category.models import Category
 
 
@@ -17,7 +17,7 @@ class Query(graphene.ObjectType):
                                searched_id=graphene.String(),
                                )
 
-    @permission(roles=[All])
+    @permission(roles=[Anon])
     def resolve_categories(self, info, search=None, searched_id=None, **kwargs):
         """
         Return all elements if search arguments are not given.

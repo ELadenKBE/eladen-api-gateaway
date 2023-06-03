@@ -10,8 +10,17 @@ class UserEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
     """Test goods list endpoint.
         """
     model = ExtendedUser
-    mutation_create = ''''''
-    mutation_create_name = ""
+    mutation_create = '''mutation{{
+                              createUser(username: "{0}",
+                                         email: "testemail@gmail.com",
+                                         password: "12345",
+                                         role:1){{
+                                                        id
+                                                        username
+                                                        email
+                                                  }}
+                                                }}'''
+    mutation_create_name = "createUser"
     all_query = """"""
     by_id_query = """"""
     mutation_update = ''''''
@@ -25,16 +34,18 @@ class UserEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
         pass
 
     def test_create_item_as_admin(self):
-        self.fail()
+        self.create_item_as("admin")
 
     def test_create_item_as_seller(self):
-        self.fail()
+        with self.assertRaises(UnauthorizedError):
+            self.create_item_as("seller")
 
     def test_create_item_as_user(self):
-        self.fail()
+        with self.assertRaises(UnauthorizedError):
+            self.create_item_as("user")
 
     def test_create_item_as_anon(self):
-        self.fail()
+        self.create_item_as()
 
     def test_update_by_id_as_admin(self):
         self.fail()
