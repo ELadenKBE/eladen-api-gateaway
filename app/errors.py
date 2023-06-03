@@ -4,3 +4,7 @@ class UnauthorizedError(Exception):
 
 class ResourceError(Exception):
     pass
+
+
+class ValidationError(Exception):
+    pass

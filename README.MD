@@ -15,30 +15,65 @@ mutation { tokenAuth(username:"tim",password:"12345"){ token } }
   "AUTHORIZATION": "JWT <token>"
 }
 
-query{
-  me{
-    id
-    username
-  }
-}
-
 
 ## Frequent Queries
 
 ### Users
 query{
-users{
-      id
-    	username
-  		email
-    }
-  }
+  users{
+            id
+            username
+            email
+    		role
+    		address
+    		firstName
+    		lastName
+      }
+}
+
+query{
+  users(search: "tim_user"){
+            id
+            username
+            email
+    		role
+    		address
+    		firstName
+    		lastName
+      }
+}
+
+query{
+  users(searchedId: 1){
+            id
+            username
+            email
+    		role
+    		address
+    		firstName
+    		lastName
+      }
+}
 
 ### Categories
 query{
 categories{
       id
     	title
+  }
+}
+
+{
+  categories(searchedId: "1") {
+    id
+    title
+  }
+}
+
+{
+  categories(search: "updated") {
+    id
+    title
   }
 }
 
@@ -64,16 +99,106 @@ goods{
   }
 }
 
+{
+  goods(searchedId: "1") {
+    id
+    title
+  }
+}
+
+### Goods List
+
+query{
+  goodsLists{
+    id
+    title
+    user {
+      id
+    }
+    goods{
+      id
+    }
+  }
+}
+#### Get all items of a cart
+
+query{
+  goodsLists(search:"cart"){
+    id
+    title
+    goods{
+      id
+      title
+    }
+  }
+}
+
+### Orders 
+query{
+  orders{
+    id
+    timeOfOrder
+    deliveryAddress
+    itemsPrice
+    deliveryPrice
+    deliveryStatus
+    paymentStatus
+    user{
+      id
+      username
+    }
+    
+  }
+}
+
+query{
+  orders(searchedId:1){
+    id
+    timeOfOrder
+    deliveryAddress
+    itemsPrice
+    deliveryPrice
+    deliveryStatus
+    paymentStatus
+    user{
+      id
+      username
+    }
+    
+  }
+}
+
 ## Frequent Mutations
 
 ### Users
+
 mutation{
-  createUser(username: "tim", email: "testemail@gmail.com", password: "12345"){
-    user{
+  createUser(username: "tim_user", email: "testemail@gmail.com", password: "12345", role:1){
       id
     	username
   		email
-    }
+  }
+}
+
+mutation{
+  updateUser(userId:1,
+  	email:"updated@gmail.com",
+  	address:"updated",
+  	firstname:"updated",
+  	lastname:"updated"){
+        id
+        username
+        email
+    		role
+    		address
+    		firstname
+    		lastname
+      }
+}
+
+mutation{
+  deleteUser(userId:1){
+    id
   }
 }
 
@@ -84,10 +209,17 @@ mutation{
   }
 }
 
+mutation{
+  updateCategory(id:1, title:"updated"){
+    id
+    title
+  }
+}
+
 ### Goods
 mutation{
   createGood(
-    title:"new category. test",
+    title:"new good. test",
     description:"some uninterestin description",
     address:"nowhere 1, 12345",
     categoryId:1,
@@ -95,6 +227,28 @@ mutation{
     
   ){
 		title
+  }
+}
+
+mutation {
+  updateGood(
+    goodId: 1
+    title: "updated"
+    description: "updated"
+    address: "updated"
+    price: 0
+  ) {
+    id
+    title
+    description
+    address
+    price
+		seller{
+      id
+    }
+    category{
+      id
+    }
   }
 }
 
@@ -109,5 +263,69 @@ mutation{
   }
 }
 
+mutation{
+  cleanGoodsList(listId:1){
+    id
+    title
+    goods{
+      id
+    }
+  }
+}
+
+mutation{
+  updateGoodsList(listId:1, title:"newwww"){
+    title
+  }
+}
+
 ### Orders
-new_line
+
+mutation{
+  createOrder(timeOfOrder:"1999-05-23 11:12", deliveryAddress:"dsd", itemsPrice:123, deliveryPrice:123){
+    id
+    timeOfOrder
+    deliveryAddress
+    itemsPrice
+    deliveryPrice
+    user{
+      id
+    }
+  }
+}
+
+## Introspections
+### Show all mutations
+
+query IntrospectionQuery {
+  __type(name: "Mutation") {
+    name
+    kind
+    fields {
+      name
+      args {
+        name
+        type {
+          name
+          kind
+        }
+      }
+      type {
+        name
+        kind
+      }
+    }
+  }
+}
+
+## Test commands
+### Execute a particular test
+python manage.py test tests.api_tests.category_test
+### Execute all tests
+python manage.py test tests --pattern="*_test.py" 
+
+### Generate test report
+run with coverage:<br>
+coverage run manage.py test tests.api_tests.category_test<br>
+generate report: coverage report<br>
+generate html: coverage html

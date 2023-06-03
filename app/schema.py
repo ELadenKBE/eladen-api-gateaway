@@ -5,6 +5,7 @@ import category.schema
 import users.schema
 import orders.schema
 import goods_list.schema
+import graphql_jwt
 
 
 class Query(users.schema.Query,
@@ -22,7 +23,9 @@ class Mutation(goods.schema.Mutation,
                goods_list.schema.Mutation,
                orders.schema.Mutation,
                graphene.ObjectType,):
-    pass
+    token_auth = graphql_jwt.ObtainJSONWebToken.Field()
+    verify_token = graphql_jwt.Verify.Field()
+    refresh_token = graphql_jwt.Refresh.Field()
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
