@@ -1,8 +1,11 @@
+from typing import Callable
+
 import graphene
 from graphene_django import DjangoObjectType
 
 from app.errors import UnauthorizedError, ResourceError
 from app.permissions import permission, Admin, User, Seller
+from goods.models import Good
 from goods.schema import GoodType
 from users.schema import UserType
 from .models import Order
@@ -69,6 +72,16 @@ class CreateOrder(graphene.Mutation):
         order.goods.add(*goods_ids)
         order.save()
 
+        goods = Good.objects.filter(id__in=goods_ids).all()
+
+        # should decrease amounts of goods after order created
+        def decrease_amount_func(good: Good):
+            good.amount -= 1
+            return good
+
+        updated_goods = [decrease_amount_func(good) for good in goods]
+        Good.objects.bulk_update(updated_goods, fields=["amount"])
+
         return CreateOrder(
             id=order.id,
             delivery_address=order.delivery_address,
@@ -77,7 +90,8 @@ class CreateOrder(graphene.Mutation):
             time_of_order=order.time_of_order,
             user=user,
             delivery_status=order.delivery_status,
-            payment_status=order.payment_status
+            payment_status=order.payment_status,
+            goods=order.goods.all()
         )
 
 
