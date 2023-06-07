@@ -46,7 +46,6 @@ class Order(models.Model):
     def update_with_permission(self, info, delivery_address, items_price,
                                delivery_price):
         """
-
         :param info:
         :param delivery_address:
         :param items_price:
@@ -55,9 +54,12 @@ class Order(models.Model):
         """
         user: ExtendedUser = info.context.user
         if user.is_user() and self.user == user or user.is_admin():
-            self.delivery_address = delivery_address
-            self.items_price = items_price
-            self.delivery_price = delivery_price
+            if delivery_address is not None:
+                self.delivery_address = delivery_address
+            if items_price is not None:
+                self.items_price = items_price
+            if delivery_price is not None:
+                self.delivery_price = delivery_price
             self.save()
         else:
             raise UnauthorizedError(

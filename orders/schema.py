@@ -95,9 +95,9 @@ class UpdateOrder(graphene.Mutation):
     @permission(roles=[Admin])
     def mutate(self, info,
                order_id,
-               delivery_address,
-               items_price,
-               delivery_price):
+               delivery_address=None,
+               items_price=None,
+               delivery_price=None):
         # TODO return error if None?
         order: Order = Order.objects.filter(id=order_id).first()
         user = info.context.user or None
