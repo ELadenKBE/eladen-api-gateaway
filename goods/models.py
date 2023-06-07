@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from graphql import GraphQLResolveInfo
 
@@ -21,6 +22,10 @@ class Good(models.Model):
     price = models.DecimalField(max_digits=6, decimal_places=2)
     image = models.CharField(max_length=5000, null=True, blank=True)
     manufacturer = models.CharField(max_length=256, null=True, blank=True)
+    amount = models.IntegerField(blank=False,
+                                 default=99,
+                                 validators=[MinValueValidator(0)],
+                                 null=True)
 
     def delete_with_permission(self, info: GraphQLResolveInfo):
         user: ExtendedUser = info.context.user
@@ -39,7 +44,8 @@ class Good(models.Model):
                                address,
                                price,
                                image,
-                               manufacturer):
+                               manufacturer,
+                               amount):
         user: ExtendedUser = info.context.user
         if user.is_admin() or user == self.seller:
             if manufacturer is not None:
@@ -54,6 +60,8 @@ class Good(models.Model):
                 self.price = price
             if image is not None:
                 self.image = image
+            if amount is not None:
+                self.amount = amount
             self.save()
         else:
             raise UnauthorizedError(
@@ -61,7 +69,7 @@ class Good(models.Model):
 
     @staticmethod
     def create_with_permission(info, title, description, address,
-                               category_id, price, image, manufacturer):
+                               category_id, price, image, manufacturer, amount):
         user: ExtendedUser = info.context.user or None
         if user.is_seller() or user.is_admin():
             good = Good(title=title,
@@ -71,7 +79,8 @@ class Good(models.Model):
                         seller=user,
                         price=price,
                         image=image,
-                        manufacturer=manufacturer
+                        manufacturer=manufacturer,
+                        amount=amount
                         )
             good.save()
             return good

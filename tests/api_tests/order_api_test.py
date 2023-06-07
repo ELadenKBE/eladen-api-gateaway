@@ -2,7 +2,6 @@ from django.db import models
 
 from app.errors import UnauthorizedError
 from orders.models import Order
-from users.models import ExtendedUser
 from .base_api_test import WrapperForBaseTestClass
 
 
@@ -38,8 +37,7 @@ class OrderEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
                     user{
                       id
                       username
-                    }
-                    
+                    }               
                   }
                 }"""
     by_id_query = """query{
@@ -55,7 +53,6 @@ class OrderEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
                       id
                       username
                     }
-                    
                   }
                 }"""
     mutation_update = '''mutation{{

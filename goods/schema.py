@@ -51,6 +51,7 @@ class CreateGood(graphene.Mutation):
     category = graphene.Field(CategoryType)
     image = graphene.String()
     manufacturer = graphene.String()
+    amount = graphene.Int()
 
     class Arguments:
         title = graphene.String(required=True)
@@ -60,6 +61,7 @@ class CreateGood(graphene.Mutation):
         price = graphene.Float(required=True)
         image = graphene.String()
         manufacturer = graphene.String(required=True)
+        amount = graphene.Int()
 
     @permission(roles=[Admin, Seller])
     def mutate(self,
@@ -69,6 +71,7 @@ class CreateGood(graphene.Mutation):
                category_id,
                price,
                manufacturer,
+               amount=None,
                description=None,
                image=None):
         good = Good.create_with_permission(info,
@@ -78,7 +81,8 @@ class CreateGood(graphene.Mutation):
                                            category_id,
                                            price,
                                            image,
-                                           manufacturer)
+                                           manufacturer,
+                                           amount)
 
         return CreateGood(
             id=good.id,
@@ -103,6 +107,7 @@ class UpdateGood(graphene.Mutation):
     category = graphene.Field(CategoryType)
     image = graphene.String()
     manufacturer = graphene.String()
+    amount = graphene.Int()
 
     class Arguments:
         good_id = graphene.Int(required=True)
@@ -112,6 +117,7 @@ class UpdateGood(graphene.Mutation):
         price = graphene.Float()
         image = graphene.String()
         manufacturer = graphene.String()
+        amount = graphene.Int()
 
     @permission(roles=[Admin, Seller])
     def mutate(self, info, good_id,
@@ -120,7 +126,9 @@ class UpdateGood(graphene.Mutation):
                address=None,
                price=None,
                image=None,
-               manufacturer=None):
+               manufacturer=None,
+               amount=None,
+               ):
         # TODO should implement not found?
         good = Good.objects.filter(id=good_id).first()
         good.update_with_permission(info,
@@ -129,7 +137,8 @@ class UpdateGood(graphene.Mutation):
                                     address,
                                     price,
                                     image,
-                                    manufacturer)
+                                    manufacturer,
+                                    amount)
 
         return UpdateGood(
             id=good.id,
@@ -139,7 +148,8 @@ class UpdateGood(graphene.Mutation):
             address=good.address,
             price=good.price,
             category=good.category,
-            image=good.image
+            image=good.image,
+            amount=good.amount
         )
 
 
@@ -153,6 +163,7 @@ class ChangeCategory(graphene.Mutation):
     category = graphene.Field(CategoryType)
     image = graphene.String()
     manufacturer = graphene.String()
+    amount = graphene.Int()
 
     class Arguments:
         category_id = graphene.Int()
@@ -173,7 +184,8 @@ class ChangeCategory(graphene.Mutation):
             category=good.category,
             seller=good.seller,
             price=good.price,
-            image=good.image
+            image=good.image,
+            amount=good.amount
         )
 
 
