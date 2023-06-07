@@ -15,6 +15,7 @@ class GoodEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
                                 title:"{0}",
                                 description:"{1}",
                                 address:"{2}",
+                                manufacturer:"{3}"
                                 categoryId:1,
                                 price: 123.12
                         

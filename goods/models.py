@@ -20,6 +20,7 @@ class Good(models.Model):
                                  blank=True)
     price = models.DecimalField(max_digits=6, decimal_places=2)
     image = models.CharField(max_length=5000, null=True, blank=True)
+    manufacturer = models.CharField(max_length=256, null=True, blank=True)
 
     def delete_with_permission(self, info: GraphQLResolveInfo):
         user: ExtendedUser = info.context.user
@@ -37,9 +38,12 @@ class Good(models.Model):
                                description,
                                address,
                                price,
-                               image):
+                               image,
+                               manufacturer):
         user: ExtendedUser = info.context.user
         if user.is_admin() or user == self.seller:
+            if manufacturer is not None:
+                self.manufacturer = manufacturer
             if title is not None:
                 self.title = title
             if description is not None:
@@ -57,7 +61,7 @@ class Good(models.Model):
 
     @staticmethod
     def create_with_permission(info, title, description, address,
-                               category_id, price, image):
+                               category_id, price, image, manufacturer):
         user: ExtendedUser = info.context.user or None
         if user.is_seller() or user.is_admin():
             good = Good(title=title,
@@ -66,7 +70,8 @@ class Good(models.Model):
                         category=Category.objects.get(id=category_id),
                         seller=user,
                         price=price,
-                        image=image
+                        image=image,
+                        manufacturer=manufacturer
                         )
             good.save()
             return good
