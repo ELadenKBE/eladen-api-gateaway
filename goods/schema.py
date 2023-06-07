@@ -2,7 +2,6 @@ import graphene
 from django.db.models import Q
 from graphene_django import DjangoObjectType
 
-from app.errors import UnauthorizedError
 from app.permissions import permission, Anon, Seller, Admin
 from category.models import Category
 from category.schema import CategoryType
@@ -22,7 +21,7 @@ class Query(graphene.ObjectType):
                           )
 
     @permission(roles=[Anon])
-    def resolve_goods(self, info, search=None,  searched_id=None, **kwargs):
+    def resolve_goods(self, info, search=None, searched_id=None, **kwargs):
         """
         Return all elements if search arguments are not given.
 
@@ -32,7 +31,7 @@ class Query(graphene.ObjectType):
         :return: collection of items
         """
         if search:
-            search_filter = (Q(title__icontains=search)|
+            search_filter = (Q(title__icontains=search) |
                              Q(description__icontains=search)
                              )
             return Category.objects.filter(search_filter).all()
@@ -50,6 +49,7 @@ class CreateGood(graphene.Mutation):
     address = graphene.String()
     price = graphene.Float()
     category = graphene.Field(CategoryType)
+    image = graphene.String()
 
     class Arguments:
         title = graphene.String()
@@ -57,18 +57,25 @@ class CreateGood(graphene.Mutation):
         address = graphene.String()
         category_id = graphene.Int()
         price = graphene.Float()
+        image = graphene.String()
 
     @permission(roles=[Admin, Seller])
-    def mutate(self, info, title, description, address, category_id, price):
-        seller = info.context.user or None
-        good = Good(title=title,
-                    description=description,
-                    address=address,
-                    category=Category.objects.get(id=category_id),
-                    seller=seller,
-                    price=price
-                    )
-        good.save()
+    def mutate(self,
+               info,
+               title,
+               description,
+               address,
+               category_id,
+               price,
+               image=None):
+
+        good = Good.create_with_permission(info,
+                                    title,
+                                    description,
+                                    address,
+                                    category_id,
+                                    price,
+                                    image)
 
         return CreateGood(
             id=good.id,
@@ -77,7 +84,8 @@ class CreateGood(graphene.Mutation):
             address=good.address,
             category=good.category,
             seller=good.seller,
-            price=good.price
+            price=good.price,
+            image=good.image
         )
 
 
@@ -89,6 +97,7 @@ class UpdateGood(graphene.Mutation):
     address = graphene.String()
     price = graphene.Float()
     category = graphene.Field(CategoryType)
+    image = graphene.String()
 
     class Arguments:
         good_id = graphene.Int(required=True)
@@ -96,12 +105,19 @@ class UpdateGood(graphene.Mutation):
         description = graphene.String()
         address = graphene.String()
         price = graphene.Float()
+        image = graphene.String(required=False)
 
     @permission(roles=[Admin, Seller])
-    def mutate(self, info, good_id, title, description, address, price):
+    def mutate(self, info, good_id, title, description, address, price,
+               image=None):
         # TODO should implement not found?
         good = Good.objects.filter(id=good_id).first()
-        good.update_with_permission(info, title, description, address, price)
+        good.update_with_permission(info,
+                                    title,
+                                    description,
+                                    address,
+                                    price,
+                                    image)
 
         return UpdateGood(
             id=good.id,
@@ -110,7 +126,8 @@ class UpdateGood(graphene.Mutation):
             seller=good.seller,
             address=good.address,
             price=good.price,
-            category=good.category
+            category=good.category,
+            image=good.image
         )
 
 
@@ -122,6 +139,7 @@ class ChangeCategory(graphene.Mutation):
     address = graphene.String()
     price = graphene.Float()
     category = graphene.Field(CategoryType)
+    image = graphene.String()
 
     class Arguments:
         category_id = graphene.Int()
@@ -141,7 +159,8 @@ class ChangeCategory(graphene.Mutation):
             address=good.address,
             category=good.category,
             seller=good.seller,
-            price=good.price
+            price=good.price,
+            image=good.image
         )
 
 

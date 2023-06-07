@@ -267,10 +267,14 @@ class WrapperForBaseTestClass:
 
             response = self.request_graphql(role, formatted_mutation)
             self.check_for_permission_errors(response)
-            tested_id = json.loads(response.content) \
-                .get('data') \
-                .get(self.mutation_create_name) \
-                .get('id')
+            try:
+                tested_id = json.loads(response.content) \
+                    .get('data') \
+                    .get(self.mutation_create_name) \
+                    .get('id')
+            except Exception:
+                print(json.loads(response.content))
+                self.fail()
             expected_id = self.model.objects.get(id=tested_id).id
 
             self.assertResponseNoErrors(response, "response has errors")

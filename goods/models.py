@@ -19,6 +19,7 @@ class Good(models.Model):
                                  on_delete=models.CASCADE,
                                  blank=True)
     price = models.DecimalField(max_digits=6, decimal_places=2)
+    image = models.CharField(max_length=5000, null=True, blank=True)
 
     def delete_with_permission(self, info: GraphQLResolveInfo):
         user: ExtendedUser = info.context.user
@@ -30,14 +31,42 @@ class Good(models.Model):
             raise UnauthorizedError(
                 "Not enough permissions to call this endpoint")
 
-    def update_with_permission(self, info, title, description, address, price):
+    def update_with_permission(self,
+                               info,
+                               title,
+                               description,
+                               address,
+                               price,
+                               image):
         user: ExtendedUser = info.context.user
         if user.is_admin() or user == self.seller:
             self.title = title
             self.description = description
             self.address = address
             self.price = price
+            if image is not None:
+                self.image = image
             self.save()
         else:
             raise UnauthorizedError(
                 "Not enough permissions to call this endpoint")
+
+    @staticmethod
+    def create_with_permission(info, title, description, address,
+                               category_id, price, image):
+        user: ExtendedUser = info.context.user or None
+        if user.is_seller() or user.is_admin():
+            good = Good(title=title,
+                        description=description,
+                        address=address,
+                        category=Category.objects.get(id=category_id),
+                        seller=user,
+                        price=price,
+                        image=image
+                        )
+            good.save()
+            return good
+        else:
+            raise UnauthorizedError(
+                "Not enough permissions to call this endpoint")
+
