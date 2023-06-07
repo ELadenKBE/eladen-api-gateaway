@@ -2,7 +2,7 @@ import graphene
 from django.db.models import Q
 from graphene_django import DjangoObjectType
 
-from app.permissions import permission, Anon, Seller, Admin
+from app.permissions import permission, All, Seller, Admin
 from category.models import Category
 from category.schema import CategoryType
 from users.schema import UserType
@@ -20,7 +20,7 @@ class Query(graphene.ObjectType):
                           search=graphene.String(),
                           )
 
-    @permission(roles=[Anon])
+    @permission(roles=[All])
     def resolve_goods(self, info, search=None, searched_id=None, **kwargs):
         """
         Return all elements if search arguments are not given.
@@ -108,7 +108,11 @@ class UpdateGood(graphene.Mutation):
         image = graphene.String(required=False)
 
     @permission(roles=[Admin, Seller])
-    def mutate(self, info, good_id, title, description, address, price,
+    def mutate(self, info, good_id,
+               title=None,
+               description=None,
+               address=None,
+               price=None,
                image=None):
         # TODO should implement not found?
         good = Good.objects.filter(id=good_id).first()

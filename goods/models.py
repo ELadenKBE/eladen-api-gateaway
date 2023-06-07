@@ -40,10 +40,14 @@ class Good(models.Model):
                                image):
         user: ExtendedUser = info.context.user
         if user.is_admin() or user == self.seller:
-            self.title = title
-            self.description = description
-            self.address = address
-            self.price = price
+            if title is not None:
+                self.title = title
+            if description is not None:
+                self.description = description
+            if address is not None:
+                self.address = address
+            if price is not None:
+                self.price = price
             if image is not None:
                 self.image = image
             self.save()

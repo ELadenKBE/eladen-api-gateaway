@@ -4,7 +4,7 @@ import graphene
 from django.db.models import Q
 from graphene_django import DjangoObjectType
 
-from app.permissions import permission, Admin, Anon, Seller, User
+from app.permissions import permission, Admin, All, Seller, User
 from goods_list.models import GoodsList
 from users.models import ExtendedUser
 
@@ -46,7 +46,7 @@ class CreateUser(graphene.Mutation):
         firstname = graphene.String()
         lastname = graphene.String()
 
-    @permission(roles=[Admin, Anon])
+    @permission(roles=[Admin, All])
     def mutate(self,
                info,
                username,

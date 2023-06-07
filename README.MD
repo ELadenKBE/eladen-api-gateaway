@@ -19,6 +19,7 @@ mutation { tokenAuth(username:"tim",password:"12345"){ token } }
 ## Frequent Queries
 
 ### Users
+
 query{
   users{
             id
@@ -100,7 +101,7 @@ goods{
 }
 
 {
-  goods(searchedId: "1") {
+  goods(searchedId: 1) {
     id
     title
   }
@@ -224,7 +225,6 @@ mutation{
     address:"nowhere 1, 12345",
     categoryId:1,
     price: 123.12
-    
   ){
 		title
   }

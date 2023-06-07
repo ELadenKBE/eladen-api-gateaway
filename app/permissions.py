@@ -45,11 +45,10 @@ class Seller(IUser):
             return role.is_seller()
 
 
-class Anon(IUser):
+class All(IUser):
     @staticmethod
     def is_equal(role):
-        if isinstance(role, AnonymousUser):
-            return True
+        return True
 
 
 def permission(roles: list[Type[IUser]] = None):
