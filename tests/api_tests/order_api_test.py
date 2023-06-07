@@ -13,8 +13,8 @@ class OrderEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
     mutation_create = '''mutation{{
           createOrder(timeOfOrder:"1999-05-23 11:12",
              deliveryAddress:"{0}",
-             itemsPrice:123,
-             deliveryPrice:123){{
+             goodsIds: [1, 2]
+             ){{
             id
             timeOfOrder
             deliveryAddress
@@ -62,8 +62,6 @@ class OrderEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
                           updateOrder(
                             orderId:{0},
                             deliveryAddress:"{1}",
-                            itemsPrice:1,
-                            deliveryPrice:2
                           ){{
                             id
                             timeOfOrder

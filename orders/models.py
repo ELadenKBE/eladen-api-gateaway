@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models import QuerySet
 
 from app.errors import UnauthorizedError
+from goods.models import Good
 from users.models import ExtendedUser
 
 
@@ -13,6 +14,7 @@ class Order(models.Model):
     delivery_price = models.DecimalField(max_digits=6, decimal_places=2)
     delivery_status = models.CharField(max_length=256)
     payment_status = models.CharField(max_length=256)
+    goods = models.ManyToManyField(Good)
 
     @staticmethod
     def get_all_orders_with_permission(info) -> QuerySet:
@@ -43,23 +45,16 @@ class Order(models.Model):
         if user.is_admin():
             return Order.objects.filter(id=searched_id).first()
 
-    def update_with_permission(self, info, delivery_address, items_price,
-                               delivery_price):
+    def update_with_permission(self, info, delivery_address):
         """
         :param info:
         :param delivery_address:
-        :param items_price:
-        :param delivery_price:
         :return:
         """
         user: ExtendedUser = info.context.user
         if user.is_user() and self.user == user or user.is_admin():
             if delivery_address is not None:
                 self.delivery_address = delivery_address
-            if items_price is not None:
-                self.items_price = items_price
-            if delivery_price is not None:
-                self.delivery_price = delivery_price
             self.save()
         else:
             raise UnauthorizedError(

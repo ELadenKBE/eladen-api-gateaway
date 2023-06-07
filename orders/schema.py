@@ -3,6 +3,7 @@ from graphene_django import DjangoObjectType
 
 from app.errors import UnauthorizedError, ResourceError
 from app.permissions import permission, Admin, User, Seller
+from goods.schema import GoodType
 from users.schema import UserType
 from .models import Order
 
@@ -40,30 +41,32 @@ class CreateOrder(graphene.Mutation):
     user = graphene.Field(UserType)
     delivery_status = graphene.String()
     payment_status = graphene.String()
+    goods = graphene.List(GoodType)
 
     class Arguments:
         time_of_order = graphene.String()
         delivery_address = graphene.String()
-        items_price = graphene.Float()
-        delivery_price = graphene.Float()
+        goods_ids = graphene.List(graphene.ID, required=True)
 
     @permission(roles=[Admin, User])
     def mutate(self, info,
                time_of_order,
                delivery_address,
-               items_price,
-               delivery_price):
+               goods_ids):
         # TODO notify sellers
         user = info.context.user or None
         if user is None:
             raise UnauthorizedError("Unauthorized access!")
         order = Order(time_of_order=time_of_order,
                       delivery_address=delivery_address,
-                      items_price=items_price,
-                      delivery_price=delivery_price,
+                      # TODO calculate delivery and items price
+                      items_price=1000,
+                      delivery_price=100,
                       delivery_status="order created",
                       payment_status="not paid",
                       user=user)
+        order.save()
+        order.goods.add(*goods_ids)
         order.save()
 
         return CreateOrder(
@@ -72,7 +75,9 @@ class CreateOrder(graphene.Mutation):
             items_price=order.items_price,
             delivery_price=order.delivery_price,
             time_of_order=order.time_of_order,
-            user=user
+            user=user,
+            delivery_status=order.delivery_status,
+            payment_status=order.payment_status
         )
 
 
@@ -89,22 +94,15 @@ class UpdateOrder(graphene.Mutation):
     class Arguments:
         order_id = graphene.Int()
         delivery_address = graphene.String()
-        items_price = graphene.Float()
-        delivery_price = graphene.Float()
 
     @permission(roles=[Admin])
     def mutate(self, info,
                order_id,
-               delivery_address=None,
-               items_price=None,
-               delivery_price=None):
+               delivery_address=None):
         # TODO return error if None?
         order: Order = Order.objects.filter(id=order_id).first()
         user = info.context.user or None
-        order.update_with_permission(info,
-                                     delivery_address,
-                                     items_price,
-                                     delivery_price)
+        order.update_with_permission(info, delivery_address)
         return UpdateOrder(
             id=order.id,
             delivery_address=order.delivery_address,
