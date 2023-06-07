@@ -13,6 +13,7 @@ class ExtendedUser(AbstractUser):
     address = models.CharField(max_length=256, null=True)
     firstname = models.CharField(max_length=256, null=True)
     lastname = models.CharField(max_length=256, null=True)
+    image = models.CharField(max_length=5000, null=True, blank=True)
 
     def is_user(self):
         return self.role == 1
@@ -24,10 +25,11 @@ class ExtendedUser(AbstractUser):
         return self.role == 3
 
     def update_with_permissions(self, info, email, address,
-                                firstname, lastname):
+                                firstname, lastname, image):
         """
         TODO write docs
 
+        :param image:
         :param info:
         :param email:
         :param address:
@@ -36,13 +38,21 @@ class ExtendedUser(AbstractUser):
         :return:
         """
         user: ExtendedUser = info.context.user
-        if ((user.is_user() or user.is_seller()) and self == user)\
+        if ((user.is_user() or
+             user.is_seller()) and self == user)\
                 or user.is_admin():
-            self.email = email
-            self.address = address
-            self.firstname = firstname
-            self.lastname = lastname
+            if email is not None:
+                self.email = email
+            if address is not None:
+                self.address = address
+            if firstname is not None:
+                self.firstname = firstname
+            if lastname is not None:
+                self.lastname = lastname
+            if image is not None:
+                self.image = image
             self.save()
+
         else:
             raise UnauthorizedError(
                 "Not enough permissions to call this endpoint")

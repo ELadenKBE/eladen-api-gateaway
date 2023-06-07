@@ -51,6 +51,15 @@ class All(IUser):
         return True
 
 
+class Anon(IUser):
+    @staticmethod
+    def is_equal(role):
+        if isinstance(role, AnonymousUser):
+            return True
+        else:
+            return False
+
+
 def permission(roles: list[Type[IUser]] = None):
     """We use this decorator for queries and mutations
 

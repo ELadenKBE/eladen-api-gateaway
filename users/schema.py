@@ -4,7 +4,7 @@ import graphene
 from django.db.models import Q
 from graphene_django import DjangoObjectType
 
-from app.permissions import permission, Admin, All, Seller, User
+from app.permissions import permission, Admin, All, Seller, User, Anon
 from goods_list.models import GoodsList
 from users.models import ExtendedUser
 
@@ -36,6 +36,7 @@ class CreateUser(graphene.Mutation):
     address = graphene.String()
     firstname = graphene.String()
     lastname = graphene.String()
+    image = graphene.String()
 
     class Arguments:
         username = graphene.String(required=True)
@@ -45,14 +46,16 @@ class CreateUser(graphene.Mutation):
         address = graphene.String()
         firstname = graphene.String()
         lastname = graphene.String()
+        image = graphene.String()
 
-    @permission(roles=[Admin, All])
+    @permission(roles=[Admin, Anon])
     def mutate(self,
                info,
                username,
                password,
                email,
                role,
+               image=None,
                address=None,
                firstname=None,
                lastname=None):
@@ -63,7 +66,8 @@ class CreateUser(graphene.Mutation):
             role=role,
             address=address,
             lastname=lastname,
-            firstname=firstname
+            firstname=firstname,
+            image=image
         )
         user.set_password(password)
         user.save()
@@ -86,7 +90,8 @@ class CreateUser(graphene.Mutation):
             role=user.role,
             address=user.address,
             lastname=user.lastname,
-            firstname=user.firstname
+            firstname=user.firstname,
+            image=user.image
         )
 
 
@@ -98,6 +103,7 @@ class UpdateUser(graphene.Mutation):
     address = graphene.String()
     firstname = graphene.String()
     lastname = graphene.String()
+    image = graphene.String()
 
     class Arguments:
         user_id = graphene.Int(required=True)
@@ -105,12 +111,14 @@ class UpdateUser(graphene.Mutation):
         address = graphene.String()
         firstname = graphene.String()
         lastname = graphene.String()
+        image = graphene.String()
 
     @permission(roles=[Admin, Seller, User])
     def mutate(self,
                info,
                user_id,
-               email,
+               email=None,
+               image=None,
                address=None,
                firstname=None,
                lastname=None):
@@ -119,7 +127,8 @@ class UpdateUser(graphene.Mutation):
                                      email,
                                      address,
                                      firstname,
-                                     lastname)
+                                     lastname,
+                                     image)
         return UpdateUser(
             id=user.id,
             username=user.username,
@@ -127,7 +136,8 @@ class UpdateUser(graphene.Mutation):
             role=user.role,
             address=user.address,
             firstname=user.firstname,
-            lastname=user.lastname
+            lastname=user.lastname,
+            image=user.image
         )
 
 
