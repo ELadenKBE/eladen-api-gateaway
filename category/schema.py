@@ -4,6 +4,7 @@ from graphene_django import DjangoObjectType
 
 from app.permissions import permission, Admin, Seller, All
 from category.models import Category
+from category.repository import CategoryRepository
 
 
 class CategoryType(DjangoObjectType):
@@ -31,8 +32,7 @@ class Query(graphene.ObjectType):
             search_filter = (Q(title__icontains=search))
             return Category.objects.filter(search_filter)
         if searched_id:
-            data_to_return = Category.objects.get(id=searched_id)
-            return [data_to_return]
+            return CategoryRepository.get_by_id(searched_id)
         return Category.objects.all()
 
 
