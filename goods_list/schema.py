@@ -149,6 +149,14 @@ class UpdateGoodsList(graphene.Mutation):
 
     @permission(roles=[Admin, Seller, User])
     def mutate(self, info, list_id, title):
+        """
+        TODO add docs
+
+        :param info:
+        :param list_id:
+        :param title:
+        :return:
+        """
         goods_list: GoodsList = GoodsList.objects.filter(id=list_id).first()
         goods_list.update_with_permission(info, title)
 
@@ -166,6 +174,13 @@ class DeleteGoodsList(graphene.Mutation):
 
     @permission(roles=[Admin, Seller, User])
     def mutate(self, info, list_id):
+        """
+        TODO add docs
+
+        :param info:
+        :param list_id:
+        :return:
+        """
         goods_list = GoodsList.objects.filter(id=list_id).first()
         goods_list.delete_with_permission(info)
         return DeleteGoodsList(

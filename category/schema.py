@@ -45,6 +45,13 @@ class CreateCategory(graphene.Mutation):
 
     @permission(roles=[Admin])
     def mutate(self, info, title):
+        """
+        TODO add docs
+
+        :param info:
+        :param title:
+        :return:
+        """
         category = Category(title=title)
         category.save()
 
@@ -64,6 +71,14 @@ class UpdateCategory(graphene.Mutation):
 
     @permission(roles=[Admin])
     def mutate(self, info, id, title):
+        """
+        TODO add docs
+
+        :param info:
+        :param id:
+        :param title:
+        :return:
+        """
         category = Category.objects.get(id=id)
         category.title = title
         category.save()
@@ -83,6 +98,13 @@ class DeleteCategory(graphene.Mutation):
 
     @permission(roles=[Admin])
     def mutate(self, info, id):
+        """
+        TODO add docs
+
+        :param info:
+        :param id:
+        :return:
+        """
         category = Category.objects.get(id=id)
         category.delete()
 
