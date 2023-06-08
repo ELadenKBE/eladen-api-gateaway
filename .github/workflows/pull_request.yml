@@ -23,3 +23,12 @@ jobs:
 
       - name: Run Django tests
         run: python manage.py test tests --pattern="*_test.py"
+
+      - name: Check test result
+        run: |
+          if [ ${{ job.status }} == 'failure' ]; then
+            echo "Tests failed. Rejecting the pull request..."
+            exit 1
+          else
+            echo "Tests passed. Pull request can be merged."
+          fi
