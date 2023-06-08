@@ -20,6 +20,15 @@ class Query(graphene.ObjectType):
                           searched_id=graphene.Int())
 
     def resolve_users(self, info, searched_id=None, search=None, **kwargs):
+        """
+        TODO add docs
+
+        :param info:
+        :param searched_id:
+        :param search:
+        :param kwargs:
+        :return:
+        """
         if search:
             search_filter = (Q(username__icontains=search))
             return [ExtendedUser.objects.filter(search_filter).first()]
@@ -59,6 +68,20 @@ class CreateUser(graphene.Mutation):
                address=None,
                firstname=None,
                lastname=None):
+        """
+        TODO add docs
+
+        :param info:
+        :param username:
+        :param password:
+        :param email:
+        :param role:
+        :param image:
+        :param address:
+        :param firstname:
+        :param lastname:
+        :return:
+        """
         validate_role(role)
         user = ExtendedUser(
             username=username,
@@ -122,6 +145,18 @@ class UpdateUser(graphene.Mutation):
                address=None,
                firstname=None,
                lastname=None):
+        """
+        TODO add docs
+
+        :param info:
+        :param user_id:
+        :param email:
+        :param image:
+        :param address:
+        :param firstname:
+        :param lastname:
+        :return:
+        """
         user: ExtendedUser = ExtendedUser.objects.filter(id=user_id).first()
         user.update_with_permissions(info,
                                      email,
@@ -149,6 +184,13 @@ class DeleteUser(graphene.Mutation):
 
     @permission(roles=[Admin, Seller, User])
     def mutate(self, info, user_id):
+        """
+        TODO add docs
+
+        :param info:
+        :param user_id:
+        :return:
+        """
         user: ExtendedUser = ExtendedUser.objects.filter(id=user_id).first()
         user.delete_with_permission(info)
         return DeleteUser(
@@ -157,6 +199,12 @@ class DeleteUser(graphene.Mutation):
 
 
 def validate_role(role):
+    """
+    TODO add docs
+
+    :param role:
+    :return:
+    """
     if role < 1 or role > 3:
         raise ValueError("role is not defined")
 

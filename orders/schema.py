@@ -56,6 +56,15 @@ class CreateOrder(graphene.Mutation):
                time_of_order,
                delivery_address,
                goods_ids):
+        """
+        TODO add docs
+
+        :param info:
+        :param time_of_order:
+        :param delivery_address:
+        :param goods_ids:
+        :return:
+        """
         # TODO notify sellers
         user = info.context.user or None
         if user is None:
@@ -113,6 +122,14 @@ class UpdateOrder(graphene.Mutation):
     def mutate(self, info,
                order_id,
                delivery_address=None):
+        """
+        TODO add docs
+
+        :param info:
+        :param order_id:
+        :param delivery_address:
+        :return:
+        """
         # TODO return error if None?
         order: Order = Order.objects.filter(id=order_id).first()
         user = info.context.user or None
@@ -136,6 +153,14 @@ class ChangeDeliveryStatus(graphene.Mutation):
         delivery_status = graphene.String()
 
     def mutate(self, info, id_arg, delivery_status):
+        """
+        TODO add docs
+
+        :param info:
+        :param id_arg:
+        :param delivery_status:
+        :return:
+        """
         user = info.context.user or None
         if user is None:
             raise UnauthorizedError("Unauthorized access!")
@@ -158,6 +183,14 @@ class ChangePaymentStatus(graphene.Mutation):
         payment_status = graphene.String()
 
     def mutate(self, info, id_arg, payment_status):
+        """
+        TODO add docs
+
+        :param info:
+        :param id_arg:
+        :param payment_status:
+        :return:
+        """
         user = info.context.user or None
         if user is None:
             raise UnauthorizedError("Unauthorized access!")
@@ -179,6 +212,13 @@ class DeleteOrder(graphene.Mutation):
 
     @permission(roles=[Admin])
     def mutate(self, info, order_id):
+        """
+        TODO add docs
+
+        :param info:
+        :param order_id:
+        :return:
+        """
         order = Order.objects.filter(id=order_id).first()
         order.delete()
         return DeleteOrder(

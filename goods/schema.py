@@ -74,6 +74,20 @@ class CreateGood(graphene.Mutation):
                amount=None,
                description=None,
                image=None):
+        """
+        TODO add docs
+
+        :param info:
+        :param title:
+        :param address:
+        :param category_id:
+        :param price:
+        :param manufacturer:
+        :param amount:
+        :param description:
+        :param image:
+        :return:
+        """
         good = Good.create_with_permission(info,
                                            title,
                                            description,
@@ -129,6 +143,20 @@ class UpdateGood(graphene.Mutation):
                manufacturer=None,
                amount=None,
                ):
+        """
+        TODO add docs
+
+        :param info:
+        :param good_id:
+        :param title:
+        :param description:
+        :param address:
+        :param price:
+        :param image:
+        :param manufacturer:
+        :param amount:
+        :return:
+        """
         # TODO should implement not found?
         good = Good.objects.filter(id=good_id).first()
         good.update_with_permission(info,
@@ -171,6 +199,13 @@ class ChangeCategory(graphene.Mutation):
 
     @permission(roles=[Admin, Seller])
     def mutate(self, category_id, good_id):
+        """
+        TODO add docs
+
+        :param category_id:
+        :param good_id:
+        :return:
+        """
         category = Category.objects.get(id=category_id)
         good = Good.objects.get(id=good_id)
         good.category = category
@@ -197,6 +232,13 @@ class DeleteGood(graphene.Mutation):
 
     @permission(roles=[Admin, Seller])
     def mutate(self, info, id):
+        """
+        TODO add docs
+
+        :param info:
+        :param id:
+        :return:
+        """
         good = Good.objects.filter(id=id).first()
         good.delete_with_permission(info)
         return DeleteGood(
