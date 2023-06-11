@@ -8,7 +8,7 @@ from users.models import ExtendedUser
 
 
 # Create your models here.
-
+# test line
 
 class Good(models.Model):
     url = models.URLField()
@@ -87,4 +87,3 @@ class Good(models.Model):
         else:
             raise UnauthorizedError(
                 "Not enough permissions to call this endpoint")
-
