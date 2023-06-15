@@ -3,6 +3,7 @@ import abc
 from django.db.models import QuerySet
 from django.db import models
 from django.db.models import Q
+from graphql import GraphQLResolveInfo
 
 
 class IRepository(metaclass=abc.ABCMeta):
@@ -33,7 +34,7 @@ class IRepository(metaclass=abc.ABCMeta):
 
     @staticmethod
     @abc.abstractmethod
-    def delete_item(searched_id: str) -> [QuerySet]:
+    def delete_item(info: GraphQLResolveInfo, searched_id: str):
         pass
 
 
@@ -65,4 +66,3 @@ class RepositoryBase:
     def delete_item_base(self, item_id: str):
         item = self.model.objects.filter(id=item_id).first()
         item.delete()
-        return item

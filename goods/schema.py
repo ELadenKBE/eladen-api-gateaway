@@ -157,15 +157,16 @@ class UpdateGood(graphene.Mutation):
         :return:
         """
         # TODO should implement not found?
-        good = Good.objects.filter(id=good_id).first()
-        good.update_with_permission(info,
-                                    title,
-                                    description,
-                                    address,
-                                    price,
-                                    image,
-                                    manufacturer,
-                                    amount)
+
+        good = GoodRepository.update_item(info=info,
+                                          item_id=good_id,
+                                          title=title,
+                                          address=address,
+                                          price=price,
+                                          manufacturer=manufacturer,
+                                          amount=amount,
+                                          description=description,
+                                          image=image)
 
         return UpdateGood(
             id=good.id,
@@ -197,18 +198,18 @@ class ChangeCategory(graphene.Mutation):
         good_id = graphene.Int()
 
     @permission(roles=[Admin, Seller])
-    def mutate(self, category_id, good_id):
+    def mutate(self, info, category_id, good_id):
         """
         TODO add docs
 
+        :param info:
         :param category_id:
         :param good_id:
         :return:
         """
-        category = Category.objects.get(id=category_id)
-        good = Good.objects.get(id=good_id)
-        good.category = category
-        good.save()
+        good = GoodRepository.change_category(searched_id=good_id,
+                                              category_id=category_id,
+                                              info=info)
 
         return ChangeCategory(
             id=good.id,
@@ -238,8 +239,8 @@ class DeleteGood(graphene.Mutation):
         :param id:
         :return:
         """
-        good = Good.objects.filter(id=id).first()
-        good.delete_with_permission(info)
+        # TODO fix delete as admin
+        GoodRepository.delete_item(info=info, searched_id=id)
         return DeleteGood(
             id=id
         )

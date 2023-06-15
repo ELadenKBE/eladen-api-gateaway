@@ -1,7 +1,9 @@
 from django.db.models import QuerySet, Q
+from graphql import GraphQLResolveInfo
 
 from app.repository_base import RepositoryBase, IRepository
 from category.models import Category
+from users.models import ExtendedUser
 
 
 class CategoryRepository(RepositoryBase, IRepository):
@@ -34,6 +36,8 @@ class CategoryRepository(RepositoryBase, IRepository):
             update_item_base(CategoryRepository, item_id=item_id, **kwargs)
 
     @staticmethod
-    def delete_item(searched_id: str):
-        return super(CategoryRepository, CategoryRepository). \
-            delete_item_base(CategoryRepository, searched_id)
+    def delete_item(info: GraphQLResolveInfo, searched_id: str):
+        user: ExtendedUser = info.context.user or None
+        if user.is_admin():
+            return super(CategoryRepository, CategoryRepository). \
+                delete_item_base(CategoryRepository, searched_id)
