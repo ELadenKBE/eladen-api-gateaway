@@ -7,6 +7,7 @@ from category.models import Category
 from category.schema import CategoryType
 from users.schema import UserType
 from .models import Good
+from .repository import GoodRepository
 
 
 class GoodType(DjangoObjectType):
@@ -32,13 +33,11 @@ class Query(graphene.ObjectType):
         """
         if search:
             search_filter = (Q(title__icontains=search) |
-                             Q(description__icontains=search)
-                             )
-            return Category.objects.filter(search_filter).all()
+                             Q(description__icontains=search))
+            return GoodRepository.get_items_by_filter(search_filter)
         if searched_id:
-            data_to_return = Good.objects.get(id=searched_id)
-            return [data_to_return]
-        return Good.objects.all()
+            return GoodRepository.get_by_id(searched_id)
+        return GoodRepository.get_all_items()
 
 
 class CreateGood(graphene.Mutation):
@@ -88,15 +87,15 @@ class CreateGood(graphene.Mutation):
         :param image:
         :return:
         """
-        good = Good.create_with_permission(info,
-                                           title,
-                                           description,
-                                           address,
-                                           category_id,
-                                           price,
-                                           image,
-                                           manufacturer,
-                                           amount)
+        good = GoodRepository.create_item(info=info,
+                                          title=title,
+                                          address=address,
+                                          category_id=category_id,
+                                          price=price,
+                                          manufacturer=manufacturer,
+                                          amount=amount,
+                                          description=description,
+                                          image=image)
 
         return CreateGood(
             id=good.id,
