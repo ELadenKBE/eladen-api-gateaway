@@ -26,13 +26,3 @@ class Good(models.Model):
                                  default=99,
                                  validators=[MinValueValidator(0)],
                                  null=True)
-
-    def delete_with_permission(self, info: GraphQLResolveInfo):
-        user: ExtendedUser = info.context.user
-        if user.is_admin():
-            self.delete()
-        elif user.is_seller() and self.seller == user:
-            self.delete()
-        else:
-            raise UnauthorizedError(
-                "Not enough permissions to call this endpoint")

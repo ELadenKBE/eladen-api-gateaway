@@ -31,7 +31,8 @@ class GoodRepository(RepositoryBase, IRepository):
             get_all_items_base(GoodRepository)
 
     @staticmethod
-    def get_items_by_filter(search_filter: Q) -> [QuerySet]:
+    def get_items_by_filter(search_filter: Q,
+                            info: GraphQLResolveInfo = None,) -> [QuerySet]:
         return super(GoodRepository, GoodRepository).\
             get_items_by_filter_base(GoodRepository, search_filter)
 

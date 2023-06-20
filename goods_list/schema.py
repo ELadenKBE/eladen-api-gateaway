@@ -8,6 +8,7 @@ from goods.models import Good
 from goods.schema import GoodType
 from users.schema import UserType
 from .models import GoodsList
+from .repository import GoodsListRepository
 
 
 class GoodsListType(DjangoObjectType):
@@ -35,11 +36,12 @@ class Query(graphene.ObjectType):
         :return:
         """
         if search:
-            return GoodsList.get_all_filtered_with_permission(info, search)
+            return GoodsListRepository.get_items_by_filter(info=info,
+                                                           search_filter=search)
         if searched_id:
-            return [GoodsList.get_by_id_with_permission(info,
-                                                        search_id=searched_id)]
-        return GoodsList.get_all_with_permission(info)
+            return [GoodsListRepository.get_by_id(info=info,
+                                                  searched_id=searched_id)]
+        return GoodsListRepository.get_all_items(info)
 
 
 class CreateGoodsList(graphene.Mutation):
@@ -58,16 +60,13 @@ class CreateGoodsList(graphene.Mutation):
         :param title:
         :return:
         """
-        user = info.context.user or None
-        if user is None:
-            raise UnauthorizedError("Unauthorized access!")
-        good_list = GoodsList(title=title, user=user)
-        good_list.save()
+        good_list: GoodsList = GoodsListRepository.create_item(info=info,
+                                                               title=title)
 
         return CreateGoodsList(
             id=good_list.id,
             title=good_list.title,
-            user=user
+            user=good_list.user
         )
 
 
@@ -85,22 +84,7 @@ class AddGoodToCart(graphene.Mutation):
 
     @permission(roles=[Admin, User])
     def mutate(self, info, good_id):
-        """
-        TODO add doctrings
-
-        :param info:
-        :param good_id:
-        :return:
-        """
-        user = info.context.user or None
-        if user is None:
-            raise UnauthorizedError("Unauthorized access!")
-        good = Good.objects.get(id=good_id)
-        cart_list: GoodsList = GoodsList.objects.filter(user=user,
-                                                        title="cart").first()
-        cart_list.goods.add(good)
-        cart_list.save()
-
+        good = GoodsListRepository.add_good_to_cart(info=info, good_id=good_id)
         return AddGoodToCart(
             id=good.id,
             title=good.title,
@@ -122,15 +106,8 @@ class CleanGoodsList(graphene.Mutation):
 
     @permission(roles=[Admin, User, Seller])
     def mutate(self, info, list_id):
-        """
-        TODO add doctrings
 
-        :param info:
-        :param list_id:
-        :return:
-        """
-        goods_list = GoodsList.objects.filter(id=list_id).first()
-        goods_list.clean_goods_with_permission(info)
+        goods_list = GoodsListRepository.clean_goods(info=info, list_id=list_id)
 
         return CleanGoodsList(
             id=goods_list.id,
@@ -157,8 +134,10 @@ class UpdateGoodsList(graphene.Mutation):
         :param title:
         :return:
         """
-        goods_list: GoodsList = GoodsList.objects.filter(id=list_id).first()
-        goods_list.update_with_permission(info, title)
+
+        goods_list = GoodsListRepository.update_item(info=info,
+                                                     title=title,
+                                                     item_id=list_id)
 
         return UpdateGoodsList(
             id=goods_list.id,
@@ -181,8 +160,7 @@ class DeleteGoodsList(graphene.Mutation):
         :param list_id:
         :return:
         """
-        goods_list = GoodsList.objects.filter(id=list_id).first()
-        goods_list.delete_with_permission(info)
+        GoodsListRepository.delete_item(info=info, searched_id=list_id)
         return DeleteGoodsList(
             id=list_id
         )

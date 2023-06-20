@@ -21,7 +21,8 @@ class CategoryRepository(RepositoryBase, IRepository):
             get_all_items_base(CategoryRepository)
 
     @staticmethod
-    def get_items_by_filter(search_filter: Q) -> [QuerySet]:
+    def get_items_by_filter(search_filter: Q,
+                            info: GraphQLResolveInfo = None) -> [QuerySet]:
         return super(CategoryRepository, CategoryRepository).\
             get_items_by_filter_base(CategoryRepository, search_filter)
 

@@ -9,17 +9,19 @@ from graphql import GraphQLResolveInfo
 class IRepository(metaclass=abc.ABCMeta):
     @staticmethod
     @abc.abstractmethod
-    def get_by_id(searched_id: str) -> [QuerySet]:
+    def get_by_id(searched_id: str,
+                  info: GraphQLResolveInfo = None) -> [QuerySet]:
         pass
 
     @staticmethod
     @abc.abstractmethod
-    def get_items_by_filter(search_filter: Q) -> [QuerySet]:
+    def get_items_by_filter(search_filter: Q,
+                            info: GraphQLResolveInfo = None) -> [QuerySet]:
         pass
 
     @staticmethod
     @abc.abstractmethod
-    def get_all_items() -> [QuerySet]:
+    def get_all_items(info: GraphQLResolveInfo = None) -> [QuerySet]:
         pass
 
     @staticmethod
