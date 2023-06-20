@@ -333,6 +333,7 @@ class WrapperForBaseTestClass:
                                                       str(id_to_delete))
             response = self.request_graphql(role=role,
                                             formatted_query=formatted_mutation)
+
             self.check_for_permission_errors(response)
             self.assertIsNone(
                 self.model.objects.filter(id=id_to_delete).first(),

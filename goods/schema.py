@@ -7,6 +7,7 @@ from category.models import Category
 from category.schema import CategoryType
 from users.schema import UserType
 from .models import Good
+from .repository import GoodRepository
 
 
 class GoodType(DjangoObjectType):
@@ -32,13 +33,11 @@ class Query(graphene.ObjectType):
         """
         if search:
             search_filter = (Q(title__icontains=search) |
-                             Q(description__icontains=search)
-                             )
-            return Category.objects.filter(search_filter).all()
+                             Q(description__icontains=search))
+            return GoodRepository.get_items_by_filter(search_filter)
         if searched_id:
-            data_to_return = Good.objects.get(id=searched_id)
-            return [data_to_return]
-        return Good.objects.all()
+            return GoodRepository.get_by_id(searched_id)
+        return GoodRepository.get_all_items()
 
 
 class CreateGood(graphene.Mutation):
@@ -88,15 +87,15 @@ class CreateGood(graphene.Mutation):
         :param image:
         :return:
         """
-        good = Good.create_with_permission(info,
-                                           title,
-                                           description,
-                                           address,
-                                           category_id,
-                                           price,
-                                           image,
-                                           manufacturer,
-                                           amount)
+        good = GoodRepository.create_item(info=info,
+                                          title=title,
+                                          address=address,
+                                          category_id=category_id,
+                                          price=price,
+                                          manufacturer=manufacturer,
+                                          amount=amount,
+                                          description=description,
+                                          image=image)
 
         return CreateGood(
             id=good.id,
@@ -158,15 +157,16 @@ class UpdateGood(graphene.Mutation):
         :return:
         """
         # TODO should implement not found?
-        good = Good.objects.filter(id=good_id).first()
-        good.update_with_permission(info,
-                                    title,
-                                    description,
-                                    address,
-                                    price,
-                                    image,
-                                    manufacturer,
-                                    amount)
+
+        good = GoodRepository.update_item(info=info,
+                                          item_id=good_id,
+                                          title=title,
+                                          address=address,
+                                          price=price,
+                                          manufacturer=manufacturer,
+                                          amount=amount,
+                                          description=description,
+                                          image=image)
 
         return UpdateGood(
             id=good.id,
@@ -198,18 +198,18 @@ class ChangeCategory(graphene.Mutation):
         good_id = graphene.Int()
 
     @permission(roles=[Admin, Seller])
-    def mutate(self, category_id, good_id):
+    def mutate(self, info, category_id, good_id):
         """
         TODO add docs
 
+        :param info:
         :param category_id:
         :param good_id:
         :return:
         """
-        category = Category.objects.get(id=category_id)
-        good = Good.objects.get(id=good_id)
-        good.category = category
-        good.save()
+        good = GoodRepository.change_category(searched_id=good_id,
+                                              category_id=category_id,
+                                              info=info)
 
         return ChangeCategory(
             id=good.id,
@@ -239,8 +239,8 @@ class DeleteGood(graphene.Mutation):
         :param id:
         :return:
         """
-        good = Good.objects.filter(id=id).first()
-        good.delete_with_permission(info)
+        # TODO fix delete as admin
+        GoodRepository.delete_item(info=info, searched_id=id)
         return DeleteGood(
             id=id
         )

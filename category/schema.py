@@ -4,6 +4,7 @@ from graphene_django import DjangoObjectType
 
 from app.permissions import permission, Admin, Seller, All
 from category.models import Category
+from category.repository import CategoryRepository
 
 
 class CategoryType(DjangoObjectType):
@@ -28,12 +29,11 @@ class Query(graphene.ObjectType):
         :return:
         """
         if search:
-            search_filter = (Q(title__icontains=search))
-            return Category.objects.filter(search_filter)
+            return CategoryRepository.\
+                                get_items_by_filter(Q(title__icontains=search))
         if searched_id:
-            data_to_return = Category.objects.get(id=searched_id)
-            return [data_to_return]
-        return Category.objects.all()
+            return CategoryRepository.get_by_id(searched_id)
+        return CategoryRepository.get_all_items()
 
 
 class CreateCategory(graphene.Mutation):
@@ -52,12 +52,11 @@ class CreateCategory(graphene.Mutation):
         :param title:
         :return:
         """
-        category = Category(title=title)
-        category.save()
+        created_category = CategoryRepository.create_item(title=title)
 
         return CreateCategory(
-            id=category.id,
-            title=category.title
+            id=created_category.id,
+            title=created_category.title
         )
 
 
@@ -79,9 +78,7 @@ class UpdateCategory(graphene.Mutation):
         :param title:
         :return:
         """
-        category = Category.objects.get(id=id)
-        category.title = title
-        category.save()
+        category = CategoryRepository.update_item(item_id=id, title=title)
 
         return UpdateCategory(
             id=category.id,
@@ -105,12 +102,10 @@ class DeleteCategory(graphene.Mutation):
         :param id:
         :return:
         """
-        category = Category.objects.get(id=id)
-        category.delete()
+        CategoryRepository.delete_item(info=info, searched_id=id)
 
         return CreateCategory(
-            id=id,
-            title=category.title
+            id=id
         )
 
 
