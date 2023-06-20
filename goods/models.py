@@ -8,7 +8,7 @@ from users.models import ExtendedUser
 
 
 # Create your models here.
-
+# test line
 
 class Good(models.Model):
     url = models.URLField()
