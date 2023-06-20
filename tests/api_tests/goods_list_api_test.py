@@ -11,13 +11,13 @@ class GoodsListEndpointTests(WrapperForBaseTestClass.BaseEndpointsTests):
 
     model = GoodsList
     mutation_create = '''mutation{{
-                      createGoodsList(
-                        title:"{0}",
-                      ){{
-                        id
-                            title
-                      }}
-                    }}'''
+                          createGoodsList(
+                            title:"{0}",
+                          ){{
+                            id
+                                title
+                          }}
+                        }}'''
     mutation_create_name = "createGoodsList"
     all_query = """query{
                   goodsLists{

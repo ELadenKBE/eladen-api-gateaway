@@ -26,12 +26,12 @@ class IRepository(metaclass=abc.ABCMeta):
 
     @staticmethod
     @abc.abstractmethod
-    def create_item(**kwargs) -> [QuerySet]:
+    def create_item(info: GraphQLResolveInfo = None, **kwargs) -> [QuerySet]:
         pass
 
     @staticmethod
     @abc.abstractmethod
-    def update_item(**kwargs) -> [QuerySet]:
+    def update_item(info: GraphQLResolveInfo = None, **kwargs) -> [QuerySet]:
         pass
 
     @staticmethod

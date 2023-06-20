@@ -9,6 +9,7 @@ from goods.models import Good
 from goods.schema import GoodType
 from users.schema import UserType
 from .models import Order
+from .repository import OrdersRepository
 
 
 class OrderType(DjangoObjectType):
@@ -30,9 +31,9 @@ class Query(graphene.ObjectType):
         :return:
         """
         if searched_id:
-            return [Order.get_by_id_with_permission(info,
-                                                    searched_id=searched_id)]
-        return Order.get_all_orders_with_permission(info)
+            return OrdersRepository.get_by_id(info=info,
+                                              searched_id=searched_id)
+        return OrdersRepository.get_all_items(info)
 
 
 class CreateOrder(graphene.Mutation):
@@ -57,7 +58,7 @@ class CreateOrder(graphene.Mutation):
                delivery_address,
                goods_ids):
         """
-        TODO add docs
+        TODO finish docs
 
         :param info:
         :param time_of_order:
@@ -65,31 +66,11 @@ class CreateOrder(graphene.Mutation):
         :param goods_ids:
         :return:
         """
-        # TODO notify sellers
-        user = info.context.user or None
-        if user is None:
-            raise UnauthorizedError("Unauthorized access!")
-        order = Order(time_of_order=time_of_order,
-                      delivery_address=delivery_address,
-                      # TODO calculate delivery and items price
-                      items_price=1000,
-                      delivery_price=100,
-                      delivery_status="order created",
-                      payment_status="not paid",
-                      user=user)
-        order.save()
-        order.goods.add(*goods_ids)
-        order.save()
-
-        goods = Good.objects.filter(id__in=goods_ids).all()
-
-        # should decrease amounts of goods after order created
-        def decrease_amount_func(good: Good):
-            good.amount -= 1
-            return good
-
-        updated_goods = [decrease_amount_func(good) for good in goods]
-        Good.objects.bulk_update(updated_goods, fields=["amount"])
+        order = OrdersRepository.create_item(info=info,
+                                             time_of_order=time_of_order,
+                                             delivery_address=delivery_address,
+                                             goods_ids=goods_ids
+                                             )
 
         return CreateOrder(
             id=order.id,
@@ -97,7 +78,7 @@ class CreateOrder(graphene.Mutation):
             items_price=order.items_price,
             delivery_price=order.delivery_price,
             time_of_order=order.time_of_order,
-            user=user,
+            user=order.user,
             delivery_status=order.delivery_status,
             payment_status=order.payment_status,
             goods=order.goods.all()
@@ -130,17 +111,16 @@ class UpdateOrder(graphene.Mutation):
         :param delivery_address:
         :return:
         """
-        # TODO return error if None?
-        order: Order = Order.objects.filter(id=order_id).first()
-        user = info.context.user or None
-        order.update_with_permission(info, delivery_address)
+        order = OrdersRepository.update_item(info=info,
+                                             order_id=order_id,
+                                             delivery_address=delivery_address)
         return UpdateOrder(
             id=order.id,
             delivery_address=order.delivery_address,
             items_price=order.items_price,
             delivery_price=order.delivery_price,
             time_of_order=order.time_of_order,
-            user=user
+            user=order.user
         )
 
 
@@ -153,22 +133,11 @@ class ChangeDeliveryStatus(graphene.Mutation):
         delivery_status = graphene.String()
 
     def mutate(self, info, id_arg, delivery_status):
-        """
-        TODO add docs
 
-        :param info:
-        :param id_arg:
-        :param delivery_status:
-        :return:
-        """
-        user = info.context.user or None
-        if user is None:
-            raise UnauthorizedError("Unauthorized access!")
-        order = Order.objects.get(id=id_arg)
-        if order is None:
-            raise ResourceError("Order is not accessible")
-        order.delivery_status = delivery_status
-        order.save()
+        order = OrdersRepository.change_delivery_status(
+                                                info=info,
+                                                id_arg=id_arg,
+                                                delivery_status=delivery_status)
 
         return ChangeDeliveryStatus(id=order.id,
                                     delivery_status=order.delivery_status)
@@ -191,14 +160,10 @@ class ChangePaymentStatus(graphene.Mutation):
         :param payment_status:
         :return:
         """
-        user = info.context.user or None
-        if user is None:
-            raise UnauthorizedError("Unauthorized access!")
-        order = Order.objects.get(id=id_arg)
-        if order is None:
-            raise ResourceError("Order is not accessible")
-        order.payment_status = payment_status
-        order.save()
+        order = OrdersRepository.change_payment_status(
+                                                info=info,
+                                                id_arg=id_arg,
+                                                payment_status=payment_status)
 
         return ChangeDeliveryStatus(id=order.id,
                                     payment_status=order.payment_status)
@@ -219,8 +184,7 @@ class DeleteOrder(graphene.Mutation):
         :param order_id:
         :return:
         """
-        order = Order.objects.filter(id=order_id).first()
-        order.delete()
+        OrdersRepository.delete_item(info=info, searched_id=order_id)
         return DeleteOrder(
             id=order_id
         )
