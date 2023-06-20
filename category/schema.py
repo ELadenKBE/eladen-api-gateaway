@@ -102,11 +102,10 @@ class DeleteCategory(graphene.Mutation):
         :param id:
         :return:
         """
-        category = CategoryRepository.delete_item(info=info, searched_id=id)
+        CategoryRepository.delete_item(info=info, searched_id=id)
 
         return CreateCategory(
-            id=id,
-            title=category.title
+            id=id
         )
 
 
