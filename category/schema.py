@@ -1,5 +1,4 @@
 import graphene
-import requests
 from graphene_django import DjangoObjectType
 
 from app.permissions import permission, Admin, All
@@ -10,6 +9,7 @@ from category.service import CategoryService
 
 class CategoryType(DjangoObjectType):
     category_service = CategoryService()
+
     class Meta:
         model = Category
 
