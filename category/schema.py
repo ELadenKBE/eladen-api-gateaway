@@ -1,8 +1,8 @@
 import graphene
-from django.db.models import Q
+import requests
 from graphene_django import DjangoObjectType
 
-from app.permissions import permission, Admin, Seller, All
+from app.permissions import permission, Admin, All
 from category.models import Category
 from category.repository import CategoryRepository
 
@@ -19,7 +19,11 @@ class Query(graphene.ObjectType):
                                )
 
     @permission(roles=[All])
-    def resolve_categories(self, info, search=None, searched_id=None, **kwargs):
+    def resolve_categories(self,
+                           info,
+                           search=None,
+                           searched_id=None,
+                           **kwargs):
         """
         Return all elements if search arguments are not given.
 
@@ -28,12 +32,21 @@ class Query(graphene.ObjectType):
         :param searched_id: id of searched item
         :return:
         """
-        if search:
-            return CategoryRepository.\
-                                get_items_by_filter(Q(title__icontains=search))
-        if searched_id:
-            return CategoryRepository.get_by_id(searched_id)
-        return CategoryRepository.get_all_items()
+        url = 'http://127.0.0.1:8000/graphql/'
+
+        query = '''
+          query {
+            categories {
+              id
+              title
+            }
+          }
+        '''
+
+        response = requests.post(url, data={'query': query})
+        data = response.json().get('data', {})
+        category_list = data.get('categories', [])
+        return [Category(**item) for item in category_list]
 
 
 class CreateCategory(graphene.Mutation):
