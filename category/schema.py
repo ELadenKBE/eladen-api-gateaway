@@ -5,9 +5,11 @@ from graphene_django import DjangoObjectType
 from app.permissions import permission, Admin, All
 from category.models import Category
 from category.repository import CategoryRepository
+from category.service import CategoryService
 
 
 class CategoryType(DjangoObjectType):
+    category_service = CategoryService()
     class Meta:
         model = Category
 
@@ -19,34 +21,14 @@ class Query(graphene.ObjectType):
                                )
 
     @permission(roles=[All])
-    def resolve_categories(self,
-                           info,
-                           search=None,
-                           searched_id=None,
-                           **kwargs):
+    def resolve_categories(self, info):
         """
         Return all elements if search arguments are not given.
 
         :param info: request context information
-        :param search: searches in title
-        :param searched_id: id of searched item
         :return:
         """
-        url = 'http://127.0.0.1:8000/graphql/'
-
-        query = '''
-          query {
-            categories {
-              id
-              title
-            }
-          }
-        '''
-
-        response = requests.post(url, data={'query': query})
-        data = response.json().get('data', {})
-        category_list = data.get('categories', [])
-        return [Category(**item) for item in category_list]
+        return CategoryType.category_service.get_items(info)
 
 
 class CreateCategory(graphene.Mutation):
