@@ -136,3 +136,9 @@ class ProductService:
         created_item_in_dict = self._create_item(info=info,
                                                  entity_name='createCategory')
         return Category(**created_item_in_dict)
+
+    def create_goods_list(self, info: GraphQLResolveInfo):
+        created_item_in_dict = self._create_item(info=info,
+                                                 entity_name='createGoodsList')
+        created_item = create_goods_list_filler(**created_item_in_dict)
+        return created_item

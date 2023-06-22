@@ -11,5 +11,6 @@ class GoodsList(models.Model):
     title = models.CharField(max_length=256, blank=False)
     user = models.ForeignKey(ExtendedUser,
                              on_delete=models.CASCADE,
-                             blank=False)
+                             blank=False,
+                             null=True)
     goods = models.ManyToManyField(Good)
