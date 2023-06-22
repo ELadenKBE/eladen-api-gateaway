@@ -225,6 +225,7 @@ mutation{
     address:"nowhere 1, 12345",
     categoryId:1,
     price: 123.12
+    manufacturer:"asd"
   ){
 		title
   }

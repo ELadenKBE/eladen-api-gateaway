@@ -8,6 +8,7 @@ from app.product_service import ProductService
 
 
 class CategoryType(DjangoObjectType):
+
     product_service = ProductService()
 
     class Meta:

@@ -3,6 +3,7 @@ from django.db.models import Q
 from graphene_django import DjangoObjectType
 
 from app.permissions import permission, All, Seller, Admin
+from app.product_service import ProductService
 from category.models import Category
 from category.schema import CategoryType
 from users.schema import UserType
@@ -11,6 +12,9 @@ from .repository import GoodRepository
 
 
 class GoodType(DjangoObjectType):
+
+    product_service = ProductService()
+
     class Meta:
         model = Good
 
@@ -22,22 +26,14 @@ class Query(graphene.ObjectType):
                           )
 
     @permission(roles=[All])
-    def resolve_goods(self, info, search=None, searched_id=None, **kwargs):
+    def resolve_goods(self, info, **kwargs):
         """
         Return all elements if search arguments are not given.
 
         :param info: request context information
-        :param search: searches in title and description
-        :param searched_id: id of searched item
         :return: collection of items
         """
-        if search:
-            search_filter = (Q(title__icontains=search) |
-                             Q(description__icontains=search))
-            return GoodRepository.get_items_by_filter(search_filter)
-        if searched_id:
-            return GoodRepository.get_by_id(searched_id)
-        return GoodRepository.get_all_items()
+        return GoodType.product_service.get_goods(info=info)
 
 
 class CreateGood(graphene.Mutation):
