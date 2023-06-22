@@ -83,15 +83,7 @@ class CreateGood(graphene.Mutation):
         :param image:
         :return:
         """
-        good = GoodRepository.create_item(info=info,
-                                          title=title,
-                                          address=address,
-                                          category_id=category_id,
-                                          price=price,
-                                          manufacturer=manufacturer,
-                                          amount=amount,
-                                          description=description,
-                                          image=image)
+        good = GoodType.product_service.create_good(info=info)
 
         return CreateGood(
             id=good.id,

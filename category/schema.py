@@ -48,7 +48,7 @@ class CreateCategory(graphene.Mutation):
         :param title:
         :return:
         """
-        created_category = CategoryRepository.create_item(title=title)
+        created_category = CategoryType.product_service.create_category(info)
 
         return CreateCategory(
             id=created_category.id,

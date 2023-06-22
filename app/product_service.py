@@ -67,7 +67,7 @@ def create_good_filler(**params):
         return Good(**params)
 
 
-def create_goods_list(**params):
+def create_goods_list_filler(**params):
     user_dict = None
     goods_dict = None
     if 'user' in params:
@@ -95,22 +95,42 @@ class ProductService:
             .replace('\\t', ' ')
         query = json.loads(cleaned)['query']
         response = requests.post(self.url, data={'query': query})
+        self.validate_errors(response)
         return response
 
     @verify_connection
-    def _get_items(self, entity_name: str, info: GraphQLResolveInfo):
+    def _get_data(self, entity_name: str, info: GraphQLResolveInfo):
         response = self._request(info=info)
         data = response.json().get('data', {})
         return data.get(entity_name, [])
 
+    @staticmethod
+    def validate_errors(response):
+        if 'errors' in str(response.content):
+            raise ValidationError(response.content.decode('utf-8'))
+
+    @verify_connection
+    def _create_item(self, entity_name: str, info: GraphQLResolveInfo):
+        item = self._get_data(info=info, entity_name=entity_name)
+        return item
+
     def get_categories(self, info: GraphQLResolveInfo = None):
-        items_list = self._get_items(entity_name='categories', info=info)
+        items_list = self._get_data(entity_name='categories', info=info)
         return [Category(**item) for item in items_list]
 
     def get_goods(self, info: GraphQLResolveInfo = None):
-        items_list = self._get_items(entity_name='goods', info=info)
+        items_list = self._get_data(entity_name='goods', info=info)
         return [create_good_filler(**item) for item in items_list]
 
     def get_good_lists(self, info: GraphQLResolveInfo = None):
-        items_list = self._get_items(entity_name='good_lists', info=info)
-        return [GoodsList(**item) for item in items_list]
+        items_list = self._get_data(entity_name='goodsLists', info=info)
+        return [create_goods_list_filler(**item) for item in items_list]
+
+    def create_good(self, info: GraphQLResolveInfo):
+        created_item = self._create_item(info=info, entity_name="goods")
+        return created_item
+
+    def create_category(self, info: GraphQLResolveInfo):
+        created_item_in_dict = self._create_item(info=info,
+                                                 entity_name='createCategory')
+        return Category(**created_item_in_dict)
