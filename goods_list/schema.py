@@ -53,8 +53,8 @@ class CreateGoodsList(graphene.Mutation):
         :param title:
         :return:
         """
-        good_list: GoodsList = GoodsListRepository.create_item(info=info,
-                                                               title=title)
+        good_list: GoodsList = GoodsListType.product_service\
+            .create_goods_list(info)
 
         return CreateGoodsList(
             id=good_list.id,
