@@ -4,7 +4,7 @@ import requests
 from decouple import config
 from graphql import GraphQLResolveInfo
 
-from app.errors import ResponseError
+from app.errors import ResponseError, ValidationError
 from category.models import Category
 from goods.models import Good
 from goods_list.models import GoodsList
@@ -67,17 +67,39 @@ def create_good_filler(**params):
         return Good(**params)
 
 
+def create_goods_list(**params):
+    user_dict = None
+    goods_dict = None
+    if 'user' in params:
+        user_dict = params['user']
+        del params['user']
+    if 'goods' in params:
+        goods_dict = params['goods']
+        del params['goods']
+    if user_dict is not None and goods_dict is not None:
+        goods_list = GoodsList(**params, user=ExtendedUser(**user_dict))
+        goods = [Good(**param) for param in goods_dict]
+        goods_list.goods.add(*[good.id for good in goods])
+        return goods_list
+    else:
+        return GoodsList(**params)
+
+
 class ProductService:
 
     url = config('PRODUCT_SERVICE_URL', default=False, cast=str)
 
-    @verify_connection
-    def _get_items(self, entity_name: str, info: GraphQLResolveInfo):
-        cleaned = info.context.body.decode('utf-8')\
-            .replace('\\n', ' ')\
+    def _request(self, info: GraphQLResolveInfo):
+        cleaned = info.context.body.decode('utf-8') \
+            .replace('\\n', ' ') \
             .replace('\\t', ' ')
         query = json.loads(cleaned)['query']
         response = requests.post(self.url, data={'query': query})
+        return response
+
+    @verify_connection
+    def _get_items(self, entity_name: str, info: GraphQLResolveInfo):
+        response = self._request(info=info)
         data = response.json().get('data', {})
         return data.get(entity_name, [])
 
@@ -87,7 +109,6 @@ class ProductService:
 
     def get_goods(self, info: GraphQLResolveInfo = None):
         items_list = self._get_items(entity_name='goods', info=info)
-        # TODO continue here: item has objects
         return [create_good_filler(**item) for item in items_list]
 
     def get_good_lists(self, info: GraphQLResolveInfo = None):

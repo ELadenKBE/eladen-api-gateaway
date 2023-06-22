@@ -1,10 +1,9 @@
 import graphene
 from graphene_django import DjangoObjectType
 
-from app.errors import UnauthorizedError
 from app.permissions import permission, Admin, Seller, User
+from app.product_service import ProductService
 from category.schema import CategoryType
-from goods.models import Good
 from goods.schema import GoodType
 from users.schema import UserType
 from .models import GoodsList
@@ -12,6 +11,9 @@ from .repository import GoodsListRepository
 
 
 class GoodsListType(DjangoObjectType):
+
+    product_service = ProductService()
+
     class Meta:
         model = GoodsList
 
@@ -22,10 +24,7 @@ class Query(graphene.ObjectType):
                                 searched_id=graphene.Int(), )
 
     @permission(roles=[Admin, Seller, User])
-    def resolve_goods_lists(self, info,
-                            searched_id=None,
-                            search=None,
-                            **kwargs):
+    def resolve_goods_lists(self, info, **kwargs):
         """
         TODO write docstring
 
@@ -35,13 +34,7 @@ class Query(graphene.ObjectType):
         :param kwargs:
         :return:
         """
-        if search:
-            return GoodsListRepository.get_items_by_filter(info=info,
-                                                           search_filter=search)
-        if searched_id:
-            return [GoodsListRepository.get_by_id(info=info,
-                                                  searched_id=searched_id)]
-        return GoodsListRepository.get_all_items(info)
+        return GoodsListType.product_service.get_good_lists(info=info)
 
 
 class CreateGoodsList(graphene.Mutation):
