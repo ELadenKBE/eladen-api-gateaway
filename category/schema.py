@@ -4,11 +4,11 @@ from graphene_django import DjangoObjectType
 from app.permissions import permission, Admin, All
 from category.models import Category
 from category.repository import CategoryRepository
-from category.service import CategoryService
+from app.product_service import ProductService
 
 
 class CategoryType(DjangoObjectType):
-    category_service = CategoryService()
+    product_service = ProductService()
 
     class Meta:
         model = Category
@@ -21,14 +21,14 @@ class Query(graphene.ObjectType):
                                )
 
     @permission(roles=[All])
-    def resolve_categories(self, info):
+    def resolve_categories(self, info, **kwargs):
         """
         Return all elements if search arguments are not given.
 
         :param info: request context information
         :return:
         """
-        return CategoryType.category_service.get_items(info)
+        return CategoryType.product_service.get_categories(info)
 
 
 class CreateCategory(graphene.Mutation):
