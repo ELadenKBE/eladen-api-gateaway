@@ -127,7 +127,9 @@ class ProductService:
         return [create_goods_list_filler(**item) for item in items_list]
 
     def create_good(self, info: GraphQLResolveInfo):
-        created_item = self._create_item(info=info, entity_name="goods")
+        created_item_dict = self._create_item(info=info,
+                                              entity_name="createGood")
+        created_item = create_good_filler(**created_item_dict)
         return created_item
 
     def create_category(self, info: GraphQLResolveInfo):

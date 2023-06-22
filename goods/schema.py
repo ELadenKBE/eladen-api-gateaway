@@ -59,28 +59,11 @@ class CreateGood(graphene.Mutation):
         amount = graphene.Int()
 
     @permission(roles=[Admin, Seller])
-    def mutate(self,
-               info,
-               title,
-               address,
-               category_id,
-               price,
-               manufacturer,
-               amount=None,
-               description=None,
-               image=None):
+    def mutate(self, info, **kwargs):
         """
         TODO add docs
 
         :param info:
-        :param title:
-        :param address:
-        :param category_id:
-        :param price:
-        :param manufacturer:
-        :param amount:
-        :param description:
-        :param image:
         :return:
         """
         good = GoodType.product_service.create_good(info=info)
