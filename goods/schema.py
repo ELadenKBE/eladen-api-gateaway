@@ -129,15 +129,7 @@ class UpdateGood(graphene.Mutation):
         """
         # TODO should implement not found?
 
-        good = GoodRepository.update_item(info=info,
-                                          item_id=good_id,
-                                          title=title,
-                                          address=address,
-                                          price=price,
-                                          manufacturer=manufacturer,
-                                          amount=amount,
-                                          description=description,
-                                          image=image)
+        good = CategoryType.product_service.update_good(info=info)
 
         return UpdateGood(
             id=good.id,

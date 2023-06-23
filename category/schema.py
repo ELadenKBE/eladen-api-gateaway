@@ -64,7 +64,7 @@ class UpdateCategory(graphene.Mutation):
         id = graphene.Int(required=True)
         title = graphene.String()
 
-    @permission(roles=[Admin])
+#    @permission(roles=[Admin])
     def mutate(self, info, id, title):
         """
         TODO add docs
@@ -74,7 +74,7 @@ class UpdateCategory(graphene.Mutation):
         :param title:
         :return:
         """
-        category = CategoryRepository.update_item(item_id=id, title=title)
+        category = CategoryType.product_service.update_category(info=info)
 
         return UpdateCategory(
             id=category.id,

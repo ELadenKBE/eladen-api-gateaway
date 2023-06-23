@@ -117,7 +117,7 @@ class UpdateGoodsList(graphene.Mutation):
         list_id = graphene.Int()
         title = graphene.String()
 
-    @permission(roles=[Admin, Seller, User])
+    #@permission(roles=[Admin, Seller, User])
     def mutate(self, info, list_id, title):
         """
         TODO add docs
@@ -128,9 +128,7 @@ class UpdateGoodsList(graphene.Mutation):
         :return:
         """
 
-        goods_list = GoodsListRepository.update_item(info=info,
-                                                     title=title,
-                                                     item_id=list_id)
+        goods_list = GoodsListType.product_service.update_goods_list(info=info)
 
         return UpdateGoodsList(
             id=goods_list.id,

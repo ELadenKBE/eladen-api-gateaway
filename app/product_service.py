@@ -142,3 +142,20 @@ class ProductService:
                                                  entity_name='createGoodsList')
         created_item = create_goods_list_filler(**created_item_in_dict)
         return created_item
+
+    def update_category(self, info: GraphQLResolveInfo):
+        created_item_in_dict = self._get_data(entity_name='updateCategory',
+                                              info=info)
+        return Category(**created_item_in_dict)
+
+    def update_goods_list(self, info: GraphQLResolveInfo):
+        created_item_in_dict = self._get_data(entity_name='updateGoodsList',
+                                              info=info)
+        created_item = create_goods_list_filler(**created_item_in_dict)
+        return created_item
+
+    def update_good(self, info: GraphQLResolveInfo):
+        created_item_in_dict = self._get_data(entity_name='updateGood',
+                                              info=info)
+        created_item = create_good_filler(**created_item_in_dict)
+        return created_item
