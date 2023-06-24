@@ -107,7 +107,10 @@ class ProductService:
     @staticmethod
     def validate_errors(response):
         if 'errors' in str(response.content):
-            raise ValidationError(response.content.decode('utf-8'))
+            cleaned_json = json.loads(
+                response.content.decode('utf-8').replace("/", "")
+            )['errors']
+            raise ValidationError(cleaned_json[0]['message'])
 
     @verify_connection
     def _create_item(self, entity_name: str, info: GraphQLResolveInfo):
@@ -159,3 +162,12 @@ class ProductService:
                                               info=info)
         created_item = create_good_filler(**created_item_in_dict)
         return created_item
+
+    def delete_goods_list(self, info: GraphQLResolveInfo):
+        self._get_data(info=info, entity_name='deleteGoodsList')
+
+    def delete_good(self, info: GraphQLResolveInfo):
+        self._get_data(info=info, entity_name='deleteGood')
+
+    def delete_category(self, info: GraphQLResolveInfo):
+        self._get_data(info=info, entity_name='deleteCategory')

@@ -117,7 +117,7 @@ class UpdateGoodsList(graphene.Mutation):
         list_id = graphene.Int()
         title = graphene.String()
 
-    #@permission(roles=[Admin, Seller, User])
+    @permission(roles=[Admin, Seller, User])
     def mutate(self, info, list_id, title):
         """
         TODO add docs
@@ -151,7 +151,7 @@ class DeleteGoodsList(graphene.Mutation):
         :param list_id:
         :return:
         """
-        GoodsListRepository.delete_item(info=info, searched_id=list_id)
+        GoodsListType.product_service.delete_goods_list(info)
         return DeleteGoodsList(
             id=list_id
         )

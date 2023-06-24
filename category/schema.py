@@ -64,7 +64,7 @@ class UpdateCategory(graphene.Mutation):
         id = graphene.Int(required=True)
         title = graphene.String()
 
-#    @permission(roles=[Admin])
+    @permission(roles=[Admin])
     def mutate(self, info, id, title):
         """
         TODO add docs
@@ -98,7 +98,7 @@ class DeleteCategory(graphene.Mutation):
         :param id:
         :return:
         """
-        CategoryRepository.delete_item(info=info, searched_id=id)
+        CategoryType.product_service.delete_category(info)
 
         return CreateCategory(
             id=id

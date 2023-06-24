@@ -280,6 +280,12 @@ mutation{
   }
 }
 
+mutation {
+  deleteGoodsList(listId:1){
+    id
+  }
+}
+
 ### Orders
 
 mutation{

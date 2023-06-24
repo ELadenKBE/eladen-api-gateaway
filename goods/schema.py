@@ -104,15 +104,7 @@ class UpdateGood(graphene.Mutation):
         amount = graphene.Int()
 
     @permission(roles=[Admin, Seller])
-    def mutate(self, info, good_id,
-               title=None,
-               description=None,
-               address=None,
-               price=None,
-               image=None,
-               manufacturer=None,
-               amount=None,
-               ):
+    def mutate(self, info, **kwargs):
         """
         TODO add docs
 
@@ -193,7 +185,7 @@ class DeleteGood(graphene.Mutation):
     class Arguments:
         id = graphene.Int(required=True)
 
-    @permission(roles=[Admin, Seller])
+ #   @permission(roles=[Admin, Seller])
     def mutate(self, info, id):
         """
         TODO add docs
@@ -203,7 +195,7 @@ class DeleteGood(graphene.Mutation):
         :return:
         """
         # TODO fix delete as admin
-        GoodRepository.delete_item(info=info, searched_id=id)
+        GoodType.product_service.delete_good(info)
         return DeleteGood(
             id=id
         )
