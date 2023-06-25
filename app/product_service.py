@@ -9,6 +9,7 @@ from graphql import GraphQLResolveInfo
 from app.errors import ResponseError, ValidationError
 from category.models import Category
 from goods.models import Good
+from goods_list.models import GoodsList
 from users.models import ExtendedUser
 from users.schema import UserType
 
@@ -23,6 +24,12 @@ class CategoryType(DjangoObjectType):
 
     class Meta:
         model = Category
+
+
+class GoodsListType(DjangoObjectType):
+
+    class Meta:
+        model = GoodsList
 
 
 class GoodsListTransferType(graphene.ObjectType):

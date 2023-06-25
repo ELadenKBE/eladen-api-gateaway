@@ -1,5 +1,4 @@
 import graphene
-from graphene_django import DjangoObjectType
 
 from app.permissions import permission, Admin, Seller, User
 from app.product_service import ProductService, GoodsListTransferType
@@ -9,14 +8,7 @@ from users.schema import UserType
 from .models import GoodsList
 from .repository import GoodsListRepository
 
-
 product_service = ProductService()
-
-
-class GoodsListType(DjangoObjectType):
-
-    class Meta:
-        model = GoodsList
 
 
 class Query(graphene.ObjectType):
