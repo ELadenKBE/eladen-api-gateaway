@@ -84,20 +84,20 @@ query{
 goods{
       id
     	title
-  description
-  address
-  url
-  price
-  category{
-    id
-    title
-  }
-  seller{
-    id
-    username
-    email
-  }
-  }
+      description
+      address
+      url
+      price
+      category{
+        id
+        title
+      }
+      seller{
+        id
+        username
+        email
+      }
+      }
 }
 
 {
@@ -214,6 +214,27 @@ mutation{
   updateCategory(id:1, title:"updated"){
     id
     title
+  }
+}
+
+mutation{
+  changeCategory(goodId:1, categoryId:1){
+    id
+    	title
+      description
+      address
+      url
+      price
+      category{
+        id
+        title
+      }
+      seller{
+        id
+        username
+        email
+      }
+      
   }
 }
 

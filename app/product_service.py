@@ -171,3 +171,7 @@ class ProductService:
 
     def delete_category(self, info: GraphQLResolveInfo):
         self._get_data(info=info, entity_name='deleteCategory')
+
+    def change_goods_category(self, info):
+        item_in_dict = self._get_data(info=info, entity_name='changeCategory')
+        return create_good_filler(**item_in_dict)

@@ -47,6 +47,7 @@ class CreateGood(graphene.Mutation):
     image = graphene.String()
     manufacturer = graphene.String()
     amount = graphene.Int()
+    url = graphene.String()
 
     class Arguments:
         title = graphene.String(required=True)
@@ -57,6 +58,7 @@ class CreateGood(graphene.Mutation):
         image = graphene.String()
         manufacturer = graphene.String(required=True)
         amount = graphene.Int()
+        url = graphene.String()
 
     @permission(roles=[Admin, Seller])
     def mutate(self, info, **kwargs):
@@ -77,7 +79,8 @@ class CreateGood(graphene.Mutation):
             seller=good.seller,
             price=good.price,
             image=good.image,
-            manufacturer=good.manufacturer
+            manufacturer=good.manufacturer,
+            url=good.url
         )
 
 
@@ -92,6 +95,7 @@ class UpdateGood(graphene.Mutation):
     image = graphene.String()
     manufacturer = graphene.String()
     amount = graphene.Int()
+    url = graphene.String()
 
     class Arguments:
         good_id = graphene.Int(required=True)
@@ -102,6 +106,7 @@ class UpdateGood(graphene.Mutation):
         image = graphene.String()
         manufacturer = graphene.String()
         amount = graphene.Int()
+        url = graphene.String()
 
     @permission(roles=[Admin, Seller])
     def mutate(self, info, **kwargs):
@@ -109,14 +114,6 @@ class UpdateGood(graphene.Mutation):
         TODO add docs
 
         :param info:
-        :param good_id:
-        :param title:
-        :param description:
-        :param address:
-        :param price:
-        :param image:
-        :param manufacturer:
-        :param amount:
         :return:
         """
         # TODO should implement not found?
@@ -132,7 +129,8 @@ class UpdateGood(graphene.Mutation):
             price=good.price,
             category=good.category,
             image=good.image,
-            amount=good.amount
+            amount=good.amount,
+            url=good.url
         )
 
 
@@ -147,6 +145,7 @@ class ChangeCategory(graphene.Mutation):
     image = graphene.String()
     manufacturer = graphene.String()
     amount = graphene.Int()
+    url = graphene.String()
 
     class Arguments:
         category_id = graphene.Int()
@@ -162,9 +161,7 @@ class ChangeCategory(graphene.Mutation):
         :param good_id:
         :return:
         """
-        good = GoodRepository.change_category(searched_id=good_id,
-                                              category_id=category_id,
-                                              info=info)
+        good = GoodType.product_service.change_goods_category(info)
 
         return ChangeCategory(
             id=good.id,
@@ -175,7 +172,8 @@ class ChangeCategory(graphene.Mutation):
             seller=good.seller,
             price=good.price,
             image=good.image,
-            amount=good.amount
+            amount=good.amount,
+            url=good.url
         )
 
 
