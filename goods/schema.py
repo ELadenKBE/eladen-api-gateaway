@@ -1,18 +1,11 @@
 import graphene
-from django.db.models import Q
-from graphene_django import DjangoObjectType
 
 from app.permissions import permission, All, Seller, Admin
-from category.models import Category
+from app.product_service import ProductService, GoodType
 from category.schema import CategoryType
 from users.schema import UserType
-from .models import Good
-from .repository import GoodRepository
 
-
-class GoodType(DjangoObjectType):
-    class Meta:
-        model = Good
+product_service = ProductService()
 
 
 class Query(graphene.ObjectType):
@@ -22,22 +15,14 @@ class Query(graphene.ObjectType):
                           )
 
     @permission(roles=[All])
-    def resolve_goods(self, info, search=None, searched_id=None, **kwargs):
+    def resolve_goods(self, info, **kwargs):
         """
         Return all elements if search arguments are not given.
 
         :param info: request context information
-        :param search: searches in title and description
-        :param searched_id: id of searched item
         :return: collection of items
         """
-        if search:
-            search_filter = (Q(title__icontains=search) |
-                             Q(description__icontains=search))
-            return GoodRepository.get_items_by_filter(search_filter)
-        if searched_id:
-            return GoodRepository.get_by_id(searched_id)
-        return GoodRepository.get_all_items()
+        return product_service.get_goods(info=info)
 
 
 class CreateGood(graphene.Mutation):
@@ -51,6 +36,7 @@ class CreateGood(graphene.Mutation):
     image = graphene.String()
     manufacturer = graphene.String()
     amount = graphene.Int()
+    url = graphene.String()
 
     class Arguments:
         title = graphene.String(required=True)
@@ -61,41 +47,17 @@ class CreateGood(graphene.Mutation):
         image = graphene.String()
         manufacturer = graphene.String(required=True)
         amount = graphene.Int()
+        url = graphene.String()
 
     @permission(roles=[Admin, Seller])
-    def mutate(self,
-               info,
-               title,
-               address,
-               category_id,
-               price,
-               manufacturer,
-               amount=None,
-               description=None,
-               image=None):
+    def mutate(self, info, **kwargs):
         """
         TODO add docs
 
         :param info:
-        :param title:
-        :param address:
-        :param category_id:
-        :param price:
-        :param manufacturer:
-        :param amount:
-        :param description:
-        :param image:
         :return:
         """
-        good = GoodRepository.create_item(info=info,
-                                          title=title,
-                                          address=address,
-                                          category_id=category_id,
-                                          price=price,
-                                          manufacturer=manufacturer,
-                                          amount=amount,
-                                          description=description,
-                                          image=image)
+        good = product_service.create_good(info=info)
 
         return CreateGood(
             id=good.id,
@@ -106,7 +68,8 @@ class CreateGood(graphene.Mutation):
             seller=good.seller,
             price=good.price,
             image=good.image,
-            manufacturer=good.manufacturer
+            manufacturer=good.manufacturer,
+            url=good.url
         )
 
 
@@ -121,6 +84,7 @@ class UpdateGood(graphene.Mutation):
     image = graphene.String()
     manufacturer = graphene.String()
     amount = graphene.Int()
+    url = graphene.String()
 
     class Arguments:
         good_id = graphene.Int(required=True)
@@ -131,42 +95,19 @@ class UpdateGood(graphene.Mutation):
         image = graphene.String()
         manufacturer = graphene.String()
         amount = graphene.Int()
+        url = graphene.String()
 
     @permission(roles=[Admin, Seller])
-    def mutate(self, info, good_id,
-               title=None,
-               description=None,
-               address=None,
-               price=None,
-               image=None,
-               manufacturer=None,
-               amount=None,
-               ):
+    def mutate(self, info, **kwargs):
         """
         TODO add docs
 
         :param info:
-        :param good_id:
-        :param title:
-        :param description:
-        :param address:
-        :param price:
-        :param image:
-        :param manufacturer:
-        :param amount:
         :return:
         """
         # TODO should implement not found?
 
-        good = GoodRepository.update_item(info=info,
-                                          item_id=good_id,
-                                          title=title,
-                                          address=address,
-                                          price=price,
-                                          manufacturer=manufacturer,
-                                          amount=amount,
-                                          description=description,
-                                          image=image)
+        good = product_service.update_good(info=info)
 
         return UpdateGood(
             id=good.id,
@@ -177,7 +118,8 @@ class UpdateGood(graphene.Mutation):
             price=good.price,
             category=good.category,
             image=good.image,
-            amount=good.amount
+            amount=good.amount,
+            url=good.url
         )
 
 
@@ -192,6 +134,7 @@ class ChangeCategory(graphene.Mutation):
     image = graphene.String()
     manufacturer = graphene.String()
     amount = graphene.Int()
+    url = graphene.String()
 
     class Arguments:
         category_id = graphene.Int()
@@ -207,9 +150,7 @@ class ChangeCategory(graphene.Mutation):
         :param good_id:
         :return:
         """
-        good = GoodRepository.change_category(searched_id=good_id,
-                                              category_id=category_id,
-                                              info=info)
+        good = product_service.change_goods_category(info)
 
         return ChangeCategory(
             id=good.id,
@@ -220,7 +161,8 @@ class ChangeCategory(graphene.Mutation):
             seller=good.seller,
             price=good.price,
             image=good.image,
-            amount=good.amount
+            amount=good.amount,
+            url=good.url
         )
 
 
@@ -240,7 +182,7 @@ class DeleteGood(graphene.Mutation):
         :return:
         """
         # TODO fix delete as admin
-        GoodRepository.delete_item(info=info, searched_id=id)
+        product_service.delete_good(info)
         return DeleteGood(
             id=id
         )

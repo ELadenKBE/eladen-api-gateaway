@@ -1,15 +1,9 @@
 import graphene
-from django.db.models import Q
-from graphene_django import DjangoObjectType
 
-from app.permissions import permission, Admin, Seller, All
-from category.models import Category
-from category.repository import CategoryRepository
+from app.permissions import permission, Admin, All
+from app.product_service import ProductService, CategoryType
 
-
-class CategoryType(DjangoObjectType):
-    class Meta:
-        model = Category
+product_service = ProductService()
 
 
 class Query(graphene.ObjectType):
@@ -19,21 +13,14 @@ class Query(graphene.ObjectType):
                                )
 
     @permission(roles=[All])
-    def resolve_categories(self, info, search=None, searched_id=None, **kwargs):
+    def resolve_categories(self, info, **kwargs):
         """
         Return all elements if search arguments are not given.
 
         :param info: request context information
-        :param search: searches in title
-        :param searched_id: id of searched item
         :return:
         """
-        if search:
-            return CategoryRepository.\
-                                get_items_by_filter(Q(title__icontains=search))
-        if searched_id:
-            return CategoryRepository.get_by_id(searched_id)
-        return CategoryRepository.get_all_items()
+        return product_service.get_categories(info)
 
 
 class CreateCategory(graphene.Mutation):
@@ -52,7 +39,7 @@ class CreateCategory(graphene.Mutation):
         :param title:
         :return:
         """
-        created_category = CategoryRepository.create_item(title=title)
+        created_category = product_service.create_category(info)
 
         return CreateCategory(
             id=created_category.id,
@@ -78,7 +65,7 @@ class UpdateCategory(graphene.Mutation):
         :param title:
         :return:
         """
-        category = CategoryRepository.update_item(item_id=id, title=title)
+        category = product_service.update_category(info=info)
 
         return UpdateCategory(
             id=category.id,
@@ -102,7 +89,7 @@ class DeleteCategory(graphene.Mutation):
         :param id:
         :return:
         """
-        CategoryRepository.delete_item(info=info, searched_id=id)
+        product_service.delete_category(info)
 
         return CreateCategory(
             id=id

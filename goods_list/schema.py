@@ -1,47 +1,31 @@
 import graphene
-from graphene_django import DjangoObjectType
 
-from app.errors import UnauthorizedError
 from app.permissions import permission, Admin, Seller, User
+from app.product_service import ProductService, GoodsListTransferType
 from category.schema import CategoryType
-from goods.models import Good
 from goods.schema import GoodType
 from users.schema import UserType
 from .models import GoodsList
-from .repository import GoodsListRepository
 
-
-class GoodsListType(DjangoObjectType):
-    class Meta:
-        model = GoodsList
+product_service = ProductService()
 
 
 class Query(graphene.ObjectType):
-    goods_lists = graphene.List(GoodsListType,
+    goods_lists = graphene.List(GoodsListTransferType,
                                 search=graphene.String(),
-                                searched_id=graphene.Int(), )
+                                searched_id=graphene.Int())
 
     @permission(roles=[Admin, Seller, User])
-    def resolve_goods_lists(self, info,
-                            searched_id=None,
-                            search=None,
-                            **kwargs):
+    def resolve_goods_lists(self, info, **kwargs):
         """
         TODO write docstring
 
         :param info: request context
-        :param searched_id:
-        :param search:
         :param kwargs:
         :return:
         """
-        if search:
-            return GoodsListRepository.get_items_by_filter(info=info,
-                                                           search_filter=search)
-        if searched_id:
-            return [GoodsListRepository.get_by_id(info=info,
-                                                  searched_id=searched_id)]
-        return GoodsListRepository.get_all_items(info)
+        result = product_service.get_good_lists(info=info)
+        return result
 
 
 class CreateGoodsList(graphene.Mutation):
@@ -60,8 +44,7 @@ class CreateGoodsList(graphene.Mutation):
         :param title:
         :return:
         """
-        good_list: GoodsList = GoodsListRepository.create_item(info=info,
-                                                               title=title)
+        good_list: GoodsList = product_service.create_goods_list(info)
 
         return CreateGoodsList(
             id=good_list.id,
@@ -84,7 +67,7 @@ class AddGoodToCart(graphene.Mutation):
 
     @permission(roles=[Admin, User])
     def mutate(self, info, good_id):
-        good = GoodsListRepository.add_good_to_cart(info=info, good_id=good_id)
+        good = GoodType.product_service.add_good_to_cart(info)
         return AddGoodToCart(
             id=good.id,
             title=good.title,
@@ -99,7 +82,6 @@ class AddGoodToCart(graphene.Mutation):
 class CleanGoodsList(graphene.Mutation):
     id = graphene.Int()
     title = graphene.String()
-    goods = graphene.List(GoodType)
 
     class Arguments:
         list_id = graphene.Int()
@@ -107,12 +89,11 @@ class CleanGoodsList(graphene.Mutation):
     @permission(roles=[Admin, User, Seller])
     def mutate(self, info, list_id):
 
-        goods_list = GoodsListRepository.clean_goods(info=info, list_id=list_id)
+        goods_list = product_service.clean_goods_list(info)
 
         return CleanGoodsList(
             id=goods_list.id,
-            title=goods_list.title,
-            goods=goods_list.goods.all()
+            title=goods_list.title
         )
 
 
@@ -135,9 +116,7 @@ class UpdateGoodsList(graphene.Mutation):
         :return:
         """
 
-        goods_list = GoodsListRepository.update_item(info=info,
-                                                     title=title,
-                                                     item_id=list_id)
+        goods_list = product_service.update_goods_list(info=info)
 
         return UpdateGoodsList(
             id=goods_list.id,
@@ -160,7 +139,7 @@ class DeleteGoodsList(graphene.Mutation):
         :param list_id:
         :return:
         """
-        GoodsListRepository.delete_item(info=info, searched_id=list_id)
+        product_service.delete_goods_list(info)
         return DeleteGoodsList(
             id=list_id
         )

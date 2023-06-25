@@ -84,20 +84,20 @@ query{
 goods{
       id
     	title
-  description
-  address
-  url
-  price
-  category{
-    id
-    title
-  }
-  seller{
-    id
-    username
-    email
-  }
-  }
+      description
+      address
+      url
+      price
+      category{
+        id
+        title
+      }
+      seller{
+        id
+        username
+        email
+      }
+      }
 }
 
 {
@@ -217,6 +217,27 @@ mutation{
   }
 }
 
+mutation{
+  changeCategory(goodId:1, categoryId:1){
+    id
+    	title
+      description
+      address
+      url
+      price
+      category{
+        id
+        title
+      }
+      seller{
+        id
+        username
+        email
+      }
+      
+  }
+}
+
 ### Goods
 mutation{
   createGood(
@@ -225,6 +246,7 @@ mutation{
     address:"nowhere 1, 12345",
     categoryId:1,
     price: 123.12
+    manufacturer:"asd"
   ){
 		title
   }
@@ -279,6 +301,18 @@ mutation{
   }
 }
 
+mutation {
+  deleteGoodsList(listId:1){
+    id
+  }
+}
+
+mutation{
+  cleanGoodsList(listId:2){
+    id
+    title
+  }
+}
 ### Orders
 
 mutation{
