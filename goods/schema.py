@@ -1,14 +1,11 @@
 import graphene
-from django.db.models import Q
 from graphene_django import DjangoObjectType
 
 from app.permissions import permission, All, Seller, Admin
 from app.product_service import ProductService
-from category.models import Category
 from category.schema import CategoryType
 from users.schema import UserType
 from .models import Good
-from .repository import GoodRepository
 
 
 class GoodType(DjangoObjectType):
