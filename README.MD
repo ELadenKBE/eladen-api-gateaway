@@ -307,6 +307,12 @@ mutation {
   }
 }
 
+mutation{
+  cleanGoodsList(listId:2){
+    id
+    title
+  }
+}
 ### Orders
 
 mutation{

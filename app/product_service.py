@@ -220,6 +220,6 @@ class ProductService:
         item_in_dict = self._get_data(info=info, entity_name='addGoodToCart')
         return create_good_filler(**item_in_dict)
 
-
-
-
+    def clean_goods_list(self, info):
+        item_in_dict = self._get_data(info=info, entity_name='cleanGoodsList')
+        return create_goods_list_filler(**item_in_dict)

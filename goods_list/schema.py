@@ -6,7 +6,6 @@ from category.schema import CategoryType
 from goods.schema import GoodType
 from users.schema import UserType
 from .models import GoodsList
-from .repository import GoodsListRepository
 
 product_service = ProductService()
 
@@ -83,7 +82,6 @@ class AddGoodToCart(graphene.Mutation):
 class CleanGoodsList(graphene.Mutation):
     id = graphene.Int()
     title = graphene.String()
-    goods = graphene.List(GoodType)
 
     class Arguments:
         list_id = graphene.Int()
@@ -91,12 +89,11 @@ class CleanGoodsList(graphene.Mutation):
     @permission(roles=[Admin, User, Seller])
     def mutate(self, info, list_id):
 
-        goods_list = GoodsListRepository.clean_goods(info=info, list_id=list_id)
+        goods_list = product_service.clean_goods_list(info)
 
         return CleanGoodsList(
             id=goods_list.id,
-            title=goods_list.title,
-            goods=goods_list.goods.all()
+            title=goods_list.title
         )
 
 
