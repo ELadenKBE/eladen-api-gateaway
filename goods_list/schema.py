@@ -1,11 +1,9 @@
 import graphene
 from graphene_django import DjangoObjectType
 
-from app.errors import UnauthorizedError
-from app.permissions import permission, Admin, Seller, User
 from category.schema import CategoryType
-from goods.models import Good
 from goods.schema import GoodType
+from app.permissions import permission, Admin, Seller, User
 from users.schema import UserType
 from .models import GoodsList
 from .repository import GoodsListRepository
@@ -36,8 +34,9 @@ class Query(graphene.ObjectType):
         :return:
         """
         if search:
-            return GoodsListRepository.get_items_by_filter(info=info,
-                                                           search_filter=search)
+            return GoodsListRepository.get_items_by_filter(
+                                                        info=info,
+                                                        search_filter=search)
         if searched_id:
             return [GoodsListRepository.get_by_id(info=info,
                                                   searched_id=searched_id)]
@@ -107,7 +106,8 @@ class CleanGoodsList(graphene.Mutation):
     @permission(roles=[Admin, User, Seller])
     def mutate(self, info, list_id):
 
-        goods_list = GoodsListRepository.clean_goods(info=info, list_id=list_id)
+        goods_list = GoodsListRepository.clean_goods(info=info,
+                                                     list_id=list_id)
 
         return CleanGoodsList(
             id=goods_list.id,
