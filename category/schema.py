@@ -1,17 +1,9 @@
 import graphene
-from graphene_django import DjangoObjectType
 
 from app.permissions import permission, Admin, All
-from category.models import Category
-from app.product_service import ProductService
+from app.product_service import ProductService, CategoryType
 
-
-class CategoryType(DjangoObjectType):
-
-    product_service = ProductService()
-
-    class Meta:
-        model = Category
+product_service = ProductService()
 
 
 class Query(graphene.ObjectType):
@@ -28,7 +20,7 @@ class Query(graphene.ObjectType):
         :param info: request context information
         :return:
         """
-        return CategoryType.product_service.get_categories(info)
+        return product_service.get_categories(info)
 
 
 class CreateCategory(graphene.Mutation):
@@ -47,7 +39,7 @@ class CreateCategory(graphene.Mutation):
         :param title:
         :return:
         """
-        created_category = CategoryType.product_service.create_category(info)
+        created_category = product_service.create_category(info)
 
         return CreateCategory(
             id=created_category.id,
@@ -73,7 +65,7 @@ class UpdateCategory(graphene.Mutation):
         :param title:
         :return:
         """
-        category = CategoryType.product_service.update_category(info=info)
+        category = product_service.update_category(info=info)
 
         return UpdateCategory(
             id=category.id,
@@ -97,7 +89,7 @@ class DeleteCategory(graphene.Mutation):
         :param id:
         :return:
         """
-        CategoryType.product_service.delete_category(info)
+        product_service.delete_category(info)
 
         return CreateCategory(
             id=id

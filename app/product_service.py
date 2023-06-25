@@ -19,6 +19,12 @@ class GoodType(DjangoObjectType):
         model = Good
 
 
+class CategoryType(DjangoObjectType):
+
+    class Meta:
+        model = Category
+
+
 class GoodsListTransferType(graphene.ObjectType):
     id = graphene.Int()
     title = graphene.String()
