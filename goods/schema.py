@@ -185,7 +185,7 @@ class DeleteGood(graphene.Mutation):
     class Arguments:
         id = graphene.Int(required=True)
 
- #   @permission(roles=[Admin, Seller])
+    @permission(roles=[Admin, Seller])
     def mutate(self, info, id):
         """
         TODO add docs

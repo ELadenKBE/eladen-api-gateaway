@@ -3,7 +3,6 @@ from graphene_django import DjangoObjectType
 
 from app.permissions import permission, Admin, All
 from category.models import Category
-from category.repository import CategoryRepository
 from app.product_service import ProductService
 
 
