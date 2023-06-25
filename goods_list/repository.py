@@ -1,7 +1,7 @@
 from django.db.models import QuerySet, Q
 from graphql import GraphQLResolveInfo
 
-from app.errors import UnauthorizedError
+from app.errors import UnauthorizedError, ResourceError
 from app.repository_base import RepositoryBase, IRepository
 from goods.models import Good
 from goods_list.models import GoodsList
@@ -13,7 +13,7 @@ class GoodsListRepository(RepositoryBase, IRepository):
     model = GoodsList
 
     @staticmethod
-    def create_item(info: GraphQLResolveInfo, **kwargs) -> [QuerySet]:
+    def create_item(info: GraphQLResolveInfo = None, **kwargs) -> [QuerySet]:
         user = info.context.user or None
         if user is None:
             raise UnauthorizedError("Unauthorized access!")
@@ -83,6 +83,8 @@ class GoodsListRepository(RepositoryBase, IRepository):
         good = Good.objects.get(id=good_id)
         cart_list: GoodsList = GoodsList.objects.filter(user=user,
                                                         title="cart").first()
+        if cart_list is None:
+            raise ResourceError('object with searched id does not exist')
         cart_list.goods.add(good)
         cart_list.save()
         return good
@@ -143,6 +145,8 @@ class GoodsListRepository(RepositoryBase, IRepository):
                 :return:
                 """
         goods_list = GoodsList.objects.filter(id=searched_id).first()
+        if goods_list is None:
+            raise ResourceError('object with searched id does not exist')
         user: ExtendedUser = info.context.user
         if user.is_admin():
             goods_list.delete()
@@ -157,4 +161,3 @@ class GoodsListRepository(RepositoryBase, IRepository):
                         searched_id: str,
                         category_id: str) -> [QuerySet]:
         pass
-
