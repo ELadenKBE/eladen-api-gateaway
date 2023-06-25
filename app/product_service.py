@@ -1,14 +1,35 @@
 import json
 
+import graphene
 import requests
 from decouple import config
+from graphene_django import DjangoObjectType
 from graphql import GraphQLResolveInfo
 
 from app.errors import ResponseError, ValidationError
 from category.models import Category
 from goods.models import Good
-from goods_list.models import GoodsList
 from users.models import ExtendedUser
+from users.schema import UserType
+
+
+class GoodType(DjangoObjectType):
+
+    class Meta:
+        model = Good
+
+
+class GoodsListTransferType(graphene.ObjectType):
+    id = graphene.Int()
+    title = graphene.String()
+    user = graphene.Field(UserType)
+    goods = graphene.List(GoodType)
+
+    def __init__(self, id=None, title=None, user=None, goods=None):
+        self.id = id
+        self.title = title
+        self.user = user
+        self.goods = goods
 
 
 def verify_connection(func):
@@ -67,7 +88,7 @@ def create_good_filler(**params):
         return Good(**params)
 
 
-def create_goods_list_filler(**params):
+def create_goods_list_filler(**params) -> GoodsListTransferType:
     user_dict = None
     goods_dict = None
     if 'user' in params:
@@ -77,12 +98,18 @@ def create_goods_list_filler(**params):
         goods_dict = params['goods']
         del params['goods']
     if user_dict is not None and goods_dict is not None:
-        goods_list = GoodsList(**params, user=ExtendedUser(**user_dict))
         goods = [Good(**param) for param in goods_dict]
-        goods_list.goods.add(*[good.id for good in goods])
+        goods_list = GoodsListTransferType(**params,
+                                           user=ExtendedUser(**user_dict),
+                                           goods=goods)
+        return goods_list
+    if user_dict is not None and goods_dict is None:
+        goods_list = GoodsListTransferType(**params,
+                                           user=ExtendedUser(**user_dict))
         return goods_list
     else:
-        return GoodsList(**params)
+        type_object = GoodsListTransferType(**params)
+        return type_object
 
 
 class ProductService:
@@ -175,3 +202,11 @@ class ProductService:
     def change_goods_category(self, info):
         item_in_dict = self._get_data(info=info, entity_name='changeCategory')
         return create_good_filler(**item_in_dict)
+
+    def add_good_to_cart(self, info):
+        item_in_dict = self._get_data(info=info, entity_name='addGoodToCart')
+        return create_good_filler(**item_in_dict)
+
+
+
+

@@ -1,19 +1,11 @@
 import graphene
-from graphene_django import DjangoObjectType
 
 from app.permissions import permission, All, Seller, Admin
-from app.product_service import ProductService
+from app.product_service import ProductService, GoodType
 from category.schema import CategoryType
 from users.schema import UserType
-from .models import Good
 
-
-class GoodType(DjangoObjectType):
-
-    product_service = ProductService()
-
-    class Meta:
-        model = Good
+product_service = ProductService()
 
 
 class Query(graphene.ObjectType):
@@ -30,7 +22,7 @@ class Query(graphene.ObjectType):
         :param info: request context information
         :return: collection of items
         """
-        return GoodType.product_service.get_goods(info=info)
+        return product_service.get_goods(info=info)
 
 
 class CreateGood(graphene.Mutation):
@@ -65,7 +57,7 @@ class CreateGood(graphene.Mutation):
         :param info:
         :return:
         """
-        good = GoodType.product_service.create_good(info=info)
+        good = product_service.create_good(info=info)
 
         return CreateGood(
             id=good.id,
@@ -115,7 +107,7 @@ class UpdateGood(graphene.Mutation):
         """
         # TODO should implement not found?
 
-        good = CategoryType.product_service.update_good(info=info)
+        good = product_service.update_good(info=info)
 
         return UpdateGood(
             id=good.id,
@@ -158,7 +150,7 @@ class ChangeCategory(graphene.Mutation):
         :param good_id:
         :return:
         """
-        good = GoodType.product_service.change_goods_category(info)
+        good = product_service.change_goods_category(info)
 
         return ChangeCategory(
             id=good.id,
@@ -190,7 +182,7 @@ class DeleteGood(graphene.Mutation):
         :return:
         """
         # TODO fix delete as admin
-        GoodType.product_service.delete_good(info)
+        product_service.delete_good(info)
         return DeleteGood(
             id=id
         )

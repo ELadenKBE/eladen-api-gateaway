@@ -1,8 +1,5 @@
-from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import QuerySet, Q
 
-from app.errors import UnauthorizedError
 from goods.models import Good
 from users.models import ExtendedUser
 

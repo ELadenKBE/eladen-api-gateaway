@@ -2,7 +2,7 @@ import graphene
 from graphene_django import DjangoObjectType
 
 from app.permissions import permission, Admin, Seller, User
-from app.product_service import ProductService
+from app.product_service import ProductService, GoodsListTransferType
 from category.schema import CategoryType
 from goods.schema import GoodType
 from users.schema import UserType
@@ -10,18 +10,19 @@ from .models import GoodsList
 from .repository import GoodsListRepository
 
 
-class GoodsListType(DjangoObjectType):
+product_service = ProductService()
 
-    product_service = ProductService()
+
+class GoodsListType(DjangoObjectType):
 
     class Meta:
         model = GoodsList
 
 
 class Query(graphene.ObjectType):
-    goods_lists = graphene.List(GoodsListType,
+    goods_lists = graphene.List(GoodsListTransferType,
                                 search=graphene.String(),
-                                searched_id=graphene.Int(), )
+                                searched_id=graphene.Int())
 
     @permission(roles=[Admin, Seller, User])
     def resolve_goods_lists(self, info, **kwargs):
@@ -29,12 +30,11 @@ class Query(graphene.ObjectType):
         TODO write docstring
 
         :param info: request context
-        :param searched_id:
-        :param search:
         :param kwargs:
         :return:
         """
-        return GoodsListType.product_service.get_good_lists(info=info)
+        result = product_service.get_good_lists(info=info)
+        return result
 
 
 class CreateGoodsList(graphene.Mutation):
@@ -53,8 +53,7 @@ class CreateGoodsList(graphene.Mutation):
         :param title:
         :return:
         """
-        good_list: GoodsList = GoodsListType.product_service\
-            .create_goods_list(info)
+        good_list: GoodsList = product_service.create_goods_list(info)
 
         return CreateGoodsList(
             id=good_list.id,
@@ -77,7 +76,7 @@ class AddGoodToCart(graphene.Mutation):
 
     @permission(roles=[Admin, User])
     def mutate(self, info, good_id):
-        good = GoodsListRepository.add_good_to_cart(info=info, good_id=good_id)
+        good = GoodType.product_service.add_good_to_cart(info)
         return AddGoodToCart(
             id=good.id,
             title=good.title,
@@ -128,7 +127,7 @@ class UpdateGoodsList(graphene.Mutation):
         :return:
         """
 
-        goods_list = GoodsListType.product_service.update_goods_list(info=info)
+        goods_list = product_service.update_goods_list(info=info)
 
         return UpdateGoodsList(
             id=goods_list.id,
@@ -151,7 +150,7 @@ class DeleteGoodsList(graphene.Mutation):
         :param list_id:
         :return:
         """
-        GoodsListType.product_service.delete_goods_list(info)
+        product_service.delete_goods_list(info)
         return DeleteGoodsList(
             id=list_id
         )
