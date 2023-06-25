@@ -11,7 +11,7 @@ from users.models import ExtendedUser
 # test line
 
 class Good(models.Model):
-    url = models.URLField()
+    url = models.URLField(null=True, blank=True)
     description = models.TextField(blank=True)
     title = models.CharField(max_length=256)
     seller = models.ForeignKey(ExtendedUser, on_delete=models.CASCADE)
