@@ -1,11 +1,7 @@
-from typing import Callable
-
 import graphene
 from graphene_django import DjangoObjectType
 
-from app.errors import UnauthorizedError, ResourceError
-from app.permissions import permission, Admin, User, Seller
-from goods.models import Good
+from app.permissions import permission, Admin, User
 from goods.schema import GoodType
 from users.schema import UserType
 from .models import Order
@@ -193,6 +189,6 @@ class DeleteOrder(graphene.Mutation):
 class Mutation(graphene.ObjectType):
     create_order = CreateOrder.Field()
     change_delivery_status = ChangeDeliveryStatus.Field()
-    change_payment_status = ChangePaymentStatus.Field()
+    change_payment_status = ChangePaymentStatus.Field() # intern
     update_order = UpdateOrder.Field()
     delete_order = DeleteOrder.Field()
