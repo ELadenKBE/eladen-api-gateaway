@@ -148,7 +148,10 @@ query{
       id
       username
     }
-    
+    goods{
+      id
+      title
+    }
   }
 }
 

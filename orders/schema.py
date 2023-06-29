@@ -120,51 +120,6 @@ class UpdateOrder(graphene.Mutation):
         )
 
 
-class ChangeDeliveryStatus(graphene.Mutation):
-    id = graphene.Int()
-    delivery_status = graphene.String()
-
-    class Arguments:
-        id = graphene.Int()
-        delivery_status = graphene.String()
-
-    def mutate(self, info, id_arg, delivery_status):
-
-        order = OrdersRepository.change_delivery_status(
-                                                info=info,
-                                                id_arg=id_arg,
-                                                delivery_status=delivery_status)
-
-        return ChangeDeliveryStatus(id=order.id,
-                                    delivery_status=order.delivery_status)
-
-
-class ChangePaymentStatus(graphene.Mutation):
-    id = graphene.Int()
-    payment_status = graphene.String()
-
-    class Arguments:
-        id = graphene.Int()
-        payment_status = graphene.String()
-
-    def mutate(self, info, id_arg, payment_status):
-        """
-        TODO add docs
-
-        :param info:
-        :param id_arg:
-        :param payment_status:
-        :return:
-        """
-        order = OrdersRepository.change_payment_status(
-                                                info=info,
-                                                id_arg=id_arg,
-                                                payment_status=payment_status)
-
-        return ChangeDeliveryStatus(id=order.id,
-                                    payment_status=order.payment_status)
-
-
 class DeleteOrder(graphene.Mutation):
     id = graphene.Int(required=True)
 
@@ -188,7 +143,5 @@ class DeleteOrder(graphene.Mutation):
 
 class Mutation(graphene.ObjectType):
     create_order = CreateOrder.Field()
-    change_delivery_status = ChangeDeliveryStatus.Field()
-    change_payment_status = ChangePaymentStatus.Field() # intern
     update_order = UpdateOrder.Field()
     delete_order = DeleteOrder.Field()
