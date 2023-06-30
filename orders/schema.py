@@ -17,7 +17,7 @@ class Query(graphene.ObjectType):
         """
         TODO add docstring
 
-        :param searched_id:
+
         :param info:
         :param kwargs:
         :return:
@@ -55,11 +55,7 @@ class CreateOrder(graphene.Mutation):
         :param goods_ids:
         :return:
         """
-        order = OrdersRepository.create_item(info=info,
-                                             time_of_order=time_of_order,
-                                             delivery_address=delivery_address,
-                                             goods_ids=goods_ids
-                                             )
+        order = order_service.create_order(info)
 
         return CreateOrder(
             id=order.id,

@@ -28,6 +28,19 @@ class OrderType(graphene.ObjectType):
                  goods=None,
                  deliveryAddress=None
                  ):
+        """
+        Arguments are in CamelCase because of mapping.
+
+        :param id:
+        :param timeOfOrder:
+        :param itemsPrice:
+        :param deliveryPrice:
+        :param userId:
+        :param deliveryStatus:
+        :param paymentStatus:
+        :param goods:
+        :param deliveryAddress:
+        """
         self.id = id
         self.time_of_order = timeOfOrder
         self.items_price = itemsPrice
@@ -44,13 +57,13 @@ class OrderService(BaseService):
     url = config('ORDER_SERVICE_URL', default=False, cast=str)
     service_name = 'Order'
 
-    def get_orders(self, info):
-        items_list = self._get_data(entity_name='orders', info=info)
-        objects = [self._create_order_filler(**order) for order in items_list]
-        return objects
-
     @staticmethod
     def _create_order_filler(**params):
+        """
+
+        :param params:
+        :return:
+        """
         if 'goods' in params:
             goods_dict = params['goods']
             del params['goods']
@@ -60,3 +73,16 @@ class OrderService(BaseService):
         else:
             type_object = OrderType(**params)
             return type_object
+
+    def get_orders(self, info):
+        """
+
+        :param info:
+        :return:
+        """
+        items_list = self._get_data(entity_name='orders', info=info)
+        objects = [self._create_order_filler(**order) for order in items_list]
+        return objects
+
+    def create_order(self, info):
+        pass
