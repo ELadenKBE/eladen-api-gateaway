@@ -2,14 +2,14 @@ import graphene
 from decouple import config
 from graphql import GraphQLResolveInfo
 
-from app.base_service import BaseService, create_good_filler, \
-    create_goods_list_filler
+from app.base_service import BaseService, create_good_filler
 from category.models import Category
 
 from graphene_django import DjangoObjectType
 
 from goods.models import Good
 from goods_list.models import GoodsList
+from users.models import ExtendedUser
 from users.schema import UserType
 
 
@@ -44,9 +44,34 @@ class GoodsListTransferType(graphene.ObjectType):
         self.goods = goods
 
 
+def create_goods_list_filler(**params) -> GoodsListTransferType:
+    user_dict = None
+    goods_dict = None
+    if 'user' in params:
+        user_dict = params['user']
+        del params['user']
+    if 'goods' in params:
+        goods_dict = params['goods']
+        del params['goods']
+    if user_dict is not None and goods_dict is not None:
+        goods = [Good(**param) for param in goods_dict]
+        goods_list = GoodsListTransferType(**params,
+                                           user=ExtendedUser(**user_dict),
+                                           goods=goods)
+        return goods_list
+    if user_dict is not None and goods_dict is None:
+        goods_list = GoodsListTransferType(**params,
+                                           user=ExtendedUser(**user_dict))
+        return goods_list
+    else:
+        type_object = GoodsListTransferType(**params)
+        return type_object
+
+
 class ProductService(BaseService):
 
     url = config('PRODUCT_SERVICE_URL', default=False, cast=str)
+    service_name = 'Product'
 
     def get_categories(self, info: GraphQLResolveInfo = None):
         items_list = self._get_data(entity_name='categories', info=info)

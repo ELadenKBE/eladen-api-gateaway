@@ -1,23 +1,19 @@
 import graphene
-from graphene_django import DjangoObjectType
 
+from app.order_service import OrderType, OrderService
 from app.permissions import permission, Admin, User
 from goods.schema import GoodType
 from users.schema import UserType
-from .models import Order
 from .repository import OrdersRepository
 
-
-class OrderType(DjangoObjectType):
-    class Meta:
-        model = Order
+order_service = OrderService()
 
 
 class Query(graphene.ObjectType):
     orders = graphene.List(OrderType, searched_id=graphene.Int())
 
-    @permission(roles=[Admin, User])
-    def resolve_orders(self, info, searched_id=None, **kwargs):
+#    @permission(roles=[Admin, User])
+    def resolve_orders(self, info, **kwargs):
         """
         TODO add docstring
 
@@ -26,18 +22,15 @@ class Query(graphene.ObjectType):
         :param kwargs:
         :return:
         """
-        if searched_id:
-            return OrdersRepository.get_by_id(info=info,
-                                              searched_id=searched_id)
-        return OrdersRepository.get_all_items(info)
+        return order_service.get_orders(info=info)
 
 
 class CreateOrder(graphene.Mutation):
     id = graphene.Int()
     time_of_order = graphene.String()
     delivery_address = graphene.String()
-    items_price = graphene.Float()
-    delivery_price = graphene.Float()
+    items_price = graphene.Decimal()
+    delivery_price = graphene.Decimal()
     user = graphene.Field(UserType)
     delivery_status = graphene.String()
     payment_status = graphene.String()
