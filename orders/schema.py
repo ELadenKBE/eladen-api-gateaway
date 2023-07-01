@@ -72,7 +72,7 @@ class UpdateOrder(graphene.Mutation):
     delivery_address = graphene.String()
     items_price = graphene.Float()
     delivery_price = graphene.Float()
-    user = graphene.Field(UserType)
+    user_id = graphene.Int()
     delivery_status = graphene.String()
     payment_status = graphene.String()
 
@@ -80,7 +80,7 @@ class UpdateOrder(graphene.Mutation):
         order_id = graphene.Int()
         delivery_address = graphene.String()
 
-    @permission(roles=[Admin])
+    #@permission(roles=[Admin])
     def mutate(self, info,
                order_id,
                delivery_address=None):
@@ -92,16 +92,17 @@ class UpdateOrder(graphene.Mutation):
         :param delivery_address:
         :return:
         """
-        order = OrdersRepository.update_item(info=info,
-                                             order_id=order_id,
-                                             delivery_address=delivery_address)
+        order = order_service.update_order(info)
+
         return UpdateOrder(
             id=order.id,
             delivery_address=order.delivery_address,
             items_price=order.items_price,
             delivery_price=order.delivery_price,
             time_of_order=order.time_of_order,
-            user=order.user
+            user_id=order.user_id,
+            delivery_status=order.delivery_status,
+            payment_status=order.payment_status
         )
 
 

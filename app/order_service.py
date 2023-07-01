@@ -93,3 +93,7 @@ class OrderService(BaseService):
         created_item_in_dict = self._create_item(info=info,
                                                  entity_name='createOrder')
         return self._create_order_filler(**created_item_in_dict)
+
+    def update_order(self, info):
+        updated_item = self._get_data(entity_name='updateOrder', info=info)
+        return self._create_order_filler(**updated_item)
