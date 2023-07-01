@@ -28,24 +28,20 @@ class Query(graphene.ObjectType):
 class CreateOrder(graphene.Mutation):
     id = graphene.Int()
     time_of_order = graphene.String()
-    delivery_address = graphene.String()
-    items_price = graphene.Decimal()
-    delivery_price = graphene.Decimal()
-    user = graphene.Field(UserType)
+    items_price = graphene.Float()
+    delivery_price = graphene.Float()
+    user_id = graphene.Int()
     delivery_status = graphene.String()
     payment_status = graphene.String()
     goods = graphene.List(GoodType)
+    delivery_address = graphene.String()
 
     class Arguments:
         time_of_order = graphene.String()
         delivery_address = graphene.String()
-        goods_ids = graphene.List(graphene.ID, required=True)
 
-    @permission(roles=[Admin, User])
-    def mutate(self, info,
-               time_of_order,
-               delivery_address,
-               goods_ids):
+ #   @permission(roles=[Admin, User])
+    def mutate(self, info, **kwargs):
         """
         TODO finish docs
 
@@ -63,10 +59,10 @@ class CreateOrder(graphene.Mutation):
             items_price=order.items_price,
             delivery_price=order.delivery_price,
             time_of_order=order.time_of_order,
-            user=order.user,
+            user_id=order.user_id,
             delivery_status=order.delivery_status,
             payment_status=order.payment_status,
-            goods=order.goods.all()
+            goods=order.goods
         )
 
 

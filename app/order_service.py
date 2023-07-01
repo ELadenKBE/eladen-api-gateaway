@@ -85,4 +85,11 @@ class OrderService(BaseService):
         return objects
 
     def create_order(self, info):
-        pass
+        """
+
+        :param info:
+        :return:
+        """
+        created_item_in_dict = self._create_item(info=info,
+                                                 entity_name='createOrder')
+        return self._create_order_filler(**created_item_in_dict)
