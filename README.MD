@@ -148,7 +148,10 @@ query{
       id
       username
     }
-    
+    goods{
+      id
+      title
+    }
   }
 }
 
@@ -315,20 +318,21 @@ mutation{
 }
 ### Orders
 
-mutation{
-  createOrder(timeOfOrder:"1999-05-23 11:12",
-              deliveryAddress:"dsd",
-              goodsIds: [1, 2]){
-                id
-                timeOfOrder
-                deliveryAddress
-                itemsPrice
-                deliveryPrice
-                user{
-                  id
-                }
-              }
-          }
+mutation {
+  createOrder(
+    timeOfOrder: "1999-05-23 11:12"
+    deliveryAddress: "test_11"
+  ) {
+    id
+    timeOfOrder
+    deliveryAddress
+    itemsPrice
+    deliveryPrice
+    user {
+      id
+    }
+  }
+}
 
 ## Introspections
 ### Show all mutations

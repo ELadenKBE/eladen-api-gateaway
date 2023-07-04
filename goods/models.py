@@ -1,8 +1,6 @@
 from django.core.validators import MinValueValidator
 from django.db import models
-from graphql import GraphQLResolveInfo
 
-from app.errors import UnauthorizedError
 from category.models import Category
 from users.models import ExtendedUser
 
