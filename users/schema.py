@@ -46,6 +46,7 @@ class CreateUser(graphene.Mutation):
     firstname = graphene.String()
     lastname = graphene.String()
     image = graphene.String()
+    sub = graphene.String()
 
     class Arguments:
         username = graphene.String(required=True)
@@ -56,6 +57,7 @@ class CreateUser(graphene.Mutation):
         firstname = graphene.String()
         lastname = graphene.String()
         image = graphene.String()
+        sub = graphene.String()
 
     @permission(roles=[Admin, Anon])
     def mutate(self,
@@ -64,6 +66,7 @@ class CreateUser(graphene.Mutation):
                password,
                email,
                role,
+               sub,
                image=None,
                address=None,
                firstname=None,
