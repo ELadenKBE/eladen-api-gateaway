@@ -55,8 +55,11 @@ class UserService(BaseService):
         items_list_dict = self._get_data(entity_name='users', info=info)
         if items_list_dict is None:
             raise ResponseError('User not found')
-        response_users = [ExtendedUser(**user_dict)
-                          for user_dict in items_list_dict]
+        if len(items_list_dict) is 0:
+            response_users = [ExtendedUser(**user_dict)
+                              for user_dict in items_list_dict]
+        else:
+            response_users = []
         return response_users
 
     def create_user(self, info):

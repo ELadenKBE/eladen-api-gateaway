@@ -69,24 +69,26 @@ class BaseService:
             raise ResponseError(f"{self.service_name} Service is not answering"
                                 )
 
-    def _request(self, info: GraphQLResolveInfo, auth_header: dict):
-        cleaned = info.context.body.decode('utf-8') \
-            .replace('\\n', ' ') \
-            .replace('\\t', ' ')
-        query = json.loads(cleaned)['query']
+    def _request(self, auth_header: dict, query: str):
         response = requests.post(self.url,
                                  data={'query': query},
                                  headers=auth_header)
         self._validate_errors(response)
         return response
 
-    def _get_data(self, entity_name: str, info: GraphQLResolveInfo):
+    def _get_data(self,
+                  entity_name: str,
+                  info: GraphQLResolveInfo,
+                  query=None):
+        if query is None:
+            query = self._clean_query(info)
         self.verify_connection()
         auth_param = self._get_auth_header(info)
-        response = self._request(info=info,
-                                 auth_header={"AUTHORIZATION": auth_param})
+        response = self._request(auth_header={"AUTHORIZATION": auth_param},
+                                 query=query)
         data = response.json().get('data', {})
-        return data.get(entity_name, [])
+        response_dict = data.get(entity_name, [])
+        return response_dict
 
     @staticmethod
     def _validate_errors(response):
@@ -112,3 +114,11 @@ class BaseService:
             raise UnauthorizedError('authorization error: ',
                                     response_error.args[0])
         return auth_header
+
+    @staticmethod
+    def _clean_query(info: GraphQLResolveInfo):
+        cleaned = info.context.body.decode('utf-8') \
+            .replace('\\n', ' ') \
+            .replace('\\t', ' ')
+        query = json.loads(cleaned)['query']
+        return query

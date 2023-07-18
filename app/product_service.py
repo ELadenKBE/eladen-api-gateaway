@@ -1,3 +1,6 @@
+import json
+import re
+
 import graphene
 from decouple import config
 from graphql import GraphQLResolveInfo
@@ -82,8 +85,12 @@ class ProductService(BaseService):
         return [create_good_filler(**item) for item in items_list]
 
     def get_good_lists(self, info: GraphQLResolveInfo = None):
-        items_list = self._get_data(entity_name='goodsLists', info=info)
-        return [create_goods_list_filler(**item) for item in items_list]
+        query = self.remove_user_sub_query(info)
+        items_list = self._get_data(entity_name='goodsLists',
+                                    info=info,
+                                    query=query)
+        final_list = self.add_user(info, items_list)
+        return [create_goods_list_filler(**item) for item in final_list]
 
     def create_good(self, info: GraphQLResolveInfo):
         created_item_dict = self._create_item(info=info,
@@ -139,3 +146,22 @@ class ProductService(BaseService):
     def clean_goods_list(self, info):
         item_in_dict = self._get_data(info=info, entity_name='cleanGoodsList')
         return create_goods_list_filler(**item_in_dict)
+
+    def remove_user_sub_query(self, info):
+        cleaned = info.context.body.decode('utf-8') \
+            .replace('\\n', ' ') \
+            .replace('\\t', ' ')
+        query = json.loads(cleaned)['query']
+        pattern = r'user\s*{\s*[^}]*\s*}'
+        output_string = re.sub(pattern, 'userId', query)
+        return output_string
+
+    def add_user(self, info, items_list):
+        input_query = info.context.body.decode('utf-8') \
+            .replace('\\n', ' ') \
+            .replace('\\t', ' ')
+        pattern = r'user\s*{\s*[^}]*\s*}'
+        user_query = re.search(pattern, input_query)
+        pattern = r'{([^}]*)}'
+        matches = re.findall(pattern, user_query)
+        pass
