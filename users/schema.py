@@ -1,12 +1,8 @@
-from django.contrib.auth import get_user_model
-
 import graphene
-from django.db.models import Q
 from graphene_django import DjangoObjectType
 
 from app.authorization import grant_authorization
-from app.permissions import permission, Admin, All, Seller, User, Anon
-from goods_list.models import GoodsList
+from app.permissions import permission, Admin, Seller, User
 from users.models import ExtendedUser
 from users.user_service import UserService
 
@@ -51,7 +47,6 @@ class CreateUser(graphene.Mutation):
 
     class Arguments:
         username = graphene.String(required=True)
-        password = graphene.String(required=True)
         email = graphene.String(required=True)
         role = graphene.Int(required=True)
         address = graphene.String()
@@ -61,30 +56,12 @@ class CreateUser(graphene.Mutation):
         sub = graphene.String(required=True)
 
     @grant_authorization
-    @permission(roles=[Admin, Anon])
-    def mutate(self,
-               info,
-               username,
-               password,
-               email,
-               role,
-               sub,
-               image=None,
-               address=None,
-               firstname=None,
-               lastname=None):
+    @permission(roles=[Admin, User, Seller])
+    def mutate(self, info, **kwargs):
         """
         TODO add docs
 
         :param info:
-        :param username:
-        :param password:
-        :param email:
-        :param role:
-        :param image:
-        :param address:
-        :param firstname:
-        :param lastname:
         :return:
         """
         user = user_service.create_user(info)
@@ -94,8 +71,8 @@ class CreateUser(graphene.Mutation):
             email=user.email,
             role=user.role,
             address=user.address,
-            lastname=user.lastname,
-            firstname=user.firstname,
+            lastname=user.lastName,
+            firstname=user.firstName,
             image=user.image
         )
 

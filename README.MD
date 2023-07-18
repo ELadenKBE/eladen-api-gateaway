@@ -167,11 +167,16 @@ query{
 
 ### Users
 
-mutation{
-  createUser(username: "tim_user", email: "testemail@gmail.com", password: "12345", role:1){
-      id
-    	username
-  		email
+mutation {
+  createUser(
+    username: "tim_user_test_3"
+    email: "testemail@gmail.com"
+    role: 1,
+    sub:"asdasdad"
+  ) {
+    id
+    username
+    email
   }
 }
 

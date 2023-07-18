@@ -61,4 +61,7 @@ class UserService(BaseService):
 
     def create_user(self, info):
         self.verify_connection()
+        created_item_in_dict = self._create_item(info=info,
+                                                 entity_name='createUser')
+        return ExtendedUser(**created_item_in_dict)
 
