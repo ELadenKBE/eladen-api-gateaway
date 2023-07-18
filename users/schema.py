@@ -131,6 +131,7 @@ class DeleteUser(graphene.Mutation):
     class Arguments:
         user_id = graphene.Int(required=True)
 
+    @grant_authorization
     @permission(roles=[Admin, Seller, User])
     def mutate(self, info, user_id):
         """
@@ -140,22 +141,10 @@ class DeleteUser(graphene.Mutation):
         :param user_id:
         :return:
         """
-        user: ExtendedUser = ExtendedUser.objects.filter(id=user_id).first()
-        user.delete_with_permission(info)
+        user_service.delete_user(info)
         return DeleteUser(
             id=user_id
         )
-
-
-def validate_role(role):
-    """
-    TODO add docs
-
-    :param role:
-    :return:
-    """
-    if role < 1 or role > 3:
-        raise ValueError("role is not defined")
 
 
 class Mutation(graphene.ObjectType):

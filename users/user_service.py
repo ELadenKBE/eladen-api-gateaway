@@ -77,3 +77,6 @@ class UserService(BaseService):
             del updated_item['lastname']
         return ExtendedUser(**updated_item)
 
+    def delete_user(self, info):
+        self._get_data(info=info, entity_name='deleteUser')
+
