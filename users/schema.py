@@ -57,7 +57,7 @@ class CreateUser(graphene.Mutation):
         firstname = graphene.String()
         lastname = graphene.String()
         image = graphene.String()
-        sub = graphene.String()
+        sub = graphene.String(required=True)
 
     @permission(roles=[Admin, Anon])
     def mutate(self,

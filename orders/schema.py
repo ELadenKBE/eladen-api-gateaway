@@ -1,9 +1,9 @@
 import graphene
 
-from app.order_service import OrderType, OrderService
+from app.authorization import grant_authorization
+from orders.order_service import OrderType, OrderService
 from app.permissions import permission, Admin, User
 from goods.schema import GoodType
-from users.schema import UserType
 from .repository import OrdersRepository
 
 order_service = OrderService()
@@ -12,7 +12,8 @@ order_service = OrderService()
 class Query(graphene.ObjectType):
     orders = graphene.List(OrderType, searched_id=graphene.Int())
 
-#    @permission(roles=[Admin, User])
+    @grant_authorization
+    @permission(roles=[Admin, User])
     def resolve_orders(self, info, **kwargs):
         """
         TODO add docstring
