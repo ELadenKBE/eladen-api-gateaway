@@ -2,10 +2,11 @@
 
 First, you have to create .enc file and define following variables:
 
-SECRET_KEY=
-
-Optional variables:
-<br>DEBUG=
+SECRET_KEY=<br />
+DEBUG=<br />
+PRODUCT_SERVICE_URL=<br />
+ORDER_SERVICE_URL=<br />
+USER_SERVICE_URL=<br />
 
 ### Authorisation
 
@@ -216,38 +217,21 @@ mutation{
   }
 }
 
-mutation{
-  changeCategory(goodId:1, categoryId:1){
-    id
-    	title
-      description
-      address
-      url
-      price
-      category{
-        id
-        title
-      }
-      seller{
-        id
-        username
-        email
-      }
-      
-  }
-}
+
 
 ### Goods
-mutation{
+mutation {
   createGood(
-    title:"new good. test",
-    description:"some uninterestin description",
-    address:"nowhere 1, 12345",
-    categoryId:1,
+    title: "new good. test. newnwenwe"
+    description: "some uninterestin description"
+    address: "nowhere 1, 12345"
+    categoryId: 1
     price: 123.12
-    manufacturer:"asd"
-  ){
-		title
+    manufacturer: "asd"
+    url: "www.ware.com/test"
+  ) {
+    id
+    title
   }
 }
 
@@ -270,6 +254,33 @@ mutation {
     category{
       id
     }
+  }
+}
+
+mutation{
+  changeCategory(goodId:1, categoryId:1){
+    id
+    	title
+      description
+      address
+      url
+      price
+      category{
+        id
+        title
+      }
+      seller{
+        id
+        username
+        email
+      }
+      
+  }
+}
+
+mutation{
+  deleteGood(id:1){
+  id
   }
 }
 
