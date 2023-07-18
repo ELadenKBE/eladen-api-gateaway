@@ -19,6 +19,7 @@ class UserService(BaseService):
 
     def get_user(self, sub: str):
         """
+        Get user by sub.
 
         :param sub:
         :return:
@@ -45,27 +46,19 @@ class UserService(BaseService):
         user = ExtendedUser(**user_in_dict)
         return user
 
-    def get_users(self, searched_id=None, search=None):
+    def get_users(self, info):
         """
 
         :return:
         """
         self.verify_connection()
-        if searched_id:
-            template = """query{{ users(searchedId: {0} )
-            {{ id username email role address firstName lastName }} }}"""
-            query = template.format(searched_id)
-        elif search:
-            template = """query{{ users(search: "{0}")
-            {{ id username email role address firstName lastName }} }}"""
-            query = template.format(search)
-        else:
-            query = """query{ users
-        { id username email role address firstName lastName } }"""
-        response = requests.post(self.url, data={'query': query})
-        users_in_dict = response.json().get('data', {}).get('users')
-        if users_in_dict is None:
+        items_list_dict = self._get_data(entity_name='users', info=info)
+        if items_list_dict is None:
             raise ResponseError('User not found')
         response_users = [ExtendedUser(**user_dict)
-                          for user_dict in users_in_dict]
+                          for user_dict in items_list_dict]
         return response_users
+
+    def create_user(self, info):
+        self.verify_connection()
+

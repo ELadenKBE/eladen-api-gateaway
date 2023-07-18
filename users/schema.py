@@ -35,7 +35,7 @@ class Query(graphene.ObjectType):
         :param kwargs:
         :return:
         """
-        return user_service.get_users(searched_id, search)
+        return user_service.get_users(info=info)
 
 
 class CreateUser(graphene.Mutation):
@@ -87,26 +87,7 @@ class CreateUser(graphene.Mutation):
         :param lastname:
         :return:
         """
-        validate_role(role)
-        user = ExtendedUser(
-            username=username,
-            email=email,
-            role=role,
-            address=address,
-            lastname=lastname,
-            firstname=firstname,
-            image=image,
-        )
-        user.set_password(password)
-        user.save()
-        if user.is_user():
-            cart_list = GoodsList(title="cart", user=user)
-            cart_list.save()
-            liked = GoodsList(title="liked", user=user)
-            liked.save()
-        if user.is_seller():
-            goods_to_sell = GoodsList(title="goods to sell", user=user)
-            goods_to_sell.save()
+        user = user_service.create_user(info)
         return CreateUser(
             id=user.id,
             username=user.username,
