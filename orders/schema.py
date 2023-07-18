@@ -76,20 +76,16 @@ class UpdateOrder(graphene.Mutation):
     payment_status = graphene.String()
 
     class Arguments:
-        order_id = graphene.Int()
+        order_id = graphene.Int(required=True)
         delivery_address = graphene.String()
 
-    #@permission(roles=[Admin])
-    def mutate(self, info,
-               order_id,
-               delivery_address=None):
+    @grant_authorization
+    @permission(roles=[Admin])
+    def mutate(self, info, **kwargs):
         """
         TODO add docs
 
         :param info:
-        :param order_id:
-        :param delivery_address:
-        :return:
         """
         order = order_service.update_order(info)
 
@@ -111,6 +107,7 @@ class DeleteOrder(graphene.Mutation):
     class Arguments:
         order_id = graphene.Int(required=True)
 
+    @grant_authorization
     @permission(roles=[Admin])
     def mutate(self, info, order_id):
         """
