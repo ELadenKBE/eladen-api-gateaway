@@ -4,7 +4,6 @@ from app.authorization import grant_authorization
 from orders.order_service import OrderType, OrderService
 from app.permissions import permission, Admin, User
 from goods.schema import GoodType
-from .repository import OrdersRepository
 
 order_service = OrderService()
 
@@ -117,7 +116,7 @@ class DeleteOrder(graphene.Mutation):
         :param order_id:
         :return:
         """
-        OrdersRepository.delete_item(info=info, searched_id=order_id)
+        order_service.delete_order(info)
         return DeleteOrder(
             id=order_id
         )

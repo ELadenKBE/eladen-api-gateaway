@@ -323,6 +323,17 @@ mutation {
   }
 }
 
+mutation {
+  updateOrder(orderId:2, deliveryAddress : "updated_18.07") {
+    id
+    timeOfOrder
+    deliveryAddress
+    itemsPrice
+    deliveryPrice
+    userId
+  }
+}
+
 ## Introspections
 ### Show all mutations
 
