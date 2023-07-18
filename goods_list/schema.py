@@ -1,5 +1,6 @@
 import graphene
 
+from app.authorization import grant_authorization
 from app.permissions import permission, Admin, Seller, User
 from app.product_service import ProductService, GoodsListTransferType
 from category.schema import CategoryType
@@ -15,6 +16,7 @@ class Query(graphene.ObjectType):
                                 search=graphene.String(),
                                 searched_id=graphene.Int())
 
+    @grant_authorization
     @permission(roles=[Admin, Seller, User])
     def resolve_goods_lists(self, info, **kwargs):
         """
@@ -24,6 +26,8 @@ class Query(graphene.ObjectType):
         :param kwargs:
         :return:
         """
+
+        # TODO Cannot query field 'user' on type 'GoodsListType'. Did you mean 'userId'?",
         result = product_service.get_good_lists(info=info)
         return result
 
@@ -36,6 +40,7 @@ class CreateGoodsList(graphene.Mutation):
     class Arguments:
         title = graphene.String()
 
+    @grant_authorization
     @permission(roles=[Admin, Seller, User])
     def mutate(self, info, title):
         """
@@ -64,6 +69,7 @@ class AddGoodToCart(graphene.Mutation):
 
     class Arguments:
         good_id = graphene.Int()
+
 
     @permission(roles=[Admin, User])
     def mutate(self, info, good_id):
