@@ -4,9 +4,11 @@ import graphene
 from django.db.models import Q
 from graphene_django import DjangoObjectType
 
+from app.authorization import grant_authorization
 from app.permissions import permission, Admin, All, Seller, User, Anon
 from goods_list.models import GoodsList
 from users.models import ExtendedUser
+from users.user_service import UserService
 
 
 class UserType(DjangoObjectType):
@@ -14,11 +16,15 @@ class UserType(DjangoObjectType):
         model = ExtendedUser
 
 
+user_service = UserService()
+
+
 class Query(graphene.ObjectType):
     users = graphene.List(UserType,
                           search=graphene.String(),
                           searched_id=graphene.Int())
 
+    @grant_authorization
     def resolve_users(self, info, searched_id=None, search=None, **kwargs):
         """
         TODO add docs
@@ -29,12 +35,7 @@ class Query(graphene.ObjectType):
         :param kwargs:
         :return:
         """
-        if search:
-            search_filter = (Q(username__icontains=search))
-            return [ExtendedUser.objects.filter(search_filter).first()]
-        if searched_id:
-            return [ExtendedUser.objects.filter(id=searched_id).first()]
-        return ExtendedUser.objects.all()
+        return user_service.get_users(searched_id, search)
 
 
 class CreateUser(graphene.Mutation):
@@ -59,6 +60,7 @@ class CreateUser(graphene.Mutation):
         image = graphene.String()
         sub = graphene.String(required=True)
 
+    @grant_authorization
     @permission(roles=[Admin, Anon])
     def mutate(self,
                info,
@@ -93,7 +95,7 @@ class CreateUser(graphene.Mutation):
             address=address,
             lastname=lastname,
             firstname=firstname,
-            image=image
+            image=image,
         )
         user.set_password(password)
         user.save()

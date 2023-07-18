@@ -44,3 +44,28 @@ class UserService(BaseService):
             raise ResponseError('User not found')
         user = ExtendedUser(**user_in_dict)
         return user
+
+    def get_users(self, searched_id=None, search=None):
+        """
+
+        :return:
+        """
+        self.verify_connection()
+        if searched_id:
+            template = """query{{ users(searchedId: {0} )
+            {{ id username email role address firstName lastName }} }}"""
+            query = template.format(searched_id)
+        elif search:
+            template = """query{{ users(search: "{0}")
+            {{ id username email role address firstName lastName }} }}"""
+            query = template.format(search)
+        else:
+            query = """query{ users
+        { id username email role address firstName lastName } }"""
+        response = requests.post(self.url, data={'query': query})
+        users_in_dict = response.json().get('data', {}).get('users')
+        if users_in_dict is None:
+            raise ResponseError('User not found')
+        response_users = [ExtendedUser(**user_dict)
+                          for user_dict in users_in_dict]
+        return response_users
