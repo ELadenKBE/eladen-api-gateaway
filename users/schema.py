@@ -95,15 +95,11 @@ class UpdateUser(graphene.Mutation):
         lastname = graphene.String()
         image = graphene.String()
 
+    @grant_authorization
     @permission(roles=[Admin, Seller, User])
     def mutate(self,
                info,
-               user_id,
-               email=None,
-               image=None,
-               address=None,
-               firstname=None,
-               lastname=None):
+               **kwargs):
         """
         TODO add docs
 
@@ -116,21 +112,15 @@ class UpdateUser(graphene.Mutation):
         :param lastname:
         :return:
         """
-        user: ExtendedUser = ExtendedUser.objects.filter(id=user_id).first()
-        user.update_with_permissions(info,
-                                     email,
-                                     address,
-                                     firstname,
-                                     lastname,
-                                     image)
+        user: ExtendedUser = user_service.update_user(info)
         return UpdateUser(
             id=user.id,
             username=user.username,
             email=user.email,
             role=user.role,
             address=user.address,
-            firstname=user.firstname,
-            lastname=user.lastname,
+            firstname=user.firstName,
+            lastname=user.lastName,
             image=user.image
         )
 

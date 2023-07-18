@@ -65,3 +65,15 @@ class UserService(BaseService):
                                                  entity_name='createUser')
         return ExtendedUser(**created_item_in_dict)
 
+    def update_user(self, info):
+        self.verify_connection()
+        updated_item: dict = self._get_data(entity_name='updateUser',
+                                            info=info)
+        if updated_item['firstname']:
+            updated_item['firstName'] = updated_item['firstname']
+            del updated_item['firstname']
+        if updated_item['lastname']:
+            updated_item['lastName'] = updated_item['lastname']
+            del updated_item['lastname']
+        return ExtendedUser(**updated_item)
+
