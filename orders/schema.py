@@ -41,15 +41,13 @@ class CreateOrder(graphene.Mutation):
         time_of_order = graphene.String()
         delivery_address = graphene.String()
 
- #   @permission(roles=[Admin, User])
+    @grant_authorization
+    @permission(roles=[Admin, User])
     def mutate(self, info, **kwargs):
         """
         TODO finish docs
 
         :param info:
-        :param time_of_order:
-        :param delivery_address:
-        :param goods_ids:
         :return:
         """
         order = order_service.create_order(info)

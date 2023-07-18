@@ -9,10 +9,8 @@ Optional variables:
 
 ### Authorisation
 
-mutation { tokenAuth(username:"tim",password:"12345"){ token } }
-
 {
-  "AUTHORIZATION": "JWT <token>"
+  "AUTHORIZATION": "sub <token>"
 }
 
 
@@ -144,10 +142,7 @@ query{
     deliveryPrice
     deliveryStatus
     paymentStatus
-    user{
-      id
-      username
-    }
+    userId
     goods{
       id
       title
@@ -164,11 +159,7 @@ query{
     deliveryPrice
     deliveryStatus
     paymentStatus
-    user{
-      id
-      username
-    }
-    
+    userId
   }
 }
 
@@ -328,9 +319,7 @@ mutation {
     deliveryAddress
     itemsPrice
     deliveryPrice
-    user {
-      id
-    }
+    userId
   }
 }
 
