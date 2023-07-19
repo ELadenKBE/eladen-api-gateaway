@@ -161,7 +161,14 @@ class ProductService(BaseService):
             .replace('\\n', ' ') \
             .replace('\\t', ' ')
         pattern = r'user\s*{\s*[^}]*\s*}'
-        user_query = re.search(pattern, input_query)
+        user_query = re.search(pattern, input_query).group()
         pattern = r'{([^}]*)}'
         matches = re.findall(pattern, user_query)
+        user_query_template = """query{{ users(searchedId: {0}){{ {1} }} }}"""
+        user_queries = [user_query_template.format(elem["userId"],
+                                                   ''.join(matches)
+                                                   ) for elem in items_list]
+        with_user = [self._get_data(entity_name='users',
+                                    info=info,
+                                    query=query) for query in user_queries]
         pass

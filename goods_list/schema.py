@@ -70,10 +70,9 @@ class AddGoodToCart(graphene.Mutation):
     class Arguments:
         good_id = graphene.Int()
 
-
     @permission(roles=[Admin, User])
     def mutate(self, info, good_id):
-        good = GoodType.product_service.add_good_to_cart(info)
+        good = product_service.add_good_to_cart(info)
         return AddGoodToCart(
             id=good.id,
             title=good.title,
