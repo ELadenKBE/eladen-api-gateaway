@@ -73,6 +73,7 @@ class AddGoodToCart(graphene.Mutation):
     class Arguments:
         good_id = graphene.Int()
 
+    @grant_authorization
     @permission(roles=[Admin, User])
     def mutate(self, info, good_id):
         good = product_service.add_good_to_cart(info)
@@ -94,6 +95,7 @@ class CleanGoodsList(graphene.Mutation):
     class Arguments:
         list_id = graphene.Int()
 
+    @grant_authorization
     @permission(roles=[Admin, User, Seller])
     def mutate(self, info, list_id):
 
@@ -113,6 +115,7 @@ class UpdateGoodsList(graphene.Mutation):
         list_id = graphene.Int()
         title = graphene.String()
 
+    @grant_authorization
     @permission(roles=[Admin, Seller, User])
     def mutate(self, info, list_id, title):
         """
@@ -138,6 +141,7 @@ class DeleteGoodsList(graphene.Mutation):
     class Arguments:
         list_id = graphene.Int(required=True)
 
+    @grant_authorization
     @permission(roles=[Admin, Seller, User])
     def mutate(self, info, list_id):
         """
