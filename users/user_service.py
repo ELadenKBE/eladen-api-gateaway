@@ -1,9 +1,13 @@
+import re
+
+import graphene
 import requests
 from decouple import config
 from graphene_django import DjangoObjectType
 
 from app.base_service import BaseService
 from app.errors import ResponseError
+from goods.models import Good
 from users.models import ExtendedUser
 
 
@@ -55,7 +59,7 @@ class UserService(BaseService):
         items_list_dict = self._get_data(entity_name='users', info=info)
         if items_list_dict is None:
             raise ResponseError('User not found')
-        if len(items_list_dict) is 0:
+        if len(items_list_dict) == 0:
             response_users = [ExtendedUser(**user_dict)
                               for user_dict in items_list_dict]
         else:
@@ -83,3 +87,83 @@ class UserService(BaseService):
     def delete_user(self, info):
         self._get_data(info=info, entity_name='deleteUser')
 
+    def add_user_to_good_lists(self, info, items_list):
+        input_query = info.context.body.decode('utf-8') \
+            .replace('\\n', ' ') \
+            .replace('\\t', ' ')
+        pattern = r'user\s*{\s*[^}]*\s*}'
+        if 'user' not in items_list[0]:
+            return [create_goods_list_filler(**good_list) for good_list in
+                    items_list]
+        user_query = re.search(pattern, input_query).group()
+        pattern = r'{([^}]*)}'
+        matches = re.findall(pattern, user_query)
+        user_query_template = """query{{ users(searchedId: {0}){{ {1} }} }}"""
+        user_queries = [user_query_template.format(elem["userId"],
+                                                   ''.join(matches)
+                                                   ) for elem in items_list]
+        users_dict = [self._get_data(entity_name='users',
+                               info=info,
+                               query=query) for query in user_queries]
+        for goods_list_dict in items_list:
+            user_id = goods_list_dict['userId']
+            goods_list_dict.pop('userId')
+            user_dict_final = None
+            for user_dict in users_dict:
+                if user_dict[0] is not None\
+                        and int(user_dict[0]['id']) == user_id:
+                    user_dict_final = user_dict[0]
+                    break
+            if user_dict_final is None:
+                goods_list_dict['users'] = {'id': 0, 'username': 'deleted'}
+            else:
+                goods_list_dict['users'] = user_dict_final
+        # users = []
+        # for user_dict in users_dict:
+        #     if user_dict[0] is not None:
+        #         users.append(ExtendedUser(**user_dict[0]))
+        # add users
+
+        return [create_goods_list_filler(**good_list) for good_list in items_list]
+
+
+class GoodType(DjangoObjectType):
+
+    class Meta:
+        model = Good
+
+
+class GoodsListTransferType(graphene.ObjectType):
+    id = graphene.Int()
+    title = graphene.String()
+    user = graphene.Field(UserType)
+    goods = graphene.List(GoodType)
+
+    def __init__(self, id=None, title=None, user=None, goods=None):
+        self.id = id
+        self.title = title
+        self.user = user
+        self.goods = goods
+
+def create_goods_list_filler(**params) -> GoodsListTransferType:
+    user_dict = None
+    goods_dict = None
+    if 'users' in params:
+        user_dict = params['users']
+        del params['users']
+    if 'goods' in params:
+        goods_dict = params['goods']
+        del params['goods']
+    if user_dict is not None and goods_dict is not None:
+        goods = [Good(**param) for param in goods_dict]
+        goods_list = GoodsListTransferType(**params,
+                                           user=ExtendedUser(**user_dict),
+                                           goods=goods)
+        return goods_list
+    if user_dict is not None and goods_dict is None:
+        goods_list = GoodsListTransferType(**params,
+                                           user=ExtendedUser(**user_dict))
+        return goods_list
+    else:
+        type_object = GoodsListTransferType(**params)
+        return type_object

@@ -4,11 +4,12 @@ from app.authorization import grant_authorization
 from app.permissions import permission, Admin, Seller, User
 from app.product_service import ProductService, GoodsListTransferType
 from category.schema import CategoryType
-from goods.schema import GoodType
 from users.schema import UserType
+from users.user_service import UserService
 from .models import GoodsList
 
 product_service = ProductService()
+user_service = UserService()
 
 
 class Query(graphene.ObjectType):
@@ -21,6 +22,7 @@ class Query(graphene.ObjectType):
     def resolve_goods_lists(self, info, **kwargs):
         """
         TODO write docstring
+        TODO create another abstract layer for services
 
         :param info: request context
         :param kwargs:
@@ -28,8 +30,9 @@ class Query(graphene.ObjectType):
         """
 
         # TODO Cannot query field 'user' on type 'GoodsListType'. Did you mean 'userId'?",
-        result = product_service.get_good_lists(info=info)
-        return result
+        good_lists: list[dict] = product_service.get_good_lists(info=info)
+        filled_good_lists = user_service.add_user_to_good_lists(info, good_lists)
+        return filled_good_lists
 
 
 class CreateGoodsList(graphene.Mutation):
