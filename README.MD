@@ -2,17 +2,16 @@
 
 First, you have to create .enc file and define following variables:
 
-SECRET_KEY=
-
-Optional variables:
-<br>DEBUG=
+SECRET_KEY=<br />
+DEBUG=<br />
+PRODUCT_SERVICE_URL=<br />
+ORDER_SERVICE_URL=<br />
+USER_SERVICE_URL=<br />
 
 ### Authorisation
 
-mutation { tokenAuth(username:"tim",password:"12345"){ token } }
-
 {
-  "AUTHORIZATION": "JWT <token>"
+  "AUTHORIZATION": "sub <token>"
 }
 
 
@@ -144,10 +143,7 @@ query{
     deliveryPrice
     deliveryStatus
     paymentStatus
-    user{
-      id
-      username
-    }
+    userId
     goods{
       id
       title
@@ -164,11 +160,7 @@ query{
     deliveryPrice
     deliveryStatus
     paymentStatus
-    user{
-      id
-      username
-    }
-    
+    userId
   }
 }
 
@@ -176,11 +168,16 @@ query{
 
 ### Users
 
-mutation{
-  createUser(username: "tim_user", email: "testemail@gmail.com", password: "12345", role:1){
-      id
-    	username
-  		email
+mutation {
+  createUser(
+    username: "tim_user_test_3"
+    email: "testemail@gmail.com"
+    role: 1,
+    sub:"asdasdad"
+  ) {
+    id
+    username
+    email
   }
 }
 
@@ -220,38 +217,21 @@ mutation{
   }
 }
 
-mutation{
-  changeCategory(goodId:1, categoryId:1){
-    id
-    	title
-      description
-      address
-      url
-      price
-      category{
-        id
-        title
-      }
-      seller{
-        id
-        username
-        email
-      }
-      
-  }
-}
+
 
 ### Goods
-mutation{
+mutation {
   createGood(
-    title:"new good. test",
-    description:"some uninterestin description",
-    address:"nowhere 1, 12345",
-    categoryId:1,
+    title: "new good. test. newnwenwe"
+    description: "some uninterestin description"
+    address: "nowhere 1, 12345"
+    categoryId: 1
     price: 123.12
-    manufacturer:"asd"
-  ){
-		title
+    manufacturer: "asd"
+    url: "www.ware.com/test"
+  ) {
+    id
+    title
   }
 }
 
@@ -274,6 +254,33 @@ mutation {
     category{
       id
     }
+  }
+}
+
+mutation{
+  changeCategory(goodId:1, categoryId:1){
+    id
+    	title
+      description
+      address
+      url
+      price
+      category{
+        id
+        title
+      }
+      seller{
+        id
+        username
+        email
+      }
+      
+  }
+}
+
+mutation{
+  deleteGood(id:1){
+  id
   }
 }
 
@@ -328,9 +335,18 @@ mutation {
     deliveryAddress
     itemsPrice
     deliveryPrice
-    user {
-      id
-    }
+    userId
+  }
+}
+
+mutation {
+  updateOrder(orderId:2, deliveryAddress : "updated_18.07") {
+    id
+    timeOfOrder
+    deliveryAddress
+    itemsPrice
+    deliveryPrice
+    userId
   }
 }
 

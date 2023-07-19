@@ -1,5 +1,6 @@
 import graphene
 
+from app.authorization import grant_authorization
 from app.permissions import permission, All, Seller, Admin
 from app.product_service import ProductService, GoodType
 from category.schema import CategoryType
@@ -14,6 +15,7 @@ class Query(graphene.ObjectType):
                           search=graphene.String(),
                           )
 
+    @grant_authorization
     @permission(roles=[All])
     def resolve_goods(self, info, **kwargs):
         """
@@ -49,6 +51,7 @@ class CreateGood(graphene.Mutation):
         amount = graphene.Int()
         url = graphene.String()
 
+    @grant_authorization
     @permission(roles=[Admin, Seller])
     def mutate(self, info, **kwargs):
         """
@@ -97,6 +100,7 @@ class UpdateGood(graphene.Mutation):
         amount = graphene.Int()
         url = graphene.String()
 
+    @grant_authorization
     @permission(roles=[Admin, Seller])
     def mutate(self, info, **kwargs):
         """
@@ -106,7 +110,7 @@ class UpdateGood(graphene.Mutation):
         :return:
         """
         # TODO should implement not found?
-
+        # TODO url not null??
         good = product_service.update_good(info=info)
 
         return UpdateGood(
@@ -140,6 +144,7 @@ class ChangeCategory(graphene.Mutation):
         category_id = graphene.Int()
         good_id = graphene.Int()
 
+    @grant_authorization
     @permission(roles=[Admin, Seller])
     def mutate(self, info, category_id, good_id):
         """
@@ -172,6 +177,7 @@ class DeleteGood(graphene.Mutation):
     class Arguments:
         id = graphene.Int(required=True)
 
+    @grant_authorization
     @permission(roles=[Admin, Seller])
     def mutate(self, info, id):
         """

@@ -1,13 +1,15 @@
 import graphene
 
+from app.authorization import grant_authorization
 from app.permissions import permission, Admin, Seller, User
 from app.product_service import ProductService, GoodsListTransferType
 from category.schema import CategoryType
-from goods.schema import GoodType
 from users.schema import UserType
+from users.user_service import UserService
 from .models import GoodsList
 
 product_service = ProductService()
+user_service = UserService()
 
 
 class Query(graphene.ObjectType):
@@ -15,17 +17,22 @@ class Query(graphene.ObjectType):
                                 search=graphene.String(),
                                 searched_id=graphene.Int())
 
+    @grant_authorization
     @permission(roles=[Admin, Seller, User])
     def resolve_goods_lists(self, info, **kwargs):
         """
         TODO write docstring
+        TODO create another abstract layer for services
 
         :param info: request context
         :param kwargs:
         :return:
         """
-        result = product_service.get_good_lists(info=info)
-        return result
+
+        # TODO Cannot query field 'user' on type 'GoodsListType'. Did you mean 'userId'?",
+        good_lists: list[dict] = product_service.get_good_lists(info=info)
+        filled_good_lists = user_service.add_user_to_good_lists(info, good_lists)
+        return filled_good_lists
 
 
 class CreateGoodsList(graphene.Mutation):
@@ -36,6 +43,7 @@ class CreateGoodsList(graphene.Mutation):
     class Arguments:
         title = graphene.String()
 
+    @grant_authorization
     @permission(roles=[Admin, Seller, User])
     def mutate(self, info, title):
         """
@@ -65,9 +73,10 @@ class AddGoodToCart(graphene.Mutation):
     class Arguments:
         good_id = graphene.Int()
 
+    @grant_authorization
     @permission(roles=[Admin, User])
     def mutate(self, info, good_id):
-        good = GoodType.product_service.add_good_to_cart(info)
+        good = product_service.add_good_to_cart(info)
         return AddGoodToCart(
             id=good.id,
             title=good.title,
@@ -86,6 +95,7 @@ class CleanGoodsList(graphene.Mutation):
     class Arguments:
         list_id = graphene.Int()
 
+    @grant_authorization
     @permission(roles=[Admin, User, Seller])
     def mutate(self, info, list_id):
 
@@ -105,6 +115,7 @@ class UpdateGoodsList(graphene.Mutation):
         list_id = graphene.Int()
         title = graphene.String()
 
+    @grant_authorization
     @permission(roles=[Admin, Seller, User])
     def mutate(self, info, list_id, title):
         """
@@ -130,6 +141,7 @@ class DeleteGoodsList(graphene.Mutation):
     class Arguments:
         list_id = graphene.Int(required=True)
 
+    @grant_authorization
     @permission(roles=[Admin, Seller, User])
     def mutate(self, info, list_id):
         """

@@ -1,10 +1,9 @@
 import graphene
 
-from app.order_service import OrderType, OrderService
+from app.authorization import grant_authorization
+from orders.order_service import OrderType, OrderService
 from app.permissions import permission, Admin, User
 from goods.schema import GoodType
-from users.schema import UserType
-from .repository import OrdersRepository
 
 order_service = OrderService()
 
@@ -12,7 +11,8 @@ order_service = OrderService()
 class Query(graphene.ObjectType):
     orders = graphene.List(OrderType, searched_id=graphene.Int())
 
-#    @permission(roles=[Admin, User])
+    @grant_authorization
+    @permission(roles=[Admin, User])
     def resolve_orders(self, info, **kwargs):
         """
         TODO add docstring
@@ -40,15 +40,13 @@ class CreateOrder(graphene.Mutation):
         time_of_order = graphene.String()
         delivery_address = graphene.String()
 
- #   @permission(roles=[Admin, User])
+    @grant_authorization
+    @permission(roles=[Admin, User])
     def mutate(self, info, **kwargs):
         """
         TODO finish docs
 
         :param info:
-        :param time_of_order:
-        :param delivery_address:
-        :param goods_ids:
         :return:
         """
         order = order_service.create_order(info)
@@ -77,20 +75,16 @@ class UpdateOrder(graphene.Mutation):
     payment_status = graphene.String()
 
     class Arguments:
-        order_id = graphene.Int()
+        order_id = graphene.Int(required=True)
         delivery_address = graphene.String()
 
-    #@permission(roles=[Admin])
-    def mutate(self, info,
-               order_id,
-               delivery_address=None):
+    @grant_authorization
+    @permission(roles=[Admin])
+    def mutate(self, info, **kwargs):
         """
         TODO add docs
 
         :param info:
-        :param order_id:
-        :param delivery_address:
-        :return:
         """
         order = order_service.update_order(info)
 
@@ -112,6 +106,7 @@ class DeleteOrder(graphene.Mutation):
     class Arguments:
         order_id = graphene.Int(required=True)
 
+    @grant_authorization
     @permission(roles=[Admin])
     def mutate(self, info, order_id):
         """
@@ -121,7 +116,7 @@ class DeleteOrder(graphene.Mutation):
         :param order_id:
         :return:
         """
-        OrdersRepository.delete_item(info=info, searched_id=order_id)
+        order_service.delete_order(info)
         return DeleteOrder(
             id=order_id
         )

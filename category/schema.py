@@ -1,5 +1,6 @@
 import graphene
 
+from app.authorization import grant_authorization
 from app.permissions import permission, Admin, All
 from app.product_service import ProductService, CategoryType
 
@@ -12,6 +13,7 @@ class Query(graphene.ObjectType):
                                searched_id=graphene.String(),
                                )
 
+    @grant_authorization
     @permission(roles=[All])
     def resolve_categories(self, info, **kwargs):
         """
@@ -30,6 +32,7 @@ class CreateCategory(graphene.Mutation):
     class Arguments:
         title = graphene.String()
 
+    @grant_authorization
     @permission(roles=[Admin])
     def mutate(self, info, title):
         """
@@ -55,8 +58,9 @@ class UpdateCategory(graphene.Mutation):
         id = graphene.Int(required=True)
         title = graphene.String()
 
+    @grant_authorization
     @permission(roles=[Admin])
-    def mutate(self, info, id, title):
+    def mutate(self, info, **kwargs):
         """
         TODO add docs
 
@@ -80,6 +84,7 @@ class DeleteCategory(graphene.Mutation):
     class Arguments:
         id = graphene.Int(required=True)
 
+    @grant_authorization
     @permission(roles=[Admin])
     def mutate(self, info, id):
         """

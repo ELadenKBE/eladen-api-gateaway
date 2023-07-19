@@ -97,3 +97,6 @@ class OrderService(BaseService):
     def update_order(self, info):
         updated_item = self._get_data(entity_name='updateOrder', info=info)
         return self._create_order_filler(**updated_item)
+
+    def delete_order(self, info):
+        self._get_data(entity_name='deleteOrder', info=info)

@@ -3,7 +3,7 @@ import json
 import requests
 from graphql import GraphQLResolveInfo
 
-from app.errors import ResponseError, ValidationError
+from app.errors import ResponseError, ValidationError, UnauthorizedError
 from category.models import Category
 from goods.models import Good
 from users.models import ExtendedUser
@@ -39,11 +39,13 @@ def create_good_filler(**params):
 
 
 class BaseService:
-
     url = None
     service_name = None
 
-    def _verify_connection(self):
+    def verify_connection(self):
+        if self.url is None:
+            raise ResponseError(f"{self.service_name}"
+                                f" Url is not specified")
         try:
             introspection_query = {
                 "query": """
@@ -67,20 +69,26 @@ class BaseService:
             raise ResponseError(f"{self.service_name} Service is not answering"
                                 )
 
-    def _request(self, info: GraphQLResolveInfo):
-        cleaned = info.context.body.decode('utf-8') \
-            .replace('\\n', ' ') \
-            .replace('\\t', ' ')
-        query = json.loads(cleaned)['query']
-        response = requests.post(self.url, data={'query': query})
+    def _request(self, auth_header: dict, query: str):
+        response = requests.post(self.url,
+                                 data={'query': query},
+                                 headers=auth_header)
         self._validate_errors(response)
         return response
 
-    def _get_data(self, entity_name: str, info: GraphQLResolveInfo):
-        self._verify_connection()
-        response = self._request(info=info)
+    def _get_data(self,
+                  entity_name: str,
+                  info: GraphQLResolveInfo,
+                  query=None):
+        if query is None:
+            query = self._clean_query(info)
+        self.verify_connection()
+        auth_param = self._get_auth_header(info)
+        response = self._request(auth_header={"AUTHORIZATION": auth_param},
+                                 query=query)
         data = response.json().get('data', {})
-        return data.get(entity_name, [])
+        response_dict = data.get(entity_name, [])
+        return response_dict
 
     @staticmethod
     def _validate_errors(response):
@@ -91,6 +99,26 @@ class BaseService:
             raise ValidationError(cleaned_json[0]['message'])
 
     def _create_item(self, entity_name: str, info: GraphQLResolveInfo):
-        self._verify_connection()
+        self.verify_connection()
         item = self._get_data(info=info, entity_name=entity_name)
         return item
+
+    @staticmethod
+    def _get_auth_header(info: GraphQLResolveInfo):
+        try:
+            auth_header: str = info.context.headers['AUTHORIZATION']
+        except KeyError as key_error:
+            raise UnauthorizedError('authorization error: AUTHORIZATION header'
+                                    ' is not specified')
+        except ResponseError as response_error:
+            raise UnauthorizedError('authorization error: ',
+                                    response_error.args[0])
+        return auth_header
+
+    @staticmethod
+    def _clean_query(info: GraphQLResolveInfo):
+        cleaned = info.context.body.decode('utf-8') \
+            .replace('\\n', ' ') \
+            .replace('\\t', ' ')
+        query = json.loads(cleaned)['query']
+        return query
