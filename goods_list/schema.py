@@ -29,7 +29,6 @@ class Query(graphene.ObjectType):
         :return:
         """
 
-        # TODO Cannot query field 'user' on type 'GoodsListType'. Did you mean 'userId'?",
         good_lists: list[dict] = product_service.get_good_lists(info=info)
         filled_good_lists = user_service.add_user_to_good_lists(info, good_lists)
         return filled_good_lists

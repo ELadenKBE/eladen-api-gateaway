@@ -118,11 +118,6 @@ class UserService(BaseService):
                 goods_list_dict['users'] = {'id': 0, 'username': 'deleted'}
             else:
                 goods_list_dict['users'] = user_dict_final
-        # users = []
-        # for user_dict in users_dict:
-        #     if user_dict[0] is not None:
-        #         users.append(ExtendedUser(**user_dict[0]))
-        # add users
 
         return [create_goods_list_filler(**good_list) for good_list in items_list]
 
@@ -160,9 +155,14 @@ def create_goods_list_filler(**params) -> GoodsListTransferType:
                                            user=ExtendedUser(**user_dict),
                                            goods=goods)
         return goods_list
-    if user_dict is not None and goods_dict is None:
+    elif user_dict is not None and goods_dict is None:
         goods_list = GoodsListTransferType(**params,
                                            user=ExtendedUser(**user_dict))
+        return goods_list
+    elif user_dict is None and goods_dict is not None:
+        goods = [Good(**param) for param in goods_dict]
+        goods_list = GoodsListTransferType(**params,
+                                           goods=goods)
         return goods_list
     else:
         type_object = GoodsListTransferType(**params)
