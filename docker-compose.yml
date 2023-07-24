@@ -9,4 +9,10 @@ services:
       - "8000:8000"
     volumes:
       - .:/code
-    command: python manage.py runserver 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:${PORT}
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=${True}
+      - PRODUCT_SERVICE_URL=${http://127.0.0.1:8082/graphql/}
+      - ORDER_SERVICE_URL=${http://127.0.0.1:8083/graphql/}
+      - USER_SERVICE_URL=${http://127.0.0.1:8081/graphql/}

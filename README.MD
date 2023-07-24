@@ -7,6 +7,7 @@ DEBUG=<br />
 PRODUCT_SERVICE_URL=<br />
 ORDER_SERVICE_URL=<br />
 USER_SERVICE_URL=<br />
+PORT=<br />
 
 ### Authorisation
 
