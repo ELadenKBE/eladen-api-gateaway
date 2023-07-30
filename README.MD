@@ -7,6 +7,10 @@ DEBUG=<br />
 PRODUCT_SERVICE_URL=<br />
 ORDER_SERVICE_URL=<br />
 USER_SERVICE_URL=<br />
+PORT=<br />
+<br />
+to compose the docker container:<br />
+docker-compose -p eladen_gateway up<br />
 
 ### Authorisation
 

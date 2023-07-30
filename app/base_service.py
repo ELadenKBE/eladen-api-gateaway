@@ -64,10 +64,12 @@ class BaseService:
                 pass
             else:
                 raise ResponseError(f"{self.service_name}"
-                                    f" Service is not answering")
+                                    f" Service is not answering: request sent"
+                                    f" to {self.url}")
         except requests.exceptions.RequestException:
-            raise ResponseError(f"{self.service_name} Service is not answering"
-                                )
+            raise ResponseError(f"{self.service_name}"
+                                    f" Service is not answering: request sent"
+                                    f" to {self.url}")
 
     def _request(self, auth_header: dict, query: str):
         response = requests.post(self.url,
