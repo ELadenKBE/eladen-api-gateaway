@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'graphene_django',
+    'corsheaders',
 
     'goods',
     'category',
@@ -54,7 +55,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'app.urls'
 
@@ -145,3 +149,8 @@ AUTHENTICATION_BACKENDS = [
 AUTH_USER_MODEL = 'users.ExtendedUser'
 
 APPEND_SLASH = False
+
+CORS_ALLOWED_ORIGINS = [
+    'http://127.0.0.1:5173',
+    # Add more allowed origins if needed
+]
