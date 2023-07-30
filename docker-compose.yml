@@ -8,10 +8,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "${PORT}:${PORT}"
-    networks:
-      - eladen_user_identity_default
-#      - eladen_orders_default
-#      - eladen_products_default
     volumes:
       - .:/code
     command: python manage.py runserver 0.0.0.0:${PORT}
@@ -23,10 +19,7 @@ services:
       - USER_SERVICE_URL=eladen_user_identity-user-identity-1:${USER_SERVICE_PORT}/graphql/
     container_name: eladen-gateway
 
-networks:
-  eladen_user_identity_default:
-    external: true
-#  eladen_orders_default:
+
 #    external: true
 #  eladen_products_default:
 #    external: true
