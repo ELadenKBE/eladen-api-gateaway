@@ -18,7 +18,8 @@ class UserType(DjangoObjectType):
 
 class UserService(BaseService):
 
-    url = config('USER_SERVICE_URL', default=None, cast=str)
+    url = config('USER_SERVICE_URL',
+                 default="http://user-identity:8081/graphql/", cast=str)
     service_name = 'User'
 
     def get_user(self, sub: str):
@@ -48,6 +49,38 @@ class UserService(BaseService):
         if user_in_dict is None:
             raise ResponseError('User not found')
         user = ExtendedUser(**user_in_dict)
+        return user
+
+    def get_user_by_id(self, user_id: str):
+        """
+        Get user by id.
+
+        :param user_id:
+        :return:
+        """
+        self.verify_connection()
+        query_template = """query{{
+                  users(searchedId: {0}){{
+                            id
+                            username
+                            email
+                            role
+                            address
+                            firstName
+                            lastName
+                            sub
+                      }}
+                }}"""
+
+        query = query_template.format(user_id)
+        response = requests.post(self.url, data={'query': query})
+        user_in_dict = response.json().get('data', {}).get('users')[0]
+        if user_in_dict is None:
+            user = ExtendedUser(id=0,
+                                username="userNotFound",
+                                email="userNotFound")
+        else:
+            user = ExtendedUser(**user_in_dict)
         return user
 
     def get_users(self, info):
@@ -93,8 +126,8 @@ class UserService(BaseService):
             .replace('\\t', ' ')
         pattern = r'user\s*{\s*[^}]*\s*}'
         if 'user' not in items_list[0]:
-            return [create_goods_list_filler(**good_list) for good_list in
-                    items_list]
+            return [create_goods_list_filler(user_service=self, **good_list)
+                    for good_list in items_list]
         user_query = re.search(pattern, input_query).group()
         pattern = r'{([^}]*)}'
         matches = re.findall(pattern, user_query)
@@ -140,26 +173,29 @@ class GoodsListTransferType(graphene.ObjectType):
         self.user = user
         self.goods = goods
 
-def create_goods_list_filler(**params) -> GoodsListTransferType:
-    user_dict = None
+
+def create_goods_list_filler(user_service: UserService =None,
+                             **params) -> GoodsListTransferType:
+    user = None
     goods_dict = None
-    if 'users' in params:
-        user_dict = params['users']
-        del params['users']
+    if 'userId' in params:
+        user_id = params['userId']
+        user = user_service.get_user_by_id(user_id=user_id)
+        del params['userId']
     if 'goods' in params:
         goods_dict = params['goods']
         del params['goods']
-    if user_dict is not None and goods_dict is not None:
+    if user is not None and goods_dict is not None:
         goods = [Good(**param) for param in goods_dict]
         goods_list = GoodsListTransferType(**params,
-                                           user=ExtendedUser(**user_dict),
+                                           user=user,
                                            goods=goods)
         return goods_list
-    elif user_dict is not None and goods_dict is None:
+    elif user is not None and goods_dict is None:
         goods_list = GoodsListTransferType(**params,
-                                           user=ExtendedUser(**user_dict))
+                                           user=user)
         return goods_list
-    elif user_dict is None and goods_dict is not None:
+    elif user is None and goods_dict is not None:
         goods = [Good(**param) for param in goods_dict]
         goods_list = GoodsListTransferType(**params,
                                            goods=goods)

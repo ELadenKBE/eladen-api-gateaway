@@ -30,7 +30,8 @@ class Query(graphene.ObjectType):
         """
 
         good_lists: list[dict] = product_service.get_good_lists(info=info)
-        filled_good_lists = user_service.add_user_to_good_lists(info, good_lists)
+        filled_good_lists = user_service.add_user_to_good_lists(info,
+                                                                good_lists)
         return filled_good_lists
 
 
