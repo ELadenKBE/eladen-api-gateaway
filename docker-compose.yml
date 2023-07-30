@@ -2,11 +2,24 @@ version: "3"
 
 services:
   web:
+    image: eladen-gateway
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "${PORT}:${PORT}"
     volumes:
       - .:/code
-    command: python manage.py runserver 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:${PORT}
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=${DEBUG}
+      - PRODUCT_SERVICE_URL=${PRODUCT_SERVICE_URL}
+      - ORDER_SERVICE_URL=${ORDER_SERVICE_URL}
+      - USER_SERVICE_URL=eladen_user_identity-user-identity-1:${USER_SERVICE_PORT}/graphql/
+    container_name: eladen-gateway
+
+
+#    external: true
+#  eladen_products_default:
+#    external: true

@@ -54,7 +54,9 @@ class OrderType(graphene.ObjectType):
 
 class OrderService(BaseService):
 
-    url = config('ORDER_SERVICE_URL', default=False, cast=str)
+    # url = config('ORDER_SERVICE_URL',
+    #              default="http://order-service:8083/graphql/", cast=str)
+    url = "http://order-service:8083/graphql/"
     service_name = 'Order'
 
     @staticmethod
