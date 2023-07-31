@@ -36,9 +36,9 @@ class Query(graphene.ObjectType):
 
 class CreateUser(graphene.Mutation):
     id = graphene.Int()
-    username = graphene.String()
-    email = graphene.String()
-    role = graphene.Int()
+    username = graphene.String(required=True)
+    email = graphene.String(required=True)
+    role = graphene.Int(required=True)
     address = graphene.String()
     firstname = graphene.String()
     lastname = graphene.String()
@@ -46,14 +46,14 @@ class CreateUser(graphene.Mutation):
     sub = graphene.String()
 
     class Arguments:
-        username = graphene.String()
-        email = graphene.String()
-        role = graphene.Int()
+        username = graphene.String(required=True)
+        email = graphene.String(required=True)
+        role = graphene.Int(required=True)
         address = graphene.String()
         firstname = graphene.String()
         lastname = graphene.String()
         image = graphene.String()
-        sub = graphene.String()
+        sub = graphene.String(required=True)
 
 #    @grant_authorization
  #   @permission(roles=[Admin, User, Seller])
