@@ -71,10 +71,14 @@ class BaseService:
                                     f" Service is not answering: request sent"
                                     f" to {self.url}")
 
-    def _request(self, auth_header: dict, query: str):
-        response = requests.post(self.url,
-                                 data={'query': query},
-                                 headers=auth_header)
+    def _request(self,  query: str, auth_header: dict = None,):
+        if auth_header is None:
+            response = requests.post(self.url,
+                                     data={'query': query})
+        else:
+            response = requests.post(self.url,
+                                     data={'query': query},
+                                     headers=auth_header)
         self._validate_errors(response)
         return response
 
@@ -85,9 +89,12 @@ class BaseService:
         if query is None:
             query = self._clean_query(info)
         self.verify_connection()
-        auth_param = self._get_auth_header(info)
-        response = self._request(auth_header={"AUTHORIZATION": auth_param},
-                                 query=query)
+        try:
+            auth_param = self._get_auth_header(info)
+            response = self._request(auth_header={"AUTHORIZATION": auth_param},
+                                     query=query)
+        except UnauthorizedError:
+            response = self._request(query=query)
         data = response.json().get('data', {})
         response_dict = data.get(entity_name, [])
         return response_dict
