@@ -55,8 +55,8 @@ class CreateUser(graphene.Mutation):
         image = graphene.String()
         sub = graphene.String(required=True)
 
-    @grant_authorization
-    @permission(roles=[Admin, User, Seller])
+#    @grant_authorization
+ #   @permission(roles=[Admin, User, Seller])
     def mutate(self, info, **kwargs):
         """
         TODO add docs
