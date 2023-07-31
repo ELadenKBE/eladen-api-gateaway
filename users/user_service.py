@@ -18,7 +18,7 @@ class UserType(DjangoObjectType):
 
 class UserService(BaseService):
 
-    #url = config('USER_SERVICE_URL',
+    # url = config('USER_SERVICE_URL',
     #            default="http://user-identity:8081/graphql/", cast=str)
     url = "http://user-identity:8081/graphql/"
     service_name = 'User'
@@ -100,10 +100,17 @@ class UserService(BaseService):
             response_users = []
         return response_users
 
+    def modify_keys(self, data):
+        if 'lastname' in data:
+            data['lastName'] = data.pop('lastname')
+        if 'firstname' in data:
+            data['firstName'] = data.pop('firstname')
+        return data
     def create_user(self, info):
         self.verify_connection()
         created_item_in_dict = self._create_item(info=info,
                                                  entity_name='createUser')
+        created_item_in_dict = self.modify_keys(created_item_in_dict)
         return ExtendedUser(**created_item_in_dict)
 
     def update_user(self, info):
