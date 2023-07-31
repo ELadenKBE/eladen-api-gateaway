@@ -18,10 +18,15 @@ class UserType(DjangoObjectType):
 
 class UserService(BaseService):
 
-    # url = config('USER_SERVICE_URL',
-    #            default="http://user-identity:8081/graphql/", cast=str)
-    url = "http://user-identity:8081/graphql/"
-    service_name = 'User'
+    def __init__(self):
+        local_mode = config('LOCAL_MODE', default=False, cast=bool)
+        if local_mode:
+            self.url = config('USER_SERVICE_URL',
+                              default="http://user-identity:8081/graphql/",
+                              cast=str)
+        else:
+            self.url = "http://user-identity:8081/graphql/"
+        self.service_name = 'User'
 
     def get_user(self, sub: str):
         """
@@ -93,7 +98,7 @@ class UserService(BaseService):
         items_list_dict = self._get_data(entity_name='users', info=info)
         if items_list_dict is None:
             raise ResponseError('User not found')
-        if len(items_list_dict) == 0:
+        if len(items_list_dict) != 0:
             response_users = [ExtendedUser(**user_dict)
                               for user_dict in items_list_dict]
         else:
