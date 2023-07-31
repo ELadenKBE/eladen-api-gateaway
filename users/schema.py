@@ -37,7 +37,7 @@ class Query(graphene.ObjectType):
 class CreateUser(graphene.Mutation):
     id = graphene.Int()
     username = graphene.String(required=True)
-    email = graphene.String(required=True)
+    email = graphene.String()
     role = graphene.Int(required=True)
     address = graphene.String()
     firstname = graphene.String()
@@ -47,7 +47,7 @@ class CreateUser(graphene.Mutation):
 
     class Arguments:
         username = graphene.String(required=True)
-        email = graphene.String(required=True)
+        email = graphene.String()
         role = graphene.Int(required=True)
         address = graphene.String()
         firstname = graphene.String()
