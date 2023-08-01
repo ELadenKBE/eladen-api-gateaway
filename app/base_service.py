@@ -1,4 +1,5 @@
 import json
+import re
 
 import requests
 from graphql import GraphQLResolveInfo
@@ -36,6 +37,24 @@ def create_good_filler(**params):
         )
     else:
         return Good(**params)
+
+
+def build_mutation_string(operation, operation_name, variables, params):
+    # Build the variables part of the mutation string
+    variables_string = ', '.join([f"{key}: \"{value}\"" if isinstance(value, str) else f"{key}: {value}" for key, value in variables.items()])
+    mutation_string = f" {operation} {{ {operation_name}({variables_string}) " \
+                      f"{{{ params } }}}}"
+
+    return mutation_string
+
+
+def extract_content_in_brackets(input_string):
+    pattern = r"\{(.*?)\}"
+    matches = re.findall(pattern, input_string)
+
+    if matches:
+        result = matches[0].strip().split("{")[1]
+    return result
 
 
 class BaseService:
@@ -129,5 +148,18 @@ class BaseService:
         cleaned = info.context.body.decode('utf-8') \
             .replace('\\n', ' ') \
             .replace('\\t', ' ')
-        query = json.loads(cleaned)['query']
+        json_cleaned = json.loads(cleaned)
+        query = json_cleaned['query']
+        try:
+            variables = json_cleaned['variables']
+            operation_name = json_cleaned['operationName'][0].lower() +\
+                             json_cleaned['operationName'].split()[0][1:]
+            mutation_name = query.split()[0]
+            params = extract_content_in_brackets(query)
+            query = build_mutation_string(params=params,
+                                          variables=variables,
+                                          operation_name=operation_name,
+                                          operation=mutation_name)
+        except KeyError:
+            pass
         return query
