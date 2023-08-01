@@ -15,7 +15,6 @@ class Query(graphene.ObjectType):
                           search=graphene.String(),
                           )
 
-    @grant_authorization
     @permission(roles=[All])
     def resolve_goods(self, info, **kwargs):
         """
