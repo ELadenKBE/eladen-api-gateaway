@@ -80,7 +80,7 @@ class ProductService(BaseService):
                   default="http://product-service:8082/graphql/", cast=str)
         else:
             self.url = "http://product-service:8082/graphql/"
-        self.service_name = 'User'
+        self.service_name = 'Product'
 
     def get_categories(self, info: GraphQLResolveInfo = None):
         items_list = self._get_data(entity_name='categories', info=info)
